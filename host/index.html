@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>LiveShop · Consola del vendedor</title>
+<meta name="description" content="Consola del vendedor de LiveShop: transmisión en vivo, catálogo en tiempo real, chats 1-a-1 y envío de links de pago.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎥</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F9F6F0;
+  --bg-soft:#F2EDE4;
+  --card:#FFFFFF;
+  --ink:#1A1916;
+  --ink-soft:#5A5750;
+  --ink-faint:#8B887F;
+  --line:#E2DDD2;
+  --amber:#B8862A;
+  --amber-l:#D4A84B;
+  --amber-soft:#F5EAD4;
+  --green:#1E7E5A;
+  --green-soft:#DDF0E7;
+  --red:#C0392B;
+  --red-soft:#F9E2DF;
+  --radius:10px;
+  --shadow:0 1px 3px rgba(26,25,22,.06), 0 4px 14px rgba(26,25,22,.05);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;display:flex;flex-direction:column;
+}
+button,input,select,textarea{font-family:inherit}
+
+/* ─── Topbar ─── */
+.topbar{
+  background:var(--ink);color:#F9F6F0;
+  padding:.85rem 1.25rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;
+  position:sticky;top:0;z-index:50;
+}
+.topbar .brand{display:flex;align-items:center;gap:.6rem;font-weight:600;font-size:1rem}
+.topbar .brand .logo{
+  width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,var(--amber-l),var(--amber));font-size:1.05rem;
+}
+.topbar .brand small{display:block;font-weight:400;font-size:.68rem;color:#bdb8ab;letter-spacing:.08em;text-transform:uppercase}
+.topbar .spacer{flex:1}
+.conn{display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:#bdb8ab}
+.conn .dot{width:8px;height:8px;border-radius:50%;background:#ffb02e;transition:background .3s}
+.conn.online .dot{background:#27c282}
+.conn.offline .dot{background:#f15c6d}
+.top-btn{
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#F9F6F0;
+  font-size:.75rem;padding:.45rem .8rem;border-radius:8px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:.4rem;transition:background .15s;
+}
+.top-btn:hover{background:rgba(255,255,255,.16)}
+.top-link{color:var(--amber-l);font-size:.75rem;text-decoration:none;border-bottom:1px solid transparent}
+.top-link:hover{border-color:var(--amber-l)}
+
+/* ─── Tabs ─── */
+.tabs{
+  display:flex;gap:.25rem;padding:.75rem 1.25rem 0;background:var(--bg-soft);
+  border-bottom:1px solid var(--line);overflow-x:auto;
+}
+.tab{
+  background:none;border:none;border-bottom:2px solid transparent;
+  padding:.6rem 1rem .7rem;font-size:.85rem;color:var(--ink-soft);cursor:pointer;
+  white-space:nowrap;display:inline-flex;align-items:center;gap:.45rem;
+  transition:color .15s,border-color .15s;
+}
+.tab:hover{color:var(--ink)}
+.tab.active{color:var(--amber);border-bottom-color:var(--amber);font-weight:600}
+.tab .badge{
+  background:var(--red);color:#fff;font-size:.62rem;font-weight:700;
+  min-width:18px;height:18px;border-radius:9px;display:none;
+  align-items:center;justify-content:center;padding:0 .3rem;
+}
+.tab .badge.show{display:inline-flex}
+
+main{flex:1;padding:1.25rem;max-width:1280px;width:100%;margin:0 auto}
+.view{display:none}
+.view.active{display:block}
+h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin:.25rem 0 .75rem;font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.state-box{
+  background:var(--card);border:1px dashed var(--line);border-radius:var(--radius);
+  padding:2.25rem 1rem;text-align:center;color:var(--ink-faint);font-size:.85rem;
+}
+
+/* ─── KPIs ─── */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.75rem;margin-bottom:1.25rem}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow)}
+.kpi .lbl{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+.kpi .val{font-size:1.7rem;font-weight:700;margin-top:.3rem;line-height:1}
+.kpi .sub{font-size:.72rem;color:var(--ink-faint);margin-top:.2rem}
+
+/* ─── Transmisión ─── */
+.stream-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:1rem}
+.preview{
+  background:#000;border-radius:var(--radius);overflow:hidden;position:relative;aspect-ratio:16/9;
+  border:1px solid var(--line);
+}
+.preview video{width:100%;height:100%;object-fit:cover;display:block;transform:scaleX(-1)}
+.preview .off{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:.5rem;color:#9A958A;text-align:center;padding:1rem;
+  background:radial-gradient(circle at 50% 40%, #2A2620 0%, #131110 70%);
+}
+.preview .off .em{font-size:2.4rem}
+.preview .off .t{font-size:.85rem;font-weight:600;color:#F0EDE6}
+.preview .off .s{font-size:.74rem;max-width:36ch;line-height:1.5}
+.on-air{
+  position:absolute;top:.7rem;left:.7rem;background:#E23744;color:#fff;
+  font-size:.66rem;font-weight:700;letter-spacing:.1em;padding:.25rem .55rem;border-radius:4px;
+  display:none;align-items:center;gap:.35rem;
+}
+.on-air.show{display:inline-flex}
+.on-air .pulse{width:6px;height:6px;border-radius:50%;background:#fff;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+.panel{padding:1rem;display:flex;flex-direction:column;gap:.9rem}
+.field{display:flex;flex-direction:column;gap:.3rem}
+.field label{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+.field input,.field select{
+  border:1px solid var(--line);border-radius:8px;padding:.55rem .7rem;font-size:.88rem;
+  background:var(--bg);color:var(--ink);outline:none;width:100%;
+}
+.field input:focus,.field select:focus{border-color:var(--amber)}
+.btn{
+  border:none;border-radius:8px;padding:.65rem 1rem;font-size:.85rem;font-weight:600;
+  cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:.45rem;
+  transition:filter .15s,background .15s;
+}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--amber);color:#fff}
+.btn-primary:hover:not(:disabled){filter:brightness(1.08)}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover:not(:disabled){filter:brightness(1.08)}
+.btn-ghost{background:var(--bg-soft);color:var(--ink-soft);border:1px solid var(--line)}
+.btn-ghost:hover:not(:disabled){background:var(--line)}
+.btn-sm{padding:.35rem .6rem;font-size:.74rem;border-radius:6px}
+.share{
+  display:flex;gap:.4rem;align-items:center;background:var(--bg-soft);
+  border:1px solid var(--line);border-radius:8px;padding:.4rem .4rem .4rem .7rem;
+}
+.share code{
+  flex:1;min-width:0;font-size:.72rem;color:var(--ink-soft);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:ui-monospace,monospace;
+}
+.hint{font-size:.72rem;color:var(--ink-faint);line-height:1.5}
+.warn{
+  background:var(--red-soft);border:1px solid #EFC9C3;color:#8C2A1F;
+  border-radius:8px;padding:.6rem .75rem;font-size:.76rem;line-height:1.5;
+}
+
+/* ─── Catálogo ─── */
+.cat-grid{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:1rem;align-items:start}
+.prod-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem}
+.pcard{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow);
+}
+.pcard.featured{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber)}
+.pcard .thumb{
+  aspect-ratio:16/10;background:var(--bg-soft);display:flex;align-items:center;justify-content:center;
+  font-size:2.2rem;position:relative;
+}
+.pcard .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.pcard .flag{
+  position:absolute;top:.4rem;left:.4rem;background:var(--amber);color:#fff;
+  font-size:.58rem;font-weight:700;letter-spacing:.08em;padding:.15rem .4rem;border-radius:3px;
+}
+.pcard .meta{padding:.7rem .75rem;display:flex;flex-direction:column;gap:.25rem;flex:1}
+.pcard .n{font-size:.85rem;font-weight:600;line-height:1.3}
+.pcard .p{font-size:.95rem;font-weight:700;color:var(--amber)}
+.pcard .s{font-size:.72rem;color:var(--ink-faint)}
+.pcard .acts{display:flex;gap:.35rem;padding:0 .75rem .75rem;flex-wrap:wrap}
+.emoji-row{display:flex;flex-wrap:wrap;gap:.3rem}
+.emoji-row button{
+  border:1px solid var(--line);background:var(--card);border-radius:7px;
+  width:34px;height:34px;font-size:1.05rem;cursor:pointer;line-height:1;
+}
+.emoji-row button.sel{border-color:var(--amber);background:var(--amber-soft)}
+
+/* ─── Chats ─── */
+.chat-grid{display:grid;grid-template-columns:minmax(0,270px) minmax(0,1fr);gap:1rem;align-items:start}
+.buyer-list{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);max-height:560px;overflow-y:auto;
+}
+.buyer{
+  padding:.7rem .85rem;border-bottom:1px solid var(--line);cursor:pointer;
+  display:flex;align-items:center;gap:.6rem;transition:background .15s;
+}
+.buyer:last-child{border-bottom:none}
+.buyer:hover{background:var(--bg-soft)}
+.buyer.active{background:var(--amber-soft)}
+.buyer .av{
+  width:34px;height:34px;border-radius:50%;flex-shrink:0;font-size:.78rem;font-weight:700;color:#fff;
+  background:linear-gradient(135deg,#00a884,#005c4b);display:flex;align-items:center;justify-content:center;
+}
+.buyer .bi{flex:1;min-width:0}
+.buyer .bn{font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.buyer .bl{font-size:.72rem;color:var(--ink-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.buyer .bu{
+  background:var(--red);color:#fff;font-size:.62rem;font-weight:700;border-radius:9px;
+  min-width:18px;height:18px;display:none;align-items:center;justify-content:center;padding:0 .3rem;
+}
+.buyer .bu.show{display:inline-flex}
+.buyer .off-dot{width:7px;height:7px;border-radius:50%;background:var(--ink-faint);flex-shrink:0}
+.buyer .off-dot.on{background:#27c282}
+
+.conv{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  display:flex;flex-direction:column;height:560px;overflow:hidden;box-shadow:var(--shadow);
+}
+.conv-hdr{
+  padding:.7rem .9rem;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:.6rem;
+  background:var(--bg-soft);flex-wrap:wrap;
+}
+.conv-hdr .who{flex:1;min-width:0}
+.conv-hdr .wn{font-size:.88rem;font-weight:600}
+.conv-hdr .ws{font-size:.72rem;color:var(--ink-faint)}
+.conv-body{flex:1;overflow-y:auto;padding:1rem .8rem;display:flex;flex-direction:column;gap:.4rem;background:#F6F2EA}
+.msg{max-width:78%;padding:.45rem .65rem;border-radius:8px;font-size:.85rem;line-height:1.45;word-wrap:break-word}
+.msg.in{background:var(--card);border:1px solid var(--line);align-self:flex-start;border-top-left-radius:2px}
+.msg.out{background:var(--green-soft);border:1px solid #C5E4D6;align-self:flex-end;border-top-right-radius:2px}
+.msg .t{font-size:.62rem;color:var(--ink-faint);float:right;margin:.35rem 0 0 .5rem}
+.msg.sys{
+  align-self:center;background:var(--bg-soft);border:1px solid var(--line);color:var(--ink-faint);
+  font-size:.74rem;border-radius:99px;padding:.3rem .75rem;max-width:90%;text-align:center;
+}
+.msg.sys.ok{background:var(--green-soft);border-color:#C5E4D6;color:var(--green)}
+.msg.pay{
+  align-self:flex-end;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--green);
+  max-width:80%;display:flex;flex-direction:column;gap:.2rem;
+}
+.msg.pay .l{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+.msg.pay .a{font-size:1.05rem;font-weight:700;color:var(--green)}
+.msg.pay .r{font-size:.66rem;color:var(--ink-faint)}
+.msg.pay.paid{border-left-color:var(--amber);background:var(--green-soft)}
+.conv-input{display:flex;gap:.5rem;padding:.6rem .7rem;border-top:1px solid var(--line);background:var(--card)}
+.conv-input input{
+  flex:1;border:1px solid var(--line);border-radius:20px;padding:.55rem .9rem;
+  font-size:.86rem;background:var(--bg);outline:none;
+}
+.conv-input input:focus{border-color:var(--amber)}
+.conv-input button{width:38px;height:38px;border-radius:50%;border:none;background:var(--amber);color:#fff;cursor:pointer;flex-shrink:0}
+.conv-input button:disabled{opacity:.45;cursor:not-allowed}
+
+/* ─── Modal ─── */
+.modal-scrim{
+  position:fixed;inset:0;background:rgba(26,25,22,.5);z-index:80;
+  display:none;align-items:center;justify-content:center;padding:1rem;
+}
+.modal-scrim.open{display:flex}
+.modal{
+  background:var(--card);border-radius:14px;width:100%;max-width:380px;
+  padding:1.4rem;display:flex;flex-direction:column;gap:.9rem;box-shadow:0 20px 50px rgba(0,0,0,.25);
+}
+.modal h3{font-size:1.05rem;font-weight:700}
+.modal .row{display:flex;gap:.5rem}
+.modal .row .btn{flex:1}
+
+@media (max-width:1000px){
+  .stream-grid,.cat-grid,.chat-grid{grid-template-columns:1fr}
+  .conv{height:480px}
+}
+@media (max-width:520px){
+  main{padding:.85rem}
+  .topbar{padding:.7rem .85rem;gap:.6rem}
+  .tabs{padding:.6rem .85rem 0}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="logo" aria-hidden="true">🎥</span>
+    <span>LiveShop<small>Consola del vendedor</small></span>
+  </div>
+  <div class="spacer"></div>
+  <div class="conn" id="conn"><span class="dot"></span><span id="connText">conectando…</span></div>
+  <button class="top-btn" id="newRoomBtn" type="button" title="Generar una sala nueva">🔀 Nueva sala</button>
+  <a class="top-link" href="../" target="_blank" rel="noopener">Vista del comprador ↗</a>
+  <a class="top-link" href="/">← portfolio</a>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="Secciones de la consola">
+  <button class="tab active" data-view="stream" role="tab">🎥 Transmisión</button>
+  <button class="tab" data-view="catalog" role="tab">🛍️ Catálogo</button>
+  <button class="tab" data-view="chats" role="tab">💬 Chats <span class="badge" id="chatsBadge"></span></button>
+  <button class="tab" data-view="metrics" role="tab">📈 Métricas</button>
+</nav>
+
+<main>
+
+  <!-- ─────────── TRANSMISIÓN ─────────── -->
+  <section class="view active" id="view-stream">
+    <div class="kpis">
+      <div class="kpi"><div class="lbl">Espectadores</div><div class="val" id="kViewers">0</div><div class="sub">conectados ahora</div></div>
+      <div class="kpi"><div class="lbl">Chats abiertos</div><div class="val" id="kChats">0</div><div class="sub">compradores que escribieron</div></div>
+      <div class="kpi"><div class="lbl">Links enviados</div><div class="val" id="kLinks">0</div><div class="sub">links de pago</div></div>
+      <div class="kpi"><div class="lbl">Pagos</div><div class="val" id="kPaid">0</div><div class="sub">confirmados</div></div>
+    </div>
+
+    <h2 class="section">Transmisión</h2>
+    <div class="stream-grid">
+      <div class="preview">
+        <video id="localVideo" autoplay playsinline muted></video>
+        <div class="off" id="previewOff">
+          <div class="em">📷</div>
+          <div class="t">Cámara apagada</div>
+          <div class="s">Al iniciar la transmisión el navegador te va a pedir permiso de cámara y micrófono.</div>
+        </div>
+        <div class="on-air" id="onAir"><span class="pulse"></span>AL AIRE</div>
+      </div>
+
+      <div class="card panel">
+        <div class="field">
+          <label for="titleInput">Título del live</label>
+          <input id="titleInput" type="text" maxlength="60" placeholder="Ej: Liquidación de verano">
+        </div>
+        <div class="field">
+          <label for="shareUrl">Link para compartir con los compradores</label>
+          <div class="share">
+            <code id="shareUrl">—</code>
+            <button class="btn btn-ghost btn-sm" id="copyBtn" type="button">Copiar</button>
+          </div>
+          <div class="hint">Sala <b id="roomLbl">demo</b>. Quien abra este link entra directo a tu transmisión.</div>
+        </div>
+        <button class="btn btn-primary" id="goLiveBtn" type="button">🔴 Iniciar transmisión</button>
+        <button class="btn btn-danger" id="stopBtn" type="button" style="display:none">⏹ Terminar transmisión</button>
+        <div class="warn" id="rtcWarn" style="display:none"></div>
+        <div class="hint">
+          El video va punto a punto (WebRTC) con STUN público, sin servidor de medios. Tope de
+          <b id="maxLbl">6</b> espectadores simultáneos: cada uno consume subida de tu conexión.
+          Si algún comprador no logra conectar, ve un placeholder y el chat sigue funcionando.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── CATÁLOGO ─────────── -->
+  <section class="view" id="view-catalog">
+    <h2 class="section">Catálogo del live</h2>
+    <div class="cat-grid">
+      <form class="card panel" id="prodForm">
+        <div class="field">
+          <label for="pName">Producto</label>
+          <input id="pName" type="text" maxlength="50" placeholder="Campera de jean" required>
+        </div>
+        <div class="field">
+          <label for="pPrice">Precio (UYU)</label>
+          <input id="pPrice" type="number" min="0" step="1" placeholder="2490" required>
+        </div>
+        <div class="field">
+          <label for="pStock">Stock</label>
+          <input id="pStock" type="number" min="0" step="1" value="5" required>
+        </div>
+        <div class="field">
+          <label for="pImg">Imagen</label>
+          <div class="emoji-row" id="emojiRow"></div>
+          <input id="pImg" type="file" accept="image/*" style="margin-top:.4rem;font-size:.76rem">
+          <div class="hint">Opcional. La foto se reduce a 320 px antes de publicarse.</div>
+          <div class="warn" id="sizeWarn" style="display:none"></div>
+        </div>
+        <button class="btn btn-primary" type="submit" id="prodSubmit">Agregar producto</button>
+        <button class="btn btn-ghost" type="button" id="prodCancel" style="display:none">Cancelar edición</button>
+      </form>
+
+      <div>
+        <div class="prod-list" id="prodList"></div>
+        <div class="state-box" id="prodEmpty">Todavía no cargaste productos. Agregá el primero desde el formulario.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── CHATS ─────────── -->
+  <section class="view" id="view-chats">
+    <h2 class="section">Conversaciones</h2>
+    <div class="chat-grid">
+      <div class="buyer-list" id="buyerList"></div>
+      <div class="conv" id="conv">
+        <div class="conv-hdr">
+          <div class="who">
+            <div class="wn" id="convName">Ningún chat seleccionado</div>
+            <div class="ws" id="convStatus">Elegí un comprador de la lista</div>
+          </div>
+          <button class="btn btn-primary btn-sm" id="payBtn" type="button" disabled>💳 Enviar link de pago</button>
+        </div>
+        <div class="conv-body" id="convBody"></div>
+        <form class="conv-input" id="convForm" autocomplete="off">
+          <input id="convInput" type="text" maxlength="400" placeholder="Escribí un mensaje" aria-label="Mensaje" disabled>
+          <button type="submit" id="convSend" disabled aria-label="Enviar">➤</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── MÉTRICAS ─────────── -->
+  <section class="view" id="view-metrics">
+    <h2 class="section">Métricas de la sesión</h2>
+    <div class="kpis">
+      <div class="kpi"><div class="lbl">Espectadores pico</div><div class="val" id="mPeak">0</div><div class="sub">simultáneos</div></div>
+      <div class="kpi"><div class="lbl">Mensajes</div><div class="val" id="mMsgs">0</div><div class="sub">enviados + recibidos</div></div>
+      <div class="kpi"><div class="lbl">Links de pago</div><div class="val" id="mLinks">0</div><div class="sub">enviados</div></div>
+      <div class="kpi"><div class="lbl">Conversión</div><div class="val" id="mConv">—</div><div class="sub">pagos / links</div></div>
+      <div class="kpi"><div class="lbl">Facturado</div><div class="val" id="mTotal">$ 0</div><div class="sub">pagos confirmados</div></div>
+      <div class="kpi"><div class="lbl">Video P2P</div><div class="val" id="mRtc">0</div><div class="sub">conexiones establecidas</div></div>
+    </div>
+    <div class="state-box">
+      Las métricas son de esta sesión del navegador y se reinician al recargar. El demo no persiste datos.
+    </div>
+  </section>
+
+</main>
+
+<div class="modal-scrim" id="payScrim">
+  <form class="modal" id="payForm">
+    <h3>Enviar link de pago</h3>
+    <div class="field">
+      <label for="payConcept">Concepto</label>
+      <input id="payConcept" type="text" maxlength="60" required>
+    </div>
+    <div class="field">
+      <label for="payAmount">Monto (UYU)</label>
+      <input id="payAmount" type="number" min="1" step="1" required>
+    </div>
+    <div class="hint">Se envía al chat del comprador como una tarjeta con botón de pago. El checkout es simulado.</div>
+    <div class="row">
+      <button class="btn btn-ghost" type="button" id="payCancel">Cancelar</button>
+      <button class="btn btn-primary" type="submit">Enviar</button>
+    </div>
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+"use strict";
+
+/* ===================== configuracion ===================== */
+const SB_URL = "https://myebxfostbafuogfymqa.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZWJ4Zm9zdGJhZnVvZ2Z5bXFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MjAyMjAsImV4cCI6MjA5NTM5NjIyMH0.ZkIJvOa_bvRX3hlwKWyEuy3CI2hOxEYau2ojbCQacJY";
+
+/* Sin TURN, ~15-20% de las conexiones fallan (NAT simetrico, redes moviles).
+   Para hacerlo solido: pegar credenciales de un TURN en TURN_SERVERS. */
+const TURN_SERVERS = [];
+const ICE_SERVERS = [
+  {urls:"stun:stun.l.google.com:19302"},
+  {urls:"stun:stun1.l.google.com:19302"}
+].concat(TURN_SERVERS);
+
+const MAX_VIEWERS = 6;
+const EMOJIS = ["📦","👕","👖","👟","🧥","👜","⌚","💍","🕶️","🧢","💄","🧴","📱","🎧","☕","🍫","🌿","🕯️","🎁","🖼️"];
+
+const ROOM = (new URLSearchParams(location.search).get("live") || "demo")
+  .toLowerCase().replace(/[^a-z0-9-]/g,"").slice(0,24) || "demo";
+const HOST_ID = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2));
+
+/* ===================== analitica ===================== */
+const ANALYTICS = (function(){
+  const PAGE = "liveshop_host";
+  let sid = sessionStorage.getItem("liveshop_host_sid");
+  if (!sid){ sid = HOST_ID; sessionStorage.setItem("liveshop_host_sid", sid); }
+  const device = (window.matchMedia && matchMedia("(max-width:640px)").matches) ? "mobile" : "desktop";
+  const lang = (document.documentElement.lang || navigator.language || "es").slice(0,2);
+  function track(event_type, props){
+    try{
+      fetch(SB_URL + "/rest/v1/analytics_events", {
+        method:"POST", keepalive:true,
+        headers:{"Content-Type":"application/json","apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Prefer":"return=minimal"},
+        body:JSON.stringify({event_type:event_type, session_id:sid, page:PAGE, channel:"web", lang:lang,
+                             device:device, referrer:(document.referrer||"direct"), props:props||{}})
+      }).catch(function(){});
+    }catch(e){}
+  }
+  return {track:track};
+})();
+
+/* ===================== helpers ===================== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c =>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = n => "$ " + new Intl.NumberFormat("es-UY",{maximumFractionDigits:0}).format(Number(n)||0);
+const now = () => new Date().toLocaleTimeString("es-UY",{hour:"2-digit",minute:"2-digit"});
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2)).slice(0,8);
+const refCode = () => "LS-" + Math.random().toString(36).slice(2,8).toUpperCase();
+
+/* ===================== estado ===================== */
+let live = false;
+let localStream = null;
+let titulo = localStorage.getItem("liveshop_titulo") || "LiveShop";
+let productos = [];
+let destacado = null;
+let editingId = null;
+let selectedEmoji = EMOJIS[0];
+let pendingImg = null;
+
+const peers = new Map();   // peerId -> {pc, ice:[]}
+const buyers = new Map();  // peerId -> {nombre, online, msgs:[], unread, lastProduct}
+let activeBuyer = null;
+
+const metrics = {peak:0, msgs:0, links:0, paid:0, total:0, rtc:0};
+
+try{ productos = JSON.parse(localStorage.getItem("liveshop_catalog") || "[]") || []; }catch(e){ productos = []; }
+if (!Array.isArray(productos)) productos = [];
+
+/* ===================== realtime ===================== */
+const sb = window.supabase.createClient(SB_URL, SB_KEY, {realtime:{params:{eventsPerSecond:20}}});
+const channel = sb.channel("liveshop:" + ROOM, {
+  config:{ presence:{key:HOST_ID}, broadcast:{self:false} }
+});
+
+function send(event, payload){
+  return channel.send({type:"broadcast", event:event, payload:payload});
+}
+
+function setConn(kind, text){
+  $("conn").className = "conn" + (kind ? " " + kind : "");
+  $("connText").textContent = text;
+}
+
+function broadcastState(to){
+  const payload = {live:live, titulo:titulo, productos:productos, destacado:destacado};
+  if (to) payload.to = to;
+  send("state", payload);
+}
+
+function ensureBuyer(id, nombre){
+  if (!buyers.has(id)){
+    buyers.set(id, {nombre:nombre || "Comprador", online:true, msgs:[], unread:0, lastProduct:null});
+  } else if (nombre){
+    buyers.get(id).nombre = nombre;
+  }
+  return buyers.get(id);
+}
+
+channel
+  .on("broadcast", {event:"hello"}, ({payload}) => {
+    if (!payload || !payload.peerId) return;
+    const id = payload.peerId;
+    ensureBuyer(id, payload.nombre).online = true;
+    renderBuyers(); paintKpis();
+    broadcastState(id);
+    if (live) startPeer(id);
+  })
+  .on("broadcast", {event:"signal"}, ({payload}) => {
+    if (!payload || payload.to !== "host") return;
+    handleSignal(payload).catch(err => console.warn("[signal]", err));
+  })
+  .on("broadcast", {event:"chat"}, ({payload}) => {
+    if (!payload || payload.to !== "host" || !payload.from) return;
+    const id = payload.from;
+    const b = ensureBuyer(id, payload.nombre);
+    if (payload.producto) b.lastProduct = payload.producto;
+    b.msgs.push({dir:"in", kind:"text", text:payload.text, t:now()});
+    metrics.msgs++;
+    if (activeBuyer === id) renderConv(); else b.unread++;
+    renderBuyers(); paintBadges(); paintKpis();
+  })
+  .on("broadcast", {event:"paid"}, ({payload}) => {
+    if (!payload || !payload.peerId) return;
+    const b = buyers.get(payload.peerId);
+    if (!b) return;
+    const card = b.msgs.find(m => m.kind === "payment" && m.pago && m.pago.ref === payload.ref);
+    if (card && !card.pago.paid){
+      card.pago.paid = true;
+      metrics.paid++;
+      metrics.total += Number(card.pago.monto) || 0;
+    }
+    b.msgs.push({dir:"sys", kind:"system", ok:true, text:"Pago confirmado · ref " + payload.ref, t:now()});
+    if (activeBuyer === payload.peerId) renderConv();
+    renderBuyers(); paintKpis();
+    ANALYTICS.track("liveshop_paid", {room:ROOM, ref:payload.ref});
+  })
+  .on("presence", {event:"sync"}, () => {
+    const st = channel.presenceState();
+    const onlineIds = new Set();
+    let viewers = 0;
+    Object.entries(st).forEach(([key, arr]) => {
+      arr.forEach(p => {
+        if (p.role === "buyer"){ viewers++; onlineIds.add(key); }
+      });
+    });
+    onlineIds.forEach(id => ensureBuyer(id));
+    buyers.forEach((b, id) => {
+      const wasOnline = b.online;
+      b.online = onlineIds.has(id);
+      if (!b.online && wasOnline) dropPeer(id);
+    });
+    metrics.peak = Math.max(metrics.peak, viewers);
+    renderBuyers(); renderConv(); paintKpis();
+  })
+  .subscribe(async (status) => {
+    if (status === "SUBSCRIBED"){
+      setConn("online", "sala " + ROOM);
+      await channel.track({role:"host", at:Date.now()});
+      broadcastState();
+      ANALYTICS.track("liveshop_host_open", {room:ROOM});
+    } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT"){
+      setConn("offline", "sin conexión");
+    } else if (status === "CLOSED"){
+      setConn("", "reconectando…");
+    }
+  });
+
+/* ===================== WebRTC (emisor) ===================== */
+async function startPeer(peerId){
+  if (!localStream || peers.has(peerId)) return;
+  if (peers.size >= MAX_VIEWERS){
+    send("signal", {to:peerId, from:"host", kind:"full"});
+    return;
+  }
+  const pc = new RTCPeerConnection({iceServers:ICE_SERVERS});
+  peers.set(peerId, {pc:pc, ice:[]});
+  localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+  pc.onicecandidate = (e) => {
+    if (e.candidate) send("signal", {to:peerId, from:"host", kind:"ice", data:e.candidate.toJSON()});
+  };
+  pc.onconnectionstatechange = () => {
+    if (pc.connectionState === "connected"){ metrics.rtc++; paintKpis(); }
+    if (pc.connectionState === "failed" || pc.connectionState === "closed") dropPeer(peerId);
+  };
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+  send("signal", {to:peerId, from:"host", kind:"offer", data:{type:offer.type, sdp:offer.sdp}});
+}
+
+function dropPeer(peerId){
+  const p = peers.get(peerId);
+  if (!p) return;
+  try{ p.pc.close(); }catch(e){}
+  peers.delete(peerId);
+}
+
+async function handleSignal(msg){
+  const id = msg.from;
+  if (msg.kind === "answer"){
+    const p = peers.get(id);
+    if (!p) return;
+    await p.pc.setRemoteDescription(new RTCSessionDescription(msg.data));
+    for (const c of p.ice){ try{ await p.pc.addIceCandidate(c); }catch(e){} }
+    p.ice = [];
+  } else if (msg.kind === "ice"){
+    const p = peers.get(id);
+    if (!p) return;
+    const cand = new RTCIceCandidate(msg.data);
+    if (p.pc.remoteDescription){ try{ await p.pc.addIceCandidate(cand); }catch(e){} }
+    else p.ice.push(cand);
+  } else if (msg.kind === "leave"){
+    dropPeer(id);
+    const b = buyers.get(id);
+    if (b) b.online = false;
+    renderBuyers();
+  }
+}
+
+async function goLive(){
+  $("rtcWarn").style.display = "none";
+  try{
+    localStream = await navigator.mediaDevices.getUserMedia({
+      video:{width:{ideal:1280}, height:{ideal:720}}, audio:true
+    });
+  }catch(err){
+    $("rtcWarn").style.display = "block";
+    $("rtcWarn").textContent = "No se pudo acceder a la cámara: " + (err && err.name ? err.name : "error") +
+      ". Revisá los permisos del navegador. Fuera de localhost hace falta HTTPS.";
+    return;
+  }
+  live = true;
+  $("localVideo").srcObject = localStream;
+  $("previewOff").style.display = "none";
+  $("onAir").classList.add("show");
+  $("goLiveBtn").style.display = "none";
+  $("stopBtn").style.display = "inline-flex";
+  broadcastState();
+  buyers.forEach((b, id) => { if (b.online) startPeer(id); });
+  ANALYTICS.track("liveshop_go_live", {room:ROOM});
+}
+
+function stopLive(){
+  live = false;
+  peers.forEach((p, id) => { send("signal", {to:id, from:"host", kind:"bye"}); });
+  Array.from(peers.keys()).forEach(dropPeer);
+  if (localStream){ localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+  $("localVideo").srcObject = null;
+  $("previewOff").style.display = "flex";
+  $("onAir").classList.remove("show");
+  $("goLiveBtn").style.display = "inline-flex";
+  $("stopBtn").style.display = "none";
+  broadcastState();
+  ANALYTICS.track("liveshop_stop_live", {room:ROOM});
+}
+
+$("goLiveBtn").addEventListener("click", goLive);
+$("stopBtn").addEventListener("click", stopLive);
+
+/* ===================== catalogo ===================== */
+/* El broadcast de Supabase corta alrededor de los 256 KB. Las fotos van embebidas
+   como data URL en el state, asi que avisamos antes de que el catalogo deje de llegar. */
+const PAYLOAD_WARN = 150 * 1024;
+const PAYLOAD_MAX  = 240 * 1024;
+
+function saveCatalog(){
+  try{ localStorage.setItem("liveshop_catalog", JSON.stringify(productos)); }catch(e){}
+  checkPayload();
+  broadcastState();
+  renderProds();
+}
+
+function checkPayload(){
+  const size = new Blob([JSON.stringify(productos)]).size;
+  const warn = $("sizeWarn");
+  if (size > PAYLOAD_MAX){
+    warn.style.display = "block";
+    warn.textContent = "El catálogo pesa " + Math.round(size/1024) + " KB y supera el límite de envío. " +
+      "Los compradores no lo van a recibir: borrá alguna foto o usá emojis.";
+  } else if (size > PAYLOAD_WARN){
+    warn.style.display = "block";
+    warn.textContent = "El catálogo pesa " + Math.round(size/1024) + " KB. Cerca del límite de envío (~256 KB): " +
+      "evitá agregar más fotos.";
+  } else {
+    warn.style.display = "none";
+  }
+}
+
+function renderEmojis(){
+  $("emojiRow").innerHTML = EMOJIS.map(e =>
+    '<button type="button" data-e="' + e + '"' + (e === selectedEmoji ? ' class="sel"' : "") + '>' + e + '</button>'
+  ).join("");
+}
+$("emojiRow").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-e]");
+  if (!b) return;
+  selectedEmoji = b.dataset.e;
+  pendingImg = null;
+  $("pImg").value = "";
+  renderEmojis();
+});
+
+function shrink(file, max){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const scale = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * scale);
+      c.height = Math.round(img.height * scale);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      resolve(c.toDataURL("image/jpeg", 0.6));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("bad image")); };
+    img.src = url;
+  });
+}
+
+$("pImg").addEventListener("change", async (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file){ pendingImg = null; return; }
+  try{ pendingImg = await shrink(file, 320); }
+  catch(err){ pendingImg = null; $("pImg").value = ""; }
+});
+
+function resetForm(){
+  editingId = null;
+  pendingImg = null;
+  $("prodForm").reset();
+  $("pStock").value = 5;
+  $("prodSubmit").textContent = "Agregar producto";
+  $("prodCancel").style.display = "none";
+}
+
+$("prodForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const nombre = $("pName").value.trim();
+  if (!nombre) return;
+  const precio = Number($("pPrice").value) || 0;
+  const stock = Number($("pStock").value) || 0;
+  if (editingId){
+    const p = productos.find(x => x.id === editingId);
+    if (p){
+      p.nombre = nombre; p.precio = precio; p.stock = stock; p.emoji = selectedEmoji;
+      if (pendingImg) p.img = pendingImg;
+    }
+  } else {
+    productos.push({id:uid(), nombre:nombre, precio:precio, stock:stock, emoji:selectedEmoji, img:pendingImg});
+  }
+  resetForm();
+  saveCatalog();
+});
+
+$("prodCancel").addEventListener("click", resetForm);
+
+function renderProds(){
+  const list = $("prodList");
+  $("prodEmpty").style.display = productos.length ? "none" : "block";
+  list.innerHTML = productos.map(p => {
+    const feat = destacado === p.id;
+    const media = p.img ? '<img src="' + esc(p.img) + '" alt="">' : esc(p.emoji || "📦");
+    return '' +
+      '<article class="pcard' + (feat ? " featured" : "") + '">' +
+        '<div class="thumb">' + media + (feat ? '<span class="flag">AHORA</span>' : "") + '</div>' +
+        '<div class="meta">' +
+          '<div class="n">' + esc(p.nombre) + '</div>' +
+          '<div class="p">' + money(p.precio) + '</div>' +
+          '<div class="s">Stock: ' + Number(p.stock) + '</div>' +
+        '</div>' +
+        '<div class="acts">' +
+          '<button class="btn btn-ghost btn-sm" data-act="feat" data-id="' + esc(p.id) + '">' + (feat ? "Quitar foco" : "Destacar") + '</button>' +
+          '<button class="btn btn-ghost btn-sm" data-act="edit" data-id="' + esc(p.id) + '">Editar</button>' +
+          '<button class="btn btn-ghost btn-sm" data-act="del" data-id="' + esc(p.id) + '">Borrar</button>' +
+        '</div>' +
+      '</article>';
+  }).join("");
+}
+
+$("prodList").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-act]");
+  if (!b) return;
+  const id = b.dataset.id;
+  const p = productos.find(x => x.id === id);
+  if (!p) return;
+  if (b.dataset.act === "del"){
+    productos = productos.filter(x => x.id !== id);
+    if (destacado === id) destacado = null;
+    if (editingId === id) resetForm();
+    saveCatalog();
+  } else if (b.dataset.act === "feat"){
+    destacado = (destacado === id) ? null : id;
+    saveCatalog();
+  } else if (b.dataset.act === "edit"){
+    editingId = id;
+    $("pName").value = p.nombre;
+    $("pPrice").value = p.precio;
+    $("pStock").value = p.stock;
+    selectedEmoji = p.emoji || EMOJIS[0];
+    renderEmojis();
+    $("prodSubmit").textContent = "Guardar cambios";
+    $("prodCancel").style.display = "inline-flex";
+    $("pName").focus();
+  }
+});
+
+/* ===================== chats ===================== */
+function renderBuyers(){
+  const list = $("buyerList");
+  if (!buyers.size){
+    list.innerHTML = '<div class="state-box" style="border:none;box-shadow:none">Ningún comprador conectado todavía.</div>';
+    return;
+  }
+  list.innerHTML = Array.from(buyers.entries()).map(([id, b]) => {
+    const last = b.msgs.length ? b.msgs[b.msgs.length-1] : null;
+    const preview = last ? (last.kind === "payment" ? "💳 Link de pago enviado" : String(last.text || "")) : "sin mensajes";
+    return '' +
+      '<div class="buyer' + (activeBuyer === id ? " active" : "") + '" data-id="' + esc(id) + '">' +
+        '<div class="av">' + esc(b.nombre.slice(-2).toUpperCase()) + '</div>' +
+        '<div class="bi">' +
+          '<div class="bn">' + esc(b.nombre) + '</div>' +
+          '<div class="bl">' + esc(preview) + '</div>' +
+        '</div>' +
+        '<span class="off-dot' + (b.online ? " on" : "") + '" title="' + (b.online ? "en línea" : "desconectado") + '"></span>' +
+        '<span class="bu' + (b.unread ? " show" : "") + '">' + b.unread + '</span>' +
+      '</div>';
+  }).join("");
+}
+
+$("buyerList").addEventListener("click", (e) => {
+  const el = e.target.closest(".buyer[data-id]");
+  if (!el) return;
+  activeBuyer = el.dataset.id;
+  const b = buyers.get(activeBuyer);
+  if (b) b.unread = 0;
+  renderBuyers(); renderConv(); paintBadges();
+});
+
+function renderConv(){
+  const body = $("convBody");
+  const b = activeBuyer ? buyers.get(activeBuyer) : null;
+  if (!b){
+    $("convName").textContent = "Ningún chat seleccionado";
+    $("convStatus").textContent = "Elegí un comprador de la lista";
+    $("payBtn").disabled = true;
+    $("convInput").disabled = true;
+    $("convSend").disabled = true;
+    body.innerHTML = "";
+    return;
+  }
+  $("convName").textContent = b.nombre;
+  $("convStatus").textContent = (b.online ? "en línea" : "desconectado") +
+    (b.lastProduct ? " · consultó por " + b.lastProduct.nombre : "");
+  $("payBtn").disabled = false;
+  $("convInput").disabled = false;
+  $("convSend").disabled = !$("convInput").value.trim();
+  body.innerHTML = b.msgs.map(m => {
+    if (m.kind === "system"){
+      return '<div class="msg sys' + (m.ok ? " ok" : "") + '">' + esc(m.text) + '</div>';
+    }
+    if (m.kind === "payment"){
+      return '<div class="msg pay' + (m.pago.paid ? " paid" : "") + '">' +
+        '<div class="l">Link de pago' + (m.pago.paid ? " · pagado" : " · pendiente") + '</div>' +
+        '<div>' + esc(m.pago.concepto) + '</div>' +
+        '<div class="a">' + money(m.pago.monto) + '</div>' +
+        '<div class="r">Ref ' + esc(m.pago.ref) + ' · ' + esc(m.t) + '</div>' +
+      '</div>';
+    }
+    return '<div class="msg ' + (m.dir === "out" ? "out" : "in") + '">' +
+      esc(m.text) + '<span class="t">' + esc(m.t) + '</span></div>';
+  }).join("");
+  body.scrollTop = body.scrollHeight;
+}
+
+$("convInput").addEventListener("input", (e) => {
+  $("convSend").disabled = !e.target.value.trim() || !activeBuyer;
+});
+
+$("convForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const text = $("convInput").value.trim();
+  if (!text || !activeBuyer) return;
+  const b = buyers.get(activeBuyer);
+  if (!b) return;
+  send("chat", {to:activeBuyer, from:"host", kind:"text", text:text});
+  b.msgs.push({dir:"out", kind:"text", text:text, t:now()});
+  metrics.msgs++;
+  $("convInput").value = "";
+  $("convSend").disabled = true;
+  renderConv(); renderBuyers(); paintKpis();
+});
+
+/* ===================== link de pago ===================== */
+$("payBtn").addEventListener("click", () => {
+  if (!activeBuyer) return;
+  const b = buyers.get(activeBuyer);
+  const p = b && b.lastProduct;
+  $("payConcept").value = p ? p.nombre : (titulo || "Compra en el live");
+  $("payAmount").value = p ? p.precio : "";
+  $("payScrim").classList.add("open");
+  setTimeout(() => $("payAmount").focus(), 60);
+});
+$("payCancel").addEventListener("click", () => $("payScrim").classList.remove("open"));
+$("payScrim").addEventListener("click", (e) => { if (e.target === $("payScrim")) $("payScrim").classList.remove("open"); });
+
+$("payForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (!activeBuyer) return;
+  const b = buyers.get(activeBuyer);
+  if (!b) return;
+  const pago = {
+    ref: refCode(),
+    concepto: $("payConcept").value.trim() || "Compra en el live",
+    monto: Number($("payAmount").value) || 0,
+    paid: false
+  };
+  send("chat", {to:activeBuyer, from:"host", kind:"payment", text:"Link de pago", pago:pago});
+  b.msgs.push({dir:"out", kind:"payment", pago:pago, t:now()});
+  metrics.links++;
+  $("payScrim").classList.remove("open");
+  renderConv(); renderBuyers(); paintKpis();
+  ANALYTICS.track("liveshop_paylink_sent", {room:ROOM, monto:pago.monto});
+});
+
+/* ===================== KPIs / tabs ===================== */
+function paintKpis(){
+  let online = 0;
+  buyers.forEach(b => { if (b.online) online++; });
+  $("kViewers").textContent = online;
+  $("kChats").textContent = Array.from(buyers.values()).filter(b => b.msgs.length).length;
+  $("kLinks").textContent = metrics.links;
+  $("kPaid").textContent = metrics.paid;
+  $("mPeak").textContent = metrics.peak;
+  $("mMsgs").textContent = metrics.msgs;
+  $("mLinks").textContent = metrics.links;
+  $("mConv").textContent = metrics.links ? Math.round(metrics.paid / metrics.links * 100) + "%" : "—";
+  $("mTotal").textContent = money(metrics.total);
+  $("mRtc").textContent = metrics.rtc;
+}
+
+function paintBadges(){
+  let unread = 0;
+  buyers.forEach(b => unread += b.unread);
+  const badge = $("chatsBadge");
+  badge.textContent = unread;
+  badge.classList.toggle("show", unread > 0);
+}
+
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+    tab.classList.add("active");
+    $("view-" + tab.dataset.view).classList.add("active");
+  });
+});
+
+/* ===================== sala / titulo ===================== */
+const shareUrl = new URL("../?live=" + encodeURIComponent(ROOM), location.href).href;
+$("shareUrl").textContent = shareUrl;
+$("roomLbl").textContent = ROOM;
+$("maxLbl").textContent = MAX_VIEWERS;
+$("titleInput").value = titulo;
+
+$("copyBtn").addEventListener("click", async () => {
+  try{
+    await navigator.clipboard.writeText(shareUrl);
+    $("copyBtn").textContent = "¡Copiado!";
+  }catch(e){
+    $("copyBtn").textContent = "Copiá a mano";
+  }
+  setTimeout(() => { $("copyBtn").textContent = "Copiar"; }, 1800);
+});
+
+$("titleInput").addEventListener("input", (e) => {
+  titulo = e.target.value.trim() || "LiveShop";
+  try{ localStorage.setItem("liveshop_titulo", titulo); }catch(err){}
+  broadcastState();
+});
+
+$("newRoomBtn").addEventListener("click", () => {
+  location.search = "?live=" + Math.random().toString(36).slice(2,8);
+});
+
+window.addEventListener("beforeunload", () => {
+  if (live){ try{ peers.forEach((p, id) => send("signal", {to:id, from:"host", kind:"bye"})); }catch(e){} }
+});
+
+/* ===================== init ===================== */
+renderEmojis();
+renderProds();
+checkPayload();
+renderBuyers();
+renderConv();
+paintKpis();
+paintBadges();
+</script>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>LiveShop · Checkout simulado</title>
+<meta name="description" content="Checkout simulado de la demo LiveShop. No se procesa dinero real.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💳</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F9F6F0;
+  --bg-soft:#F2EDE4;
+  --card:#FFFFFF;
+  --ink:#1A1916;
+  --ink-soft:#5A5750;
+  --ink-faint:#8B887F;
+  --line:#E2DDD2;
+  --amber:#B8862A;
+  --green:#1E7E5A;
+  --green-soft:#DDF0E7;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;display:flex;flex-direction:column;
+}
+button{font-family:inherit}
+
+.sim-banner{
+  background:var(--ink);color:#F9F6F0;padding:.65rem 1rem;
+  font-size:.78rem;text-align:center;display:flex;
+  align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap;
+}
+.sim-banner b{color:#D4A84B;letter-spacing:.12em;text-transform:uppercase;font-size:.7rem}
+.sim-banner a{color:#D4A84B;text-decoration:none;border-bottom:1px solid transparent}
+.sim-banner a:hover{border-color:#D4A84B}
+
+.wrap{
+  flex:1;display:flex;align-items:center;justify-content:center;padding:1.5rem;
+  background:linear-gradient(180deg,var(--bg-soft) 0%, var(--bg) 100%);
+}
+.checkout{
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  width:100%;max-width:420px;padding:1.75rem;
+  box-shadow:0 8px 30px rgba(26,25,22,.08);
+  display:flex;flex-direction:column;gap:1.1rem;
+}
+.brand{display:flex;align-items:center;gap:.6rem}
+.brand .logo{
+  width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#D4A84B,#B8862A);font-size:1.15rem;
+}
+.brand .bn{font-weight:700;font-size:1rem;line-height:1.2;display:block}
+.brand .bs{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);display:block}
+
+.summary{
+  background:var(--bg-soft);border:1px solid var(--line);border-radius:10px;padding:1rem;
+  display:flex;flex-direction:column;gap:.5rem;
+}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;font-size:.84rem}
+.row .k{color:var(--ink-faint)}
+.row .v{font-weight:600;text-align:right;word-break:break-word}
+.total{border-top:1px solid var(--line);padding-top:.6rem;margin-top:.2rem}
+.total .k{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+.total .v{font-size:1.6rem;font-weight:700;color:var(--amber)}
+
+.btn{
+  border:none;border-radius:9px;padding:.85rem 1rem;font-size:.92rem;font-weight:600;
+  cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+  background:var(--green);color:#fff;transition:filter .15s;width:100%;
+}
+.btn:hover:not(:disabled){filter:brightness(1.1)}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.spinner{
+  width:15px;height:15px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;
+  border-radius:50%;animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.done{
+  background:var(--green-soft);border:1px solid #C5E4D6;border-radius:10px;
+  padding:1.25rem;text-align:center;display:flex;flex-direction:column;gap:.4rem;
+}
+.done .em{font-size:2.2rem;line-height:1}
+.done .t{font-weight:700;font-size:1.05rem;color:var(--green)}
+.done .s{font-size:.8rem;color:var(--ink-soft);line-height:1.5}
+
+.note{font-size:.72rem;color:var(--ink-faint);line-height:1.55;text-align:center;margin-top:1rem}
+.note a{color:var(--amber);text-decoration:none}
+.bad{
+  background:#F9E2DF;border:1px solid #EFC9C3;color:#8C2A1F;
+  border-radius:10px;padding:1rem;font-size:.82rem;line-height:1.5;
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<div class="sim-banner">
+  <b>Checkout simulado</b>
+  <span>Esta página no procesa dinero real ni pide datos de tarjeta. Es parte de una demo de portfolio.</span>
+  <a href="/liveshop/">← volver al live</a>
+</div>
+
+<main class="wrap">
+  <section class="checkout">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">💳</span>
+      <span>
+        <span class="bn">LiveShop Pay</span>
+        <span class="bs">Pago del live</span>
+      </span>
+    </div>
+    <div id="content"></div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+"use strict";
+
+const SB_URL = "https://myebxfostbafuogfymqa.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZWJ4Zm9zdGJhZnVvZ2Z5bXFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MjAyMjAsImV4cCI6MjA5NTM5NjIyMH0.ZkIJvOa_bvRX3hlwKWyEuy3CI2hOxEYau2ojbCQacJY";
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c =>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = n => "$ " + new Intl.NumberFormat("es-UY",{maximumFractionDigits:0}).format(Number(n)||0);
+
+const q = new URLSearchParams(location.search);
+const ORDER = {
+  ref: (q.get("ref") || "").slice(0,24),
+  monto: Number(q.get("monto")) || 0,
+  concepto: (q.get("concepto") || "").slice(0,80),
+  room: (q.get("room") || "").toLowerCase().replace(/[^a-z0-9-]/g,"").slice(0,24),
+  peer: (q.get("peer") || "").slice(0,64)
+};
+
+const content = $("content");
+
+if (!ORDER.ref || !ORDER.monto || !ORDER.peer || !ORDER.room){
+  content.innerHTML =
+    '<div class="bad">Link de pago inválido o incompleto. Volvé al live y pedile al vendedor que te lo reenvíe.</div>' +
+    '<p class="note"><a href="/liveshop/">Ir a LiveShop</a></p>';
+} else {
+  renderForm();
+}
+
+function renderForm(){
+  content.innerHTML =
+    '<div class="summary">' +
+      '<div class="row"><span class="k">Concepto</span><span class="v">' + esc(ORDER.concepto || "Compra en el live") + '</span></div>' +
+      '<div class="row"><span class="k">Referencia</span><span class="v">' + esc(ORDER.ref) + '</span></div>' +
+      '<div class="row"><span class="k">Sala</span><span class="v">' + esc(ORDER.room) + '</span></div>' +
+      '<div class="row total"><span class="k">Total</span><span class="v">' + money(ORDER.monto) + '</span></div>' +
+    '</div>' +
+    '<button class="btn" id="payNow" type="button">Pagar ' + money(ORDER.monto) + '</button>' +
+    '<p class="note">Al confirmar, el vendedor recibe el aviso en su chat al instante. ' +
+    'No se te piden datos de tarjeta porque no hay cobro real.</p>';
+  $("payNow").addEventListener("click", pay);
+}
+
+let paying = false;
+
+async function pay(){
+  if (paying) return;
+  paying = true;
+  const btn = $("payNow");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Procesando…';
+
+  await new Promise(r => setTimeout(r, 1500));
+
+  let notified = false;
+  try{
+    const sb = window.supabase.createClient(SB_URL, SB_KEY, {realtime:{params:{eventsPerSecond:10}}});
+    const ch = sb.channel("liveshop:" + ORDER.room, {config:{broadcast:{self:false}}});
+    await new Promise((resolve) => {
+      let settled = false;
+      const done = () => { if (!settled){ settled = true; resolve(); } };
+      setTimeout(done, 4000);
+      ch.subscribe(async (status) => {
+        if (status === "SUBSCRIBED"){
+          try{
+            await ch.send({type:"broadcast", event:"paid",
+                           payload:{peerId:ORDER.peer, ref:ORDER.ref, monto:ORDER.monto}});
+            notified = true;
+          }catch(e){}
+          setTimeout(done, 300);
+        } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT"){
+          done();
+        }
+      });
+    });
+  }catch(e){ /* el aviso local de abajo sigue funcionando */ }
+
+  /* avisa a la pestana del comprador abierta en este mismo navegador */
+  try{
+    localStorage.setItem("liveshop_paid", JSON.stringify({ref:ORDER.ref, monto:ORDER.monto, at:Date.now()}));
+  }catch(e){}
+
+  content.innerHTML =
+    '<div class="done">' +
+      '<div class="em">✅</div>' +
+      '<div class="t">Pago aprobado</div>' +
+      '<div class="s">' + money(ORDER.monto) + ' · ' + esc(ORDER.concepto || "Compra en el live") +
+        '<br>Ref ' + esc(ORDER.ref) + '</div>' +
+    '</div>' +
+    '<p class="note">' +
+      (notified
+        ? 'El vendedor ya vio la confirmación en su chat. Podés cerrar esta pestaña.'
+        : 'No se pudo avisar al vendedor en tiempo real. Volvé al chat del live y avisale con la referencia.') +
+      '<br><a href="/liveshop/">← volver al live</a>' +
+    '</p>';
+}
+</script>
+</body>
+</html>

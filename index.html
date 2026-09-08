@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>LiveShop · Compra en vivo</title>
+<meta name="description" content="Demo de live shopping: transmisión en vivo por WebRTC, catálogo en tiempo real y chat 1-a-1 con link de pago. Proyecto de portfolio de Facundo Bolani.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛍️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --portfolio-bg:#F9F6F0;
+  --portfolio-bg2:#F2EDE4;
+  --portfolio-ink:#1A1916;
+  --portfolio-ink60:#5A5750;
+  --portfolio-ink30:#C2BFBA;
+  --portfolio-amber:#B8862A;
+  --portfolio-amber-l:#D4A84B;
+  --live:#E23744;
+  --stage-bg:#14120F;
+  --stage-panel:#1F1D18;
+  --stage-bd:#2E2B24;
+  --stage-text:#F0EDE6;
+  --stage-muted:#9A958A;
+  --ok:#2D8A4E;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  background:var(--portfolio-bg);
+  color:var(--portfolio-ink);
+  -webkit-font-smoothing:antialiased;
+  display:flex;flex-direction:column;
+}
+
+/* ---------- banner ---------- */
+.demo-banner{
+  background:var(--portfolio-ink);color:#F9F6F0;
+  padding:.6rem 1rem;font-size:.78rem;letter-spacing:.02em;
+  display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap;text-align:center;
+}
+.demo-banner b{color:var(--portfolio-amber-l);letter-spacing:.12em;text-transform:uppercase;font-size:.7rem}
+.demo-banner a{color:var(--portfolio-amber-l);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s}
+.demo-banner a:hover{border-color:var(--portfolio-amber-l)}
+
+/* ---------- layout ---------- */
+.stage{
+  flex:1;display:flex;align-items:stretch;justify-content:center;
+  padding:1.5rem;gap:2rem;
+  background:linear-gradient(180deg,var(--portfolio-bg2) 0%, var(--portfolio-bg) 100%);
+}
+.info-panel{
+  flex:0 0 300px;display:flex;flex-direction:column;gap:1.25rem;
+  padding-top:1rem;color:var(--portfolio-ink);
+}
+.info-panel h1{font-weight:700;font-size:1.5rem;line-height:1.2}
+.info-panel .tag{
+  font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--portfolio-amber);
+  font-weight:600;margin-bottom:.4rem;
+}
+.info-panel p{font-size:.88rem;line-height:1.6;color:var(--portfolio-ink60)}
+.info-panel .stack{display:flex;flex-wrap:wrap;gap:.4rem}
+.info-panel .stack span{
+  font-size:.7rem;padding:.25rem .6rem;background:#fff;border:1px solid var(--portfolio-ink30);
+  border-radius:99px;color:var(--portfolio-ink60);letter-spacing:.04em;
+}
+.info-panel ol.try{
+  list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:.5rem;
+  background:#fff;border:1px solid var(--portfolio-ink30);border-radius:8px;padding:.9rem 1rem;
+}
+.info-panel ol.try li{
+  counter-increment:s;font-size:.8rem;color:var(--portfolio-ink60);line-height:1.5;
+  padding-left:1.5rem;position:relative;
+}
+.info-panel ol.try li::before{
+  content:counter(s);position:absolute;left:0;top:.05rem;
+  width:1.05rem;height:1.05rem;border-radius:50%;background:var(--portfolio-amber);color:#fff;
+  font-size:.62rem;font-weight:700;display:flex;align-items:center;justify-content:center;
+}
+.panel-link{
+  display:inline-flex;align-items:center;gap:.45rem;
+  font-size:.78rem;font-weight:600;color:var(--portfolio-amber);
+  text-decoration:none;border:1px solid var(--portfolio-amber);
+  padding:.5rem .9rem;border-radius:8px;align-self:flex-start;
+  transition:background .15s,color .15s;
+}
+.panel-link:hover{background:var(--portfolio-amber);color:#fff}
+.info-panel .footnote{font-size:.7rem;color:#8B887F;line-height:1.5}
+.info-panel .footnote a{color:var(--portfolio-amber);text-decoration:none}
+
+/* ---------- shop ---------- */
+.shop{
+  flex:1 1 auto;max-width:760px;
+  background:var(--stage-bg);border:1px solid #d8d3c8;border-radius:18px;overflow:hidden;
+  display:flex;flex-direction:column;color:var(--stage-text);
+  box-shadow:0 16px 40px rgba(0,0,0,.18), 0 2px 6px rgba(0,0,0,.08);
+  height:min(760px, calc(100vh - 8rem));
+}
+.shop-header{
+  display:flex;align-items:center;gap:.75rem;
+  padding:.7rem 1rem;background:var(--stage-panel);border-bottom:1px solid var(--stage-bd);
+}
+.shop-avatar{
+  width:38px;height:38px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--portfolio-amber-l),var(--portfolio-amber));
+  display:flex;align-items:center;justify-content:center;color:#1A1916;font-weight:700;
+}
+.shop-hdr-info{flex:1;min-width:0}
+.shop-title{font-size:.95rem;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shop-sub{font-size:.72rem;color:var(--stage-muted);margin-top:2px;display:flex;align-items:center;gap:.3rem}
+.conn-dot{width:6px;height:6px;border-radius:50%;background:#ffb02e;flex-shrink:0;transition:background .3s}
+.conn-dot.on{background:var(--ok)}
+.conn-dot.off{background:var(--live)}
+
+/* player */
+.player{position:relative;background:#000;aspect-ratio:16/9;flex-shrink:0;overflow:hidden}
+.player video{width:100%;height:100%;object-fit:cover;display:block;background:#000}
+.player-fallback{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:.6rem;text-align:center;padding:1rem;
+  background:radial-gradient(circle at 50% 40%, #2A2620 0%, #131110 70%);
+}
+.player-fallback .em{font-size:2.6rem;line-height:1}
+.player-fallback .t{font-size:.86rem;font-weight:600}
+.player-fallback .s{font-size:.74rem;color:var(--stage-muted);max-width:34ch;line-height:1.5}
+.live-badge{
+  position:absolute;top:.7rem;left:.7rem;z-index:3;
+  background:var(--live);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.1em;
+  padding:.25rem .55rem;border-radius:4px;display:none;align-items:center;gap:.35rem;
+}
+.live-badge.on{display:inline-flex}
+.live-badge .pulse{
+  width:6px;height:6px;border-radius:50%;background:#fff;animation:pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.viewers{
+  position:absolute;top:.7rem;right:.7rem;z-index:3;
+  background:rgba(0,0,0,.55);color:#fff;font-size:.68rem;font-weight:500;
+  padding:.25rem .5rem;border-radius:4px;backdrop-filter:blur(4px);
+}
+.sound-btn{
+  position:absolute;bottom:.7rem;left:.7rem;z-index:3;display:none;
+  background:rgba(0,0,0,.6);color:#fff;border:1px solid rgba(255,255,255,.25);
+  border-radius:99px;padding:.35rem .75rem;font-size:.72rem;cursor:pointer;font-family:inherit;
+  backdrop-filter:blur(4px);
+}
+.sound-btn:hover{background:rgba(0,0,0,.8)}
+
+/* products */
+.shop-body{flex:1;overflow-y:auto;padding:1rem;background:var(--stage-bg)}
+.shop-body::-webkit-scrollbar{width:6px}
+.shop-body::-webkit-scrollbar-thumb{background:var(--stage-bd);border-radius:3px}
+.section-lbl{
+  font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--stage-muted);
+  margin-bottom:.7rem;font-weight:600;
+}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.75rem}
+.prod{
+  background:var(--stage-panel);border:1px solid var(--stage-bd);border-radius:12px;
+  overflow:hidden;display:flex;flex-direction:column;transition:border-color .2s,transform .2s;
+}
+.prod:hover{border-color:var(--portfolio-amber);transform:translateY(-2px)}
+.prod.featured{border-color:var(--portfolio-amber-l);box-shadow:0 0 0 1px var(--portfolio-amber-l)}
+.prod-img{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  font-size:2.6rem;background:#26231D;position:relative;
+}
+.prod-img img{width:100%;height:100%;object-fit:cover;display:block}
+.prod-flag{
+  position:absolute;top:.4rem;left:.4rem;background:var(--portfolio-amber-l);color:#1A1916;
+  font-size:.58rem;font-weight:700;letter-spacing:.08em;padding:.15rem .4rem;border-radius:3px;
+}
+.prod-info{padding:.65rem .7rem .75rem;display:flex;flex-direction:column;gap:.35rem;flex:1}
+.prod-name{font-size:.82rem;font-weight:600;line-height:1.3}
+.prod-price{font-size:.95rem;font-weight:700;color:var(--portfolio-amber-l)}
+.prod-stock{font-size:.68rem;color:var(--stage-muted)}
+.prod-stock.out{color:var(--live)}
+.buy-btn{
+  margin-top:auto;width:100%;border:none;border-radius:8px;cursor:pointer;
+  background:var(--portfolio-amber);color:#fff;font-family:inherit;
+  font-size:.78rem;font-weight:600;padding:.5rem;transition:background .15s;
+}
+.buy-btn:hover:not(:disabled){background:var(--portfolio-amber-l);color:#1A1916}
+.buy-btn:disabled{background:#3A362E;color:var(--stage-muted);cursor:not-allowed}
+.empty{
+  text-align:center;color:var(--stage-muted);font-size:.82rem;line-height:1.6;
+  padding:2.5rem 1rem;border:1px dashed var(--stage-bd);border-radius:12px;
+}
+
+/* ---------- chat drawer ---------- */
+.chat{
+  position:fixed;top:0;right:0;bottom:0;width:380px;max-width:100vw;z-index:50;
+  background:#0F1A16;border-left:1px solid #223029;
+  display:flex;flex-direction:column;
+  transform:translateX(100%);transition:transform .25s ease;
+  box-shadow:-8px 0 30px rgba(0,0,0,.3);
+}
+.chat.open{transform:translateX(0)}
+.chat-hdr{
+  display:flex;align-items:center;gap:.6rem;padding:.75rem 1rem;
+  background:#16241E;border-bottom:1px solid #223029;color:#E9EDEF;
+}
+.chat-hdr .avatar{
+  width:34px;height:34px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,#00a884,#005c4b);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.9rem;
+}
+.chat-hdr-info{flex:1;min-width:0}
+.chat-hdr-name{font-size:.9rem;font-weight:600}
+.chat-hdr-status{font-size:.7rem;color:#8696a0}
+.icon-btn{
+  background:none;border:none;color:#8696a0;font-size:1.2rem;cursor:pointer;
+  padding:.2rem .4rem;border-radius:6px;font-family:inherit;
+}
+.icon-btn:hover{color:#E9EDEF;background:rgba(255,255,255,.06)}
+.chat-body{
+  flex:1;overflow-y:auto;padding:1rem .8rem;display:flex;flex-direction:column;gap:.4rem;
+  background:#0B141A;
+}
+.chat-body::-webkit-scrollbar{width:6px}
+.chat-body::-webkit-scrollbar-thumb{background:#2A3942;border-radius:3px}
+.bubble{
+  max-width:80%;padding:.45rem .65rem;border-radius:8px;font-size:.85rem;line-height:1.4;
+  color:#E9EDEF;word-wrap:break-word;position:relative;
+}
+.bubble.in{background:#202C33;align-self:flex-start;border-top-left-radius:2px}
+.bubble.out{background:#005C4B;align-self:flex-end;border-top-right-radius:2px}
+.bubble .time{font-size:.62rem;color:rgba(233,237,239,.5);float:right;margin:.4rem 0 0 .5rem}
+.sys{
+  align-self:center;background:rgba(255,255,255,.06);color:#8696a0;
+  font-size:.72rem;padding:.3rem .7rem;border-radius:99px;text-align:center;max-width:90%;
+}
+.sys.ok{background:rgba(45,138,78,.18);color:#7BD79B}
+.pay-card{
+  align-self:flex-start;max-width:85%;background:#202C33;border:1px solid #2A3942;
+  border-radius:10px;padding:.75rem;display:flex;flex-direction:column;gap:.5rem;
+}
+.pay-card .lbl{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:#8696a0;font-weight:600}
+.pay-card .concept{font-size:.82rem;color:#E9EDEF}
+.pay-card .amount{font-size:1.25rem;font-weight:700;color:#00D9A3}
+.pay-card a{
+  background:#00A884;color:#fff;text-decoration:none;text-align:center;
+  padding:.5rem;border-radius:7px;font-size:.8rem;font-weight:600;transition:background .15s;
+}
+.pay-card a:hover{background:#00BF95}
+.pay-card.paid a{background:#3A4A44;pointer-events:none;color:#8696a0}
+.pay-card .ref{font-size:.62rem;color:#6B7C75}
+.chat-input{
+  display:flex;gap:.5rem;padding:.6rem .7rem;background:#16241E;border-top:1px solid #223029;
+}
+.chat-input input{
+  flex:1;background:#2A3942;border:1px solid #374248;border-radius:20px;
+  padding:.55rem .9rem;color:#E9EDEF;font-family:inherit;font-size:.85rem;outline:none;
+}
+.chat-input input:focus{border-color:#00A884}
+.chat-input button{
+  width:38px;height:38px;border-radius:50%;border:none;background:#00A884;color:#fff;
+  cursor:pointer;font-size:1rem;flex-shrink:0;
+}
+.chat-input button:disabled{background:#3A4A44;color:#8696a0;cursor:not-allowed}
+.scrim{
+  position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:49;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+.scrim.on{opacity:1;pointer-events:auto}
+
+/* fab */
+.chat-fab{
+  position:fixed;right:1.1rem;bottom:1.1rem;z-index:40;
+  background:#00A884;color:#fff;border:none;border-radius:99px;
+  padding:.7rem 1.1rem;font-family:inherit;font-size:.82rem;font-weight:600;
+  cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.25);display:none;align-items:center;gap:.45rem;
+}
+.chat-fab.show{display:inline-flex}
+.chat-fab .badge{
+  background:var(--live);border-radius:99px;font-size:.65rem;
+  min-width:1.15rem;height:1.15rem;display:none;align-items:center;justify-content:center;padding:0 .3rem;
+}
+.chat-fab .badge.on{display:inline-flex}
+
+@media (max-width:880px){
+  .stage{flex-direction:column;align-items:center;padding:1rem;gap:1.25rem}
+  .info-panel{flex:initial;width:100%;max-width:760px;padding-top:0}
+  .shop{width:100%;height:auto;max-height:none}
+  .shop-body{max-height:none;overflow:visible}
+}
+@media (max-width:480px){
+  .demo-banner{font-size:.7rem}
+  .stage{padding:0}
+  .info-panel{display:none}
+  .shop{border-radius:0;border:none;box-shadow:none}
+  .chat{width:100vw}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(135px,1fr))}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<div class="demo-banner">
+  <b>Demo en vivo</b>
+  <span>Live shopping con WebRTC + Supabase Realtime.</span>
+  <a href="host/">Consola del vendedor →</a>
+  <a href="/">← portfolio</a>
+</div>
+
+<main class="stage">
+
+  <aside class="info-panel">
+    <div>
+      <div class="tag">Proyecto de portfolio · 2026</div>
+      <h1>LiveShop<br><span style="color:var(--portfolio-amber);font-weight:400">Compra en vivo</span></h1>
+    </div>
+    <p>
+      Venta por streaming en tiempo real. El vendedor transmite desde su cámara por <em>WebRTC</em>,
+      publica el catálogo en vivo y atiende a cada comprador en un chat 1-a-1 donde le envía un
+      link de pago. Sin servidor propio: la señalización y la mensajería van por Supabase Realtime.
+    </p>
+    <div class="stack">
+      <span>WebRTC</span><span>Supabase Realtime</span><span>Vanilla JS</span><span>GitHub Pages</span>
+    </div>
+    <div>
+      <div class="tag" style="margin-bottom:.5rem">Cómo probarlo</div>
+      <ol class="try">
+        <li>Abrí la <b>consola del vendedor</b> en otra pestaña y dale <i>Iniciar transmisión</i>.</li>
+        <li>Volvé acá: vas a ver el video y el catálogo aparecer solos.</li>
+        <li>Tocá <b>Comprar</b> en un producto — se abre el chat con el vendedor.</li>
+        <li>Desde la consola, enviá el <b>link de pago</b> y pagalo desde acá.</li>
+      </ol>
+    </div>
+    <a class="panel-link" href="host/">🎥 Abrir consola del vendedor</a>
+    <div class="footnote">
+      Checkout simulado, no se procesa dinero real. ·
+      <a href="https://github.com/FBC91" target="_blank" rel="noopener">código en GitHub ↗</a>
+    </div>
+  </aside>
+
+  <section class="shop" aria-label="Transmisión en vivo y catálogo">
+    <header class="shop-header">
+      <div class="shop-avatar" aria-hidden="true">L</div>
+      <div class="shop-hdr-info">
+        <div class="shop-title" id="shopTitle">LiveShop</div>
+        <div class="shop-sub"><span class="conn-dot" id="connDot"></span><span id="connText">conectando…</span></div>
+      </div>
+    </header>
+
+    <div class="player">
+      <video id="remoteVideo" autoplay playsinline muted></video>
+      <div class="player-fallback" id="playerFb">
+        <div class="em">📡</div>
+        <div class="t" id="fbTitle">Esperando al vendedor…</div>
+        <div class="s" id="fbSub">Cuando alguien inicie la transmisión desde la consola, el video aparece acá automáticamente.</div>
+      </div>
+      <div class="live-badge" id="liveBadge"><span class="pulse"></span>EN VIVO</div>
+      <div class="viewers" id="viewers">👁 0</div>
+      <button class="sound-btn" id="soundBtn" type="button">🔊 Activar sonido</button>
+    </div>
+
+    <div class="shop-body">
+      <div class="section-lbl">Productos del live</div>
+      <div class="grid" id="grid"></div>
+      <div class="empty" id="empty">El vendedor todavía no publicó productos.</div>
+    </div>
+  </section>
+
+</main>
+
+<button class="chat-fab" id="chatFab" type="button">💬 Chat<span class="badge" id="fabBadge">0</span></button>
+<div class="scrim" id="scrim"></div>
+
+<aside class="chat" id="chat" aria-label="Chat con el vendedor">
+  <header class="chat-hdr">
+    <div class="avatar" aria-hidden="true">V</div>
+    <div class="chat-hdr-info">
+      <div class="chat-hdr-name">Vendedor</div>
+      <div class="chat-hdr-status" id="chatStatus">en línea</div>
+    </div>
+    <button class="icon-btn" id="chatClose" type="button" aria-label="Cerrar chat">✕</button>
+  </header>
+  <div class="chat-body" id="chatBody" role="log" aria-live="polite"></div>
+  <form class="chat-input" id="chatForm" autocomplete="off">
+    <input type="text" id="chatInput" placeholder="Escribí un mensaje" maxlength="400" aria-label="Mensaje" enterkeyhint="send">
+    <button type="submit" id="chatSend" aria-label="Enviar" disabled>➤</button>
+  </form>
+</aside>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+"use strict";
+
+/* ===================== configuracion ===================== */
+const SB_URL = "https://myebxfostbafuogfymqa.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZWJ4Zm9zdGJhZnVvZ2Z5bXFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MjAyMjAsImV4cCI6MjA5NTM5NjIyMH0.ZkIJvOa_bvRX3hlwKWyEuy3CI2hOxEYau2ojbCQacJY";
+
+/* STUN publico. Sin TURN, ~15-20% de las conexiones fallan (NAT simetrico, redes moviles).
+   Para hacerlo solido: pegar credenciales de un TURN aca abajo. */
+const TURN_SERVERS = [];
+const ICE_SERVERS = [
+  {urls:"stun:stun.l.google.com:19302"},
+  {urls:"stun:stun1.l.google.com:19302"}
+].concat(TURN_SERVERS);
+
+const CONNECT_TIMEOUT_MS = 8000;
+
+const ROOM = (new URLSearchParams(location.search).get("live") || "demo")
+  .toLowerCase().replace(/[^a-z0-9-]/g,"").slice(0,24) || "demo";
+const PEER_ID = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2));
+const MY_NAME = "Comprador " + PEER_ID.slice(0,4).toUpperCase();
+
+/* ===================== analitica (mismo patron que hotelia) ===================== */
+const ANALYTICS = (function(){
+  const PAGE = "liveshop_buyer";
+  let sid = sessionStorage.getItem("liveshop_sid");
+  if (!sid){ sid = PEER_ID; sessionStorage.setItem("liveshop_sid", sid); }
+  const device = (window.matchMedia && matchMedia("(max-width:640px)").matches) ? "mobile" : "desktop";
+  const lang = (document.documentElement.lang || navigator.language || "es").slice(0,2);
+  function track(event_type, props){
+    try{
+      fetch(SB_URL + "/rest/v1/analytics_events", {
+        method:"POST", keepalive:true,
+        headers:{"Content-Type":"application/json","apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Prefer":"return=minimal"},
+        body:JSON.stringify({event_type:event_type, session_id:sid, page:PAGE, channel:"web", lang:lang,
+                             device:device, referrer:(document.referrer||"direct"), props:props||{}})
+      }).catch(function(){});
+    }catch(e){}
+  }
+  return {track:track};
+})();
+
+/* ===================== helpers ===================== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c =>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = n => "$ " + new Intl.NumberFormat("es-UY",{maximumFractionDigits:0}).format(Number(n)||0);
+const now = () => new Date().toLocaleTimeString("es-UY",{hour:"2-digit",minute:"2-digit"});
+
+/* ===================== estado ===================== */
+let state = {live:false, titulo:"LiveShop", productos:[], destacado:null};
+let chatOpen = false;
+let unread = 0;
+let hostOnline = false;
+
+/* ===================== realtime ===================== */
+const sb = window.supabase.createClient(SB_URL, SB_KEY, {
+  realtime:{params:{eventsPerSecond:20}}
+});
+
+const channel = sb.channel("liveshop:" + ROOM, {
+  config:{ presence:{key:PEER_ID}, broadcast:{self:false} }
+});
+
+function send(event, payload){
+  return channel.send({type:"broadcast", event:event, payload:payload});
+}
+
+function setConn(kind, text){
+  const dot = $("connDot");
+  dot.className = "conn-dot" + (kind==="on" ? " on" : kind==="off" ? " off" : "");
+  $("connText").textContent = text;
+}
+
+channel
+  .on("broadcast", {event:"state"}, ({payload}) => {
+    if (!payload) return;
+    if (payload.to && payload.to !== PEER_ID) return;
+    applyState(payload.state || payload);
+  })
+  .on("broadcast", {event:"signal"}, ({payload}) => {
+    if (!payload || payload.to !== PEER_ID) return;
+    handleSignal(payload).catch(err => console.warn("[signal]", err));
+  })
+  .on("broadcast", {event:"chat"}, ({payload}) => {
+    if (!payload || payload.to !== PEER_ID) return;
+    renderChat(payload, "in");
+    if (!chatOpen){ unread++; paintBadge(); openFab(); }
+  })
+  .on("broadcast", {event:"paid"}, ({payload}) => {
+    if (!payload || payload.peerId !== PEER_ID) return;
+    markPaid(payload.ref);
+  })
+  .on("presence", {event:"sync"}, () => {
+    const st = channel.presenceState();
+    let viewers = 0; hostOnline = false;
+    Object.values(st).forEach(arr => arr.forEach(p => {
+      if (p.role === "host") hostOnline = true; else viewers++;
+    }));
+    $("viewers").textContent = "👁 " + viewers;
+    $("chatStatus").textContent = hostOnline ? "en línea" : "desconectado";
+    if (!hostOnline && state.live){
+      applyState({live:false, titulo:state.titulo, productos:state.productos, destacado:state.destacado});
+    }
+  })
+  .subscribe(async (status) => {
+    if (status === "SUBSCRIBED"){
+      setConn("on", "sala " + ROOM);
+      await channel.track({role:"buyer", nombre:MY_NAME, at:Date.now()});
+      await send("hello", {peerId:PEER_ID, nombre:MY_NAME});
+      ANALYTICS.track("liveshop_join", {room:ROOM});
+    } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT"){
+      setConn("off", "sin conexión");
+    } else if (status === "CLOSED"){
+      setConn("", "reconectando…");
+    }
+  });
+
+/* ===================== catalogo ===================== */
+function applyState(s){
+  if (!s) return;
+  state = {
+    live: !!s.live,
+    titulo: s.titulo || "LiveShop",
+    productos: Array.isArray(s.productos) ? s.productos : [],
+    destacado: s.destacado || null
+  };
+  $("shopTitle").textContent = state.titulo;
+  $("liveBadge").classList.toggle("on", state.live);
+  if (!state.live){
+    teardownPeer();
+    showFallback("📡", "Transmisión finalizada", "El vendedor no está transmitiendo en este momento.");
+  } else if (!videoLive){
+    showFallback("🎥", "Conectando con el vendedor…", "Estableciendo la conexión de video punto a punto.");
+    armConnectTimeout();
+  }
+  renderGrid();
+}
+
+function renderGrid(){
+  const grid = $("grid");
+  const empty = $("empty");
+  if (!state.productos.length){
+    grid.innerHTML = "";
+    empty.style.display = "block";
+    return;
+  }
+  empty.style.display = "none";
+  grid.innerHTML = state.productos.map(p => {
+    const out = Number(p.stock) <= 0;
+    const feat = state.destacado && state.destacado === p.id;
+    const media = p.img
+      ? '<img src="' + esc(p.img) + '" alt="' + esc(p.nombre) + '">'
+      : esc(p.emoji || "📦");
+    return '' +
+      '<article class="prod' + (feat ? " featured" : "") + '">' +
+        '<div class="prod-img">' + media + (feat ? '<span class="prod-flag">AHORA</span>' : "") + '</div>' +
+        '<div class="prod-info">' +
+          '<div class="prod-name">' + esc(p.nombre) + '</div>' +
+          '<div class="prod-price">' + money(p.precio) + '</div>' +
+          '<div class="prod-stock' + (out ? " out" : "") + '">' +
+            (out ? "Sin stock" : "Quedan " + Number(p.stock)) +
+          '</div>' +
+          '<button class="buy-btn" data-id="' + esc(p.id) + '"' + (out ? " disabled" : "") + '>' +
+            (out ? "Agotado" : "Comprar") +
+          '</button>' +
+        '</div>' +
+      '</article>';
+  }).join("");
+}
+
+$("grid").addEventListener("click", (e) => {
+  const btn = e.target.closest(".buy-btn");
+  if (!btn || btn.disabled) return;
+  const prod = state.productos.find(p => p.id === btn.dataset.id);
+  if (!prod) return;
+  openChat();
+  const texto = "Hola, quiero comprar: " + prod.nombre + " (" + money(prod.precio) + ")";
+  pushSys("Consultaste por " + prod.nombre);
+  send("chat", {to:"host", from:PEER_ID, nombre:MY_NAME, kind:"buy",
+                text:texto, producto:{id:prod.id, nombre:prod.nombre, precio:prod.precio}});
+  renderChat({kind:"text", text:texto}, "out");
+  ANALYTICS.track("liveshop_buy_click", {room:ROOM, producto:prod.nombre});
+});
+
+/* ===================== WebRTC (receptor) ===================== */
+let pc = null;
+let pendingIce = [];
+let videoLive = false;
+let connectTimer = null;
+
+function showFallback(em, title, sub){
+  const fb = $("playerFb");
+  fb.style.display = "flex";
+  fb.querySelector(".em").textContent = em;
+  $("fbTitle").textContent = title;
+  $("fbSub").textContent = sub;
+  $("soundBtn").style.display = "none";
+}
+function hideFallback(){
+  $("playerFb").style.display = "none";
+  $("soundBtn").style.display = "inline-block";
+}
+function armConnectTimeout(){
+  clearTimeout(connectTimer);
+  connectTimer = setTimeout(() => {
+    if (!videoLive){
+      showFallback("📶", "EN VIVO · modo demo",
+        "No se pudo establecer el video punto a punto (suele pasar en redes móviles o NAT restrictivo). " +
+        "El chat y la compra siguen funcionando normalmente.");
+      ANALYTICS.track("liveshop_webrtc_fallback", {room:ROOM});
+    }
+  }, CONNECT_TIMEOUT_MS);
+}
+
+function ensurePeer(){
+  if (pc) return pc;
+  pc = new RTCPeerConnection({iceServers:ICE_SERVERS});
+  pc.ontrack = (e) => {
+    const v = $("remoteVideo");
+    if (v.srcObject !== e.streams[0]) v.srcObject = e.streams[0];
+  };
+  pc.onicecandidate = (e) => {
+    if (e.candidate) send("signal", {to:"host", from:PEER_ID, kind:"ice", data:e.candidate.toJSON()});
+  };
+  pc.onconnectionstatechange = () => {
+    if (!pc) return;
+    if (pc.connectionState === "connected"){
+      videoLive = true;
+      clearTimeout(connectTimer);
+      hideFallback();
+      ANALYTICS.track("liveshop_webrtc_ok", {room:ROOM});
+    } else if (["failed","disconnected","closed"].includes(pc.connectionState)){
+      videoLive = false;
+      if (state.live){
+        showFallback("📶", "EN VIVO · modo demo",
+          "Se perdió la conexión de video. El chat y la compra siguen funcionando.");
+      }
+    }
+  };
+  return pc;
+}
+
+function teardownPeer(){
+  clearTimeout(connectTimer);
+  videoLive = false;
+  pendingIce = [];
+  if (pc){ try{ pc.close(); }catch(e){} pc = null; }
+  const v = $("remoteVideo");
+  if (v.srcObject){ v.srcObject = null; }
+}
+
+async function handleSignal(msg){
+  if (msg.kind === "offer"){
+    const queued = pendingIce;          // teardownPeer vacia la cola: la guardamos antes
+    teardownPeer();
+    const peer = ensurePeer();
+    await peer.setRemoteDescription(new RTCSessionDescription(msg.data));
+    for (const c of queued){ try{ await peer.addIceCandidate(c); }catch(e){} }
+    pendingIce = [];
+    const answer = await peer.createAnswer();
+    await peer.setLocalDescription(answer);
+    send("signal", {to:"host", from:PEER_ID, kind:"answer", data:{type:answer.type, sdp:answer.sdp}});
+    armConnectTimeout();
+  } else if (msg.kind === "ice"){
+    const cand = new RTCIceCandidate(msg.data);
+    if (pc && pc.remoteDescription){ try{ await pc.addIceCandidate(cand); }catch(e){} }
+    else pendingIce.push(cand);
+  } else if (msg.kind === "bye"){
+    teardownPeer();
+    showFallback("📡", "Transmisión finalizada", "El vendedor cerró la transmisión.");
+  } else if (msg.kind === "full"){
+    teardownPeer();
+    showFallback("🚦", "Sala llena",
+      "Esta transmisión llegó al máximo de espectadores del demo. Probá de nuevo en un rato — el chat sigue disponible.");
+  }
+}
+
+$("soundBtn").addEventListener("click", () => {
+  const v = $("remoteVideo");
+  v.muted = !v.muted;
+  $("soundBtn").textContent = v.muted ? "🔊 Activar sonido" : "🔇 Silenciar";
+});
+
+/* ===================== chat ===================== */
+function openChat(){
+  chatOpen = true; unread = 0; paintBadge();
+  $("chat").classList.add("open");
+  $("scrim").classList.add("on");
+  $("chatFab").classList.remove("show");
+  setTimeout(() => $("chatInput").focus(), 260);
+  scrollChat();
+}
+function closeChat(){
+  chatOpen = false;
+  $("chat").classList.remove("open");
+  $("scrim").classList.remove("on");
+  openFab();
+}
+function openFab(){ if (!chatOpen) $("chatFab").classList.add("show"); }
+function paintBadge(){
+  const b = $("fabBadge");
+  b.textContent = unread;
+  b.classList.toggle("on", unread > 0);
+}
+function scrollChat(){ const b = $("chatBody"); b.scrollTop = b.scrollHeight; }
+
+function pushSys(text, ok){
+  const div = document.createElement("div");
+  div.className = "sys" + (ok ? " ok" : "");
+  div.textContent = text;
+  $("chatBody").appendChild(div);
+  scrollChat();
+}
+
+function renderChat(msg, dir){
+  const body = $("chatBody");
+  if (msg.kind === "payment" && msg.pago){
+    const card = document.createElement("div");
+    card.className = "pay-card";
+    card.dataset.ref = msg.pago.ref;
+    const url = "pago/?ref=" + encodeURIComponent(msg.pago.ref) +
+                "&monto=" + encodeURIComponent(msg.pago.monto) +
+                "&concepto=" + encodeURIComponent(msg.pago.concepto) +
+                "&room=" + encodeURIComponent(ROOM) +
+                "&peer=" + encodeURIComponent(PEER_ID);
+    card.innerHTML =
+      '<div class="lbl">Link de pago</div>' +
+      '<div class="concept">' + esc(msg.pago.concepto) + '</div>' +
+      '<div class="amount">' + money(msg.pago.monto) + '</div>' +
+      '<a href="' + esc(url) + '" target="_blank" rel="noopener">Pagar ahora →</a>' +
+      '<div class="ref">Ref ' + esc(msg.pago.ref) + ' · checkout simulado</div>';
+    body.appendChild(card);
+    ANALYTICS.track("liveshop_paylink_received", {room:ROOM});
+  } else if (msg.kind === "system"){
+    pushSys(msg.text);
+    return;
+  } else {
+    const div = document.createElement("div");
+    div.className = "bubble " + (dir === "out" ? "out" : "in");
+    div.innerHTML = esc(msg.text) + '<span class="time">' + now() + '</span>';
+    body.appendChild(div);
+  }
+  scrollChat();
+}
+
+function markPaid(ref){
+  const card = $("chatBody").querySelector('.pay-card[data-ref="' + CSS.escape(ref) + '"]');
+  if (card){
+    if (card.classList.contains("paid")) return;
+    card.classList.add("paid");
+    const a = card.querySelector("a");
+    if (a) a.textContent = "✅ Pagado";
+  }
+  pushSys("Pago confirmado · ref " + ref, true);
+}
+
+$("chatForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const input = $("chatInput");
+  const text = input.value.trim();
+  if (!text) return;
+  send("chat", {to:"host", from:PEER_ID, nombre:MY_NAME, kind:"text", text:text});
+  renderChat({kind:"text", text:text}, "out");
+  input.value = "";
+  $("chatSend").disabled = true;
+});
+$("chatInput").addEventListener("input", (e) => {
+  $("chatSend").disabled = !e.target.value.trim();
+});
+$("chatClose").addEventListener("click", closeChat);
+$("scrim").addEventListener("click", closeChat);
+$("chatFab").addEventListener("click", openChat);
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && chatOpen) closeChat(); });
+
+/* el checkout avisa por aca cuando se paga en la otra pestana */
+window.addEventListener("storage", (e) => {
+  if (e.key === "liveshop_paid" && e.newValue){
+    try{ markPaid(JSON.parse(e.newValue).ref); }catch(err){}
+  }
+});
+
+window.addEventListener("beforeunload", () => {
+  try{ send("signal", {to:"host", from:PEER_ID, kind:"leave"}); }catch(e){}
+});
+
+/* estado inicial */
+showFallback("📡", "Esperando al vendedor…",
+  "Cuando alguien inicie la transmisión desde la consola, el video aparece acá automáticamente.");
+renderGrid();
+openFab();
+</script>
+</body>
+</html>
