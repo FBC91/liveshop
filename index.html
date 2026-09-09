@@ -126,6 +126,14 @@ body{
 .player-fallback .em{font-size:2.6rem;line-height:1}
 .player-fallback .t{font-size:.86rem;font-weight:600}
 .player-fallback .s{font-size:.74rem;color:var(--stage-muted);max-width:34ch;line-height:1.5}
+.player-fallback .fb-cta{
+  margin-top:.5rem;display:none;align-items:center;gap:.4rem;
+  background:var(--portfolio-amber);color:#14120F;text-decoration:none;
+  font-size:.74rem;font-weight:600;padding:.5rem .85rem;border-radius:6px;
+  transition:background .2s;
+}
+.player-fallback .fb-cta:hover{background:var(--portfolio-amber-l)}
+.player-fallback .fb-cta.on{display:inline-flex}
 .live-badge{
   position:absolute;top:.7rem;left:.7rem;z-index:3;
   background:var(--live);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.1em;
@@ -355,6 +363,7 @@ body{
         <div class="em">📡</div>
         <div class="t" id="fbTitle">Esperando al vendedor…</div>
         <div class="s" id="fbSub">Cuando alguien inicie la transmisión desde la consola, el video aparece acá automáticamente.</div>
+        <a class="fb-cta" id="fbCta" href="host/" target="_blank" rel="noopener">🎥 Abrir consola del vendedor ↗</a>
       </div>
       <div class="live-badge" id="liveBadge"><span class="pulse"></span>EN VIVO</div>
       <div class="viewers" id="viewers">👁 0</div>
@@ -407,6 +416,17 @@ const ICE_SERVERS = [
 
 const CONNECT_TIMEOUT_MS = 8000;
 
+/* Si nadie transmite, mostramos este catalogo para que la demo no quede vacia.
+   Tiene que ser identico al SEED de host/index.html. */
+const SEED = [
+  {id:"seed-1", nombre:"Zapatillas urbanas",   precio:4900, stock:6, emoji:"👟"},
+  {id:"seed-2", nombre:"Auriculares wireless", precio:2300, stock:9, emoji:"🎧"},
+  {id:"seed-3", nombre:"Reloj minimalista",    precio:7500, stock:3, emoji:"⌚"},
+  {id:"seed-4", nombre:"Mochila impermeable",  precio:3200, stock:0, emoji:"🎒"},
+  {id:"seed-5", nombre:"Lentes de sol",        precio:1800, stock:12, emoji:"🕶️"}
+];
+const DEMO_DELAY_MS = 3000;   // cuanto esperamos al vendedor antes de caer al catalogo demo
+
 const ROOM = (new URLSearchParams(location.search).get("live") || "demo")
   .toLowerCase().replace(/[^a-z0-9-]/g,"").slice(0,24) || "demo";
 const PEER_ID = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2));
@@ -444,14 +464,18 @@ let state = {live:false, titulo:"LiveShop", productos:[], destacado:null};
 let chatOpen = false;
 let unread = 0;
 let hostOnline = false;
+let demoMode = false;      // true = no hay vendedor, mostramos el catalogo semilla
+let demoTimer = null;
 
 /* ===================== realtime ===================== */
 const sb = window.supabase.createClient(SB_URL, SB_KEY, {
   realtime:{params:{eventsPerSecond:20}}
 });
 
+/* presence.enabled es obligatorio: sin el flag el Realtime de Supabase acepta el track()
+   pero nunca emite sync, y el comprador no ve nunca al vendedor. */
 const channel = sb.channel("liveshop:" + ROOM, {
-  config:{ presence:{key:PEER_ID}, broadcast:{self:false} }
+  config:{ presence:{key:PEER_ID, enabled:true}, broadcast:{self:false} }
 });
 
 function send(event, payload){
@@ -490,9 +514,17 @@ channel
       if (p.role === "host") hostOnline = true; else viewers++;
     }));
     $("viewers").textContent = "👁 " + viewers;
-    $("chatStatus").textContent = hostOnline ? "en línea" : "desconectado";
-    if (!hostOnline && state.live){
-      applyState({live:false, titulo:state.titulo, productos:state.productos, destacado:state.destacado});
+    $("chatStatus").textContent = hostOnline ? "en línea" : "modo demo";
+    if (hostOnline){
+      clearTimeout(demoTimer);
+      exitDemoMode();
+    } else {
+      if (state.live){
+        state.live = false;
+        $("liveBadge").classList.remove("on");
+        teardownPeer();
+      }
+      armDemoTimer();
     }
   })
   .subscribe(async (status) => {
@@ -501,16 +533,49 @@ channel
       await channel.track({role:"buyer", nombre:MY_NAME, at:Date.now()});
       await send("hello", {peerId:PEER_ID, nombre:MY_NAME});
       ANALYTICS.track("liveshop_join", {room:ROOM});
+      armDemoTimer();
     } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT"){
       setConn("off", "sin conexión");
+      enterDemoMode();   // sin realtime igual mostramos el catalogo, no una pantalla muerta
     } else if (status === "CLOSED"){
       setConn("", "reconectando…");
     }
   });
 
+/* si el SDK de Supabase no llega a cargar, tampoco dejamos la pagina vacia */
+setTimeout(() => { if (!hostOnline && !state.productos.length) enterDemoMode(); }, DEMO_DELAY_MS + 4000);
+
+/* ===================== modo demo (sin vendedor) ===================== */
+function armDemoTimer(){
+  clearTimeout(demoTimer);
+  demoTimer = setTimeout(() => { if (!hostOnline) enterDemoMode(); }, DEMO_DELAY_MS);
+}
+
+function enterDemoMode(){
+  if (demoMode) return;
+  demoMode = true;
+  state = {live:false, titulo:"LiveShop", productos:SEED.slice(), destacado:"seed-2"};
+  $("shopTitle").textContent = state.titulo;
+  $("liveBadge").classList.remove("on");
+  teardownPeer();
+  showFallback("📡", "Nadie está transmitiendo ahora",
+    "Estás viendo el catálogo de ejemplo. Abrí la consola del vendedor en otra pestaña y dale a “Salir en vivo” para probar el flujo completo: video, chat y link de pago.", true);
+  renderGrid();
+  ANALYTICS.track("liveshop_demo_mode", {room:ROOM});
+}
+
+function exitDemoMode(){
+  if (!demoMode) return;
+  demoMode = false;
+  $("chatBody").innerHTML = "";
+  unread = 0; paintBadge();
+}
+
 /* ===================== catalogo ===================== */
 function applyState(s){
   if (!s) return;
+  clearTimeout(demoTimer);
+  exitDemoMode();
   state = {
     live: !!s.live,
     titulo: s.titulo || "LiveShop",
@@ -521,7 +586,7 @@ function applyState(s){
   $("liveBadge").classList.toggle("on", state.live);
   if (!state.live){
     teardownPeer();
-    showFallback("📡", "Transmisión finalizada", "El vendedor no está transmitiendo en este momento.");
+    showFallback("📡", "Transmisión pausada", "El vendedor está conectado pero todavía no salió en vivo.");
   } else if (!videoLive){
     showFallback("🎥", "Conectando con el vendedor…", "Estableciendo la conexión de video punto a punto.");
     armConnectTimeout();
@@ -567,6 +632,13 @@ $("grid").addEventListener("click", (e) => {
   const prod = state.productos.find(p => p.id === btn.dataset.id);
   if (!prod) return;
   openChat();
+  if (demoMode){
+    pushSys("Consultaste por " + prod.nombre);
+    renderChat({kind:"text", text:"Hola, quiero comprar: " + prod.nombre + " (" + money(prod.precio) + ")"}, "out");
+    pushSys("No hay ningún vendedor conectado. Abrí la consola del vendedor en otra pestaña para responder este mensaje y mandarte el link de pago.");
+    ANALYTICS.track("liveshop_buy_click", {room:ROOM, producto:prod.nombre, demo:true});
+    return;
+  }
   const texto = "Hola, quiero comprar: " + prod.nombre + " (" + money(prod.precio) + ")";
   pushSys("Consultaste por " + prod.nombre);
   send("chat", {to:"host", from:PEER_ID, nombre:MY_NAME, kind:"buy",
@@ -581,12 +653,13 @@ let pendingIce = [];
 let videoLive = false;
 let connectTimer = null;
 
-function showFallback(em, title, sub){
+function showFallback(em, title, sub, cta){
   const fb = $("playerFb");
   fb.style.display = "flex";
   fb.querySelector(".em").textContent = em;
   $("fbTitle").textContent = title;
   $("fbSub").textContent = sub;
+  $("fbCta").classList.toggle("on", !!cta);
   $("soundBtn").style.display = "none";
 }
 function hideFallback(){
@@ -777,8 +850,8 @@ window.addEventListener("beforeunload", () => {
 });
 
 /* estado inicial */
-showFallback("📡", "Esperando al vendedor…",
-  "Cuando alguien inicie la transmisión desde la consola, el video aparece acá automáticamente.");
+showFallback("📡", "Buscando al vendedor…",
+  "Si nadie está transmitiendo, en unos segundos vas a ver el catálogo de ejemplo.");
 renderGrid();
 openFab();
 </script>

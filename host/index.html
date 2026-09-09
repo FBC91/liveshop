@@ -513,13 +513,31 @@ let activeBuyer = null;
 
 const metrics = {peak:0, msgs:0, links:0, paid:0, total:0, rtc:0};
 
-try{ productos = JSON.parse(localStorage.getItem("liveshop_catalog") || "[]") || []; }catch(e){ productos = []; }
-if (!Array.isArray(productos)) productos = [];
+/* Mismo catalogo semilla que la vista del comprador: la primera vez que se abre
+   la consola ya hay productos, no hace falta cargarlos a mano para probar la demo. */
+const SEED = [
+  {id:"seed-1", nombre:"Zapatillas urbanas",   precio:4900, stock:6, emoji:"👟", img:null},
+  {id:"seed-2", nombre:"Auriculares wireless", precio:2300, stock:9, emoji:"🎧", img:null},
+  {id:"seed-3", nombre:"Reloj minimalista",    precio:7500, stock:3, emoji:"⌚", img:null},
+  {id:"seed-4", nombre:"Mochila impermeable",  precio:3200, stock:0, emoji:"🎒", img:null},
+  {id:"seed-5", nombre:"Lentes de sol",        precio:1800, stock:12, emoji:"🕶️", img:null}
+];
+
+const savedCatalog = localStorage.getItem("liveshop_catalog");
+try{ productos = JSON.parse(savedCatalog || "null"); }catch(e){ productos = null; }
+if (!Array.isArray(productos)) productos = null;
+if (productos === null){
+  productos = SEED.map(p => Object.assign({}, p));
+  destacado = "seed-2";
+  try{ localStorage.setItem("liveshop_catalog", JSON.stringify(productos)); }catch(e){}
+}
 
 /* ===================== realtime ===================== */
 const sb = window.supabase.createClient(SB_URL, SB_KEY, {realtime:{params:{eventsPerSecond:20}}});
+/* presence.enabled es obligatorio: sin el flag el Realtime de Supabase acepta el track()
+   pero nunca emite sync, los compradores quedan siempre offline y se cierran sus conexiones. */
 const channel = sb.channel("liveshop:" + ROOM, {
-  config:{ presence:{key:HOST_ID}, broadcast:{self:false} }
+  config:{ presence:{key:HOST_ID, enabled:true}, broadcast:{self:false} }
 });
 
 function send(event, payload){
