@@ -149,7 +149,8 @@ const content = $("content");
 if (!ORDER.ref || !ORDER.monto || !ORDER.peer || !ORDER.room){
   content.innerHTML =
     '<div class="bad">Link de pago inválido o incompleto. Volvé al live y pedile al vendedor que te lo reenvíe.</div>' +
-    '<p class="note"><a href="/liveshop/">Ir a LiveShop</a></p>';
+    '<p class="note"><a href="/liveshop/' +
+      (ORDER.room ? "?live=" + encodeURIComponent(ORDER.room) : "") + '">Ir a LiveShop</a></p>';
 } else {
   renderForm();
 }
@@ -207,6 +208,9 @@ async function pay(){
     localStorage.setItem("liveshop_paid", JSON.stringify({ref:ORDER.ref, monto:ORDER.monto, at:Date.now()}));
   }catch(e){}
 
+  const backUrl = "/liveshop/" + (ORDER.room ? "?live=" + encodeURIComponent(ORDER.room) : "");
+  const hasOpener = !!(window.opener && !window.opener.closed);
+
   content.innerHTML =
     '<div class="done">' +
       '<div class="em">✅</div>' +
@@ -214,12 +218,30 @@ async function pay(){
       '<div class="s">' + money(ORDER.monto) + ' · ' + esc(ORDER.concepto || "Compra en el live") +
         '<br>Ref ' + esc(ORDER.ref) + '</div>' +
     '</div>' +
-    '<p class="note">' +
+    '<p class="note" id="afterPay">' +
       (notified
-        ? 'El vendedor ya vio la confirmación en su chat. Podés cerrar esta pestaña.'
+        ? 'El vendedor ya vio la confirmación en su chat.'
         : 'No se pudo avisar al vendedor en tiempo real. Volvé al chat del live y avisale con la referencia.') +
-      '<br><a href="/liveshop/">← volver al live</a>' +
     '</p>';
+
+  const note = $("afterPay");
+
+  if (hasOpener){
+    /* Volver al live es volver a la pestaña que ya esta abierta, no cargar otra:
+       navegar aca duplicaria la sesion del comprador (misma identidad en dos
+       pestañas de la misma sala). */
+    note.innerHTML += '<br>Volviendo al live…';
+    setTimeout(() => {
+      try{ window.opener.focus(); }catch(e){}
+      try{ window.close(); }catch(e){}
+      /* si el navegador no deja cerrar, al menos que no quede sin salida */
+      setTimeout(() => {
+        note.innerHTML = 'Listo. Volvé a la pestaña del live para seguir comprando.';
+      }, 600);
+    }, 1400);
+  } else {
+    note.innerHTML += '<br><a href="' + backUrl + '">← volver al live</a>';
+  }
 }
 </script>
 </body>

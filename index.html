@@ -907,7 +907,7 @@ function renderChat(msg, dir){
       '<div class="lbl">Link de pago</div>' +
       '<div class="concept">' + esc(msg.pago.concepto) + '</div>' +
       '<div class="amount">' + money(msg.pago.monto) + '</div>' +
-      '<a href="' + esc(url) + '" target="_blank" rel="noopener">Pagar ahora →</a>' +
+      '<a href="' + esc(url) + '" target="_blank" rel="opener" data-pay="1">Pagar ahora →</a>' +
       '<div class="ref">Ref ' + esc(msg.pago.ref) + ' · checkout simulado</div>';
     body.appendChild(card);
     ANALYTICS.track("liveshop_paylink_received", {room:ROOM});
@@ -924,7 +924,13 @@ function renderChat(msg, dir){
 }
 
 function markPaid(ref){
-  const card = $("chatBody").querySelector('.pay-card[data-ref="' + CSS.escape(ref) + '"]');
+  /* La confirmacion llega cuando el comprador vuelve del checkout: si el chat
+     quedo cerrado, se abre para que vea el pago acreditado. */
+  if (!chatOpen) openChat();
+  /* Busqueda directa por dataset: CSS.escape no existe en navegadores viejos y
+     una excepcion aca dejaria al comprador sin ver nunca su pago confirmado. */
+  const card = Array.prototype.find.call(
+    $("chatBody").querySelectorAll(".pay-card"), c => c.dataset.ref === String(ref));
   if (card){
     if (card.classList.contains("paid")) return;
     card.classList.add("paid");
@@ -933,6 +939,18 @@ function markPaid(ref){
   }
   pushSys("Pago confirmado · ref " + ref, true);
 }
+
+/* El checkout se abre por script y con nombre fijo: asi conserva window.opener
+   (target="_blank" implica noopener en los navegadores actuales) y puede
+   devolver el foco a esta pestaña al terminar, en vez de dejar al comprador
+   varado en el checkout. El nombre evita acumular pestañas si toca dos veces. */
+$("chatBody").addEventListener("click", (e) => {
+  const a = e.target.closest("a[data-pay]");
+  if (!a) return;
+  e.preventDefault();
+  const w = window.open(a.href, "liveshop_pago");
+  if (w) w.focus(); else window.location.href = a.href;   // si el popup queda bloqueado
+});
 
 $("chatForm").addEventListener("submit", (e) => {
   e.preventDefault();
