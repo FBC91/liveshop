@@ -343,8 +343,10 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
         <button class="btn btn-danger" id="stopBtn" type="button" style="display:none">⏹ Terminar transmisión</button>
         <div class="warn" id="rtcWarn" style="display:none"></div>
         <div class="hint">
-          El video va punto a punto (WebRTC) con STUN público, sin servidor de medios. Tope de
-          <b id="maxLbl">6</b> espectadores simultáneos: cada uno consume subida de tu conexión.
+          El video va punto a punto (WebRTC) con STUN público, sin servidor de medios. En malla
+          el vendedor abre una conexión por espectador, así que su subida se multiplica: a 720p
+          son unos 2 Mbps cada uno. Por eso el tope es de <b id="maxLbl">3</b> simultáneos —
+          escalar más pide un SFU, no más ancho de banda.
           Si algún comprador no logra conectar, ve un placeholder y el chat sigue funcionando.
         </div>
       </div>
@@ -420,8 +422,11 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
       <div class="kpi"><div class="lbl">Video P2P</div><div class="val" id="mRtc">0</div><div class="sub">conexiones establecidas</div></div>
     </div>
     <div class="state-box">
-      Las métricas son de esta sesión del navegador y se reinician al recargar. El demo no persiste datos.
+      Las métricas de arriba son de esta sala y sobreviven a un refresh del navegador.
     </div>
+
+    <h2 class="section" style="margin-top:1.5rem">Uso del demo</h2>
+    <div id="usageBox" class="state-box">Cargando…</div>
   </section>
 
 </main>
@@ -429,6 +434,10 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
 <div class="modal-scrim" id="payScrim">
   <form class="modal" id="payForm">
     <h3>Enviar link de pago</h3>
+    <div class="field" id="payProductField" hidden>
+      <label for="payProduct">Producto consultado</label>
+      <select id="payProduct"></select>
+    </div>
     <div class="field">
       <label for="payConcept">Concepto</label>
       <input id="payConcept" type="text" maxlength="60" required>
@@ -461,11 +470,27 @@ const ICE_SERVERS = [
   {urls:"stun:stun1.l.google.com:19302"}
 ].concat(TURN_SERVERS);
 
-const MAX_VIEWERS = 6;
+/* Topologia en malla: el vendedor abre una conexion por espectador, asi que su
+   subida se multiplica. A 720p son ~2 Mbps por espectador; con 6 se satura una
+   conexion hogareña y se degrada el video para todos. 3 es el limite honesto.
+   Pasar de aca requiere un SFU, que es otro proyecto. */
+const MAX_VIEWERS = 3;
 const EMOJIS = ["📦","👕","👖","👟","🧥","👜","⌚","💍","🕶️","🧢","💄","🧴","📱","🎧","☕","🍫","🌿","🕯️","🎁","🖼️"];
 
-const ROOM = (new URLSearchParams(location.search).get("live") || "demo")
-  .toLowerCase().replace(/[^a-z0-9-]/g,"").slice(0,24) || "demo";
+/* La sala llega por ?live= desde la vista del comprador. Si se abre la consola
+   sola, se genera una propia y se recuerda, para que un refresh no cambie de sala
+   y se pierdan las conversaciones guardadas. */
+const cleanRoom = v => String(v || "").toLowerCase().replace(/[^a-z0-9-]/g,"").slice(0,24);
+const ROOM = (function(){
+  const fromUrl = cleanRoom(new URLSearchParams(location.search).get("live"));
+  if (fromUrl){ try{ localStorage.setItem("liveshop_host_room", fromUrl); }catch(e){} return fromUrl; }
+  let saved = "";
+  try{ saved = cleanRoom(localStorage.getItem("liveshop_host_room")); }catch(e){}
+  if (saved) return saved;
+  const fresh = "s" + Math.random().toString(36).slice(2,8);
+  try{ localStorage.setItem("liveshop_host_room", fresh); }catch(e){}
+  return fresh;
+})();
 const HOST_ID = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2));
 
 /* ===================== analitica ===================== */
@@ -513,6 +538,36 @@ let activeBuyer = null;
 
 const metrics = {peak:0, msgs:0, links:0, paid:0, total:0, rtc:0};
 
+/* Las conversaciones y las metricas viven en memoria: sin esto, un F5 durante
+   una transmision borra todos los chats y el vendedor pierde las ventas en curso. */
+const SESSION_KEY = "liveshop_sesion_" + ROOM;
+
+function saveSession(){
+  try{
+    const data = {
+      metrics: metrics,
+      buyers: Array.from(buyers.entries()).map(([id, b]) => [id, {
+        nombre:b.nombre, online:false, msgs:b.msgs, unread:b.unread,
+        lastProduct:b.lastProduct, productos:b.productos
+      }])
+    };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(data));
+  }catch(e){}
+}
+
+function loadSession(){
+  let data = null;
+  try{ data = JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); }catch(e){}
+  if (!data) return;
+  if (data.metrics) Object.assign(metrics, data.metrics);
+  (data.buyers || []).forEach(([id, b]) => {
+    buyers.set(id, {nombre:b.nombre || "Comprador", online:false, msgs:b.msgs || [],
+                    unread:b.unread || 0, lastProduct:b.lastProduct || null,
+                    productos:b.productos || []});
+  });
+}
+loadSession();
+
 /* Mismo catalogo semilla que la vista del comprador: la primera vez que se abre
    la consola ya hay productos, no hace falta cargarlos a mano para probar la demo. */
 const SEED = [
@@ -555,9 +610,50 @@ function broadcastState(to){
   send("state", payload);
 }
 
+/* Aviso de mensaje nuevo. El vendedor esta mirando la camara, no la lista de
+   chats: un badge numerico solo no alcanza. */
+const BASE_TITLE = document.title;
+let titleTimer = null;
+
+function beep(){
+  try{
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.12, ctx.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.2);
+    setTimeout(() => { try{ ctx.close(); }catch(e){} }, 400);
+  }catch(e){}
+}
+
+function notifyNewMessage(nombre){
+  beep();
+  clearInterval(titleTimer);
+  let on = false;
+  titleTimer = setInterval(() => {
+    on = !on;
+    document.title = on ? ("💬 " + nombre) : BASE_TITLE;
+  }, 900);
+}
+
+function clearNotify(){
+  clearInterval(titleTimer);
+  titleTimer = null;
+  document.title = BASE_TITLE;
+}
+window.addEventListener("focus", clearNotify);
+
 function ensureBuyer(id, nombre){
   if (!buyers.has(id)){
-    buyers.set(id, {nombre:nombre || "Comprador", online:true, msgs:[], unread:0, lastProduct:null});
+    buyers.set(id, {nombre:nombre || "Comprador", online:true, msgs:[], unread:0, lastProduct:null, productos:[]});
   } else if (nombre){
     buyers.get(id).nombre = nombre;
   }
@@ -581,11 +677,17 @@ channel
     if (!payload || payload.to !== "host" || !payload.from) return;
     const id = payload.from;
     const b = ensureBuyer(id, payload.nombre);
-    if (payload.producto) b.lastProduct = payload.producto;
+    /* Se guardan todas las consultas: con lastProduct solo, un comprador que
+       pregunta por tres productos hacia que el link de pago saliera con el ultimo. */
+    if (payload.producto){
+      b.lastProduct = payload.producto;
+      if (!b.productos.some(x => x.id === payload.producto.id)) b.productos.push(payload.producto);
+    }
     b.msgs.push({dir:"in", kind:"text", text:payload.text, t:now()});
     metrics.msgs++;
     if (activeBuyer === id) renderConv(); else b.unread++;
-    renderBuyers(); paintBadges(); paintKpis();
+    renderBuyers(); paintBadges(); paintKpis(); saveSession();
+    if (document.hidden || activeBuyer !== id) notifyNewMessage(b.nombre);
   })
   .on("broadcast", {event:"paid"}, ({payload}) => {
     if (!payload || !payload.peerId) return;
@@ -596,10 +698,17 @@ channel
       card.pago.paid = true;
       metrics.paid++;
       metrics.total += Number(card.pago.monto) || 0;
+      /* Un pago tiene que mover el stock: si no, el catalogo sigue diciendo
+         "quedan 6" despues de vender y se nota que es una maqueta. */
+      const prod = card.pago.productoId && productos.find(x => x.id === card.pago.productoId);
+      if (prod && Number(prod.stock) > 0){
+        prod.stock = Number(prod.stock) - 1;
+        saveCatalog();
+      }
     }
     b.msgs.push({dir:"sys", kind:"system", ok:true, text:"Pago confirmado · ref " + payload.ref, t:now()});
     if (activeBuyer === payload.peerId) renderConv();
-    renderBuyers(); paintKpis();
+    renderBuyers(); paintKpis(); saveSession();
     ANALYTICS.track("liveshop_paid", {room:ROOM, ref:payload.ref});
   })
   .on("presence", {event:"sync"}, () => {
@@ -901,7 +1010,8 @@ $("buyerList").addEventListener("click", (e) => {
   activeBuyer = el.dataset.id;
   const b = buyers.get(activeBuyer);
   if (b) b.unread = 0;
-  renderBuyers(); renderConv(); paintBadges();
+  clearNotify();
+  renderBuyers(); renderConv(); paintBadges(); saveSession();
 });
 
 function renderConv(){
@@ -917,8 +1027,9 @@ function renderConv(){
     return;
   }
   $("convName").textContent = b.nombre;
+  const consultas = (b.productos || []).map(p => p.nombre).join(", ");
   $("convStatus").textContent = (b.online ? "en línea" : "desconectado") +
-    (b.lastProduct ? " · consultó por " + b.lastProduct.nombre : "");
+    (consultas ? " · consultó por " + consultas : "");
   $("payBtn").disabled = false;
   $("convInput").disabled = false;
   $("convSend").disabled = !$("convInput").value.trim();
@@ -955,13 +1066,32 @@ $("convForm").addEventListener("submit", (e) => {
   metrics.msgs++;
   $("convInput").value = "";
   $("convSend").disabled = true;
-  renderConv(); renderBuyers(); paintKpis();
+  renderConv(); renderBuyers(); paintKpis(); saveSession();
 });
 
 /* ===================== link de pago ===================== */
+function fillPayProduct(b){
+  const sel = $("payProduct");
+  const lista = (b && b.productos) || [];
+  $("payProductField").hidden = lista.length === 0;
+  sel.innerHTML = lista.map(p =>
+    '<option value="' + esc(p.id) + '">' + esc(p.nombre) + ' · ' + money(p.precio) + '</option>'
+  ).join("") + '<option value="">Otro concepto…</option>';
+  if (b && b.lastProduct) sel.value = b.lastProduct.id;
+  return lista;
+}
+
+$("payProduct").addEventListener("change", () => {
+  const b = buyers.get(activeBuyer);
+  const p = b && b.productos.find(x => x.id === $("payProduct").value);
+  $("payConcept").value = p ? p.nombre : (titulo || "Compra en el live");
+  $("payAmount").value = p ? p.precio : "";
+});
+
 $("payBtn").addEventListener("click", () => {
   if (!activeBuyer) return;
   const b = buyers.get(activeBuyer);
+  fillPayProduct(b);
   const p = b && b.lastProduct;
   $("payConcept").value = p ? p.nombre : (titulo || "Compra en el live");
   $("payAmount").value = p ? p.precio : "";
@@ -980,15 +1110,61 @@ $("payForm").addEventListener("submit", (e) => {
     ref: refCode(),
     concepto: $("payConcept").value.trim() || "Compra en el live",
     monto: Number($("payAmount").value) || 0,
+    productoId: $("payProductField").hidden ? null : ($("payProduct").value || null),
     paid: false
   };
   send("chat", {to:activeBuyer, from:"host", kind:"payment", text:"Link de pago", pago:pago});
   b.msgs.push({dir:"out", kind:"payment", pago:pago, t:now()});
   metrics.links++;
   $("payScrim").classList.remove("open");
-  renderConv(); renderBuyers(); paintKpis();
+  renderConv(); renderBuyers(); paintKpis(); saveSession();
   ANALYTICS.track("liveshop_paylink_sent", {room:ROOM, monto:pago.monto});
 });
+
+/* ===================== uso agregado del demo ===================== */
+/* Se lee por RPC y no por SELECT: la funcion devuelve solo agregados, asi que
+   no hay que abrir analytics_events a lectura publica. */
+let usageLoaded = false;
+
+async function loadUsage(){
+  if (usageLoaded) return;
+  usageLoaded = true;
+  const box = $("usageBox");
+  try{
+    const r = await fetch(SB_URL + "/rest/v1/rpc/liveshop_overview", {
+      method:"POST",
+      headers:{"Content-Type":"application/json", apikey:SB_KEY, Authorization:"Bearer " + SB_KEY},
+      body:JSON.stringify({days:30})
+    });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const d = await r.json();
+    const t = d.totals || {};
+    const rtcTotal = (t.webrtc_ok || 0) + (t.webrtc_fail || 0);
+    const rtcPct = rtcTotal ? Math.round((t.webrtc_ok || 0) / rtcTotal * 100) + "%" : "—";
+    const conv = (t.buy_clicks || 0) ? Math.round((t.paid || 0) / t.buy_clicks * 100) + "%" : "—";
+    box.innerHTML =
+      '<div class="kpis" style="margin:0 0 .6rem">' +
+        kpi("Sesiones", t.sessions || 0, "últimos 30 días") +
+        kpi("Entradas al live", t.joins || 0, "compradores") +
+        kpi("Transmisiones", t.go_live || 0, "iniciadas") +
+        kpi("Interés", t.buy_clicks || 0, "clics en un producto") +
+        kpi("Links de pago", t.paylinks_sent || 0, "enviados") +
+        kpi("Pagos", t.paid || 0, "confirmados") +
+        kpi("Video P2P", rtcPct, (t.webrtc_ok || 0) + " de " + rtcTotal + " conectaron") +
+        kpi("Conversión", conv, "pagos / interés") +
+      '</div>' +
+      '<p style="font-size:.72rem;color:var(--muted,#9A958A)">Ventana: últimos 30 días · fuente: analytics_events (Supabase) vía función de agregados. No se exponen eventos individuales.</p>';
+  }catch(err){
+    usageLoaded = false;
+    box.textContent = "No se pudo leer el uso del demo (" + (err && err.message ? err.message : "error") + ").";
+  }
+}
+
+function kpi(lbl, val, sub){
+  return '<div class="kpi"><div class="lbl">' + esc(lbl) + '</div>' +
+         '<div class="val">' + esc(val) + '</div>' +
+         '<div class="sub">' + esc(sub) + '</div></div>';
+}
 
 /* ===================== KPIs / tabs ===================== */
 function paintKpis(){
@@ -1020,6 +1196,7 @@ document.querySelectorAll(".tab").forEach(tab => {
     document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
     tab.classList.add("active");
     $("view-" + tab.dataset.view).classList.add("active");
+    if (tab.dataset.view === "metrics") loadUsage();
   });
 });
 
@@ -1047,7 +1224,9 @@ $("titleInput").addEventListener("input", (e) => {
 });
 
 $("newRoomBtn").addEventListener("click", () => {
-  location.search = "?live=" + Math.random().toString(36).slice(2,8);
+  const fresh = "s" + Math.random().toString(36).slice(2,8);
+  try{ localStorage.setItem("liveshop_host_room", fresh); }catch(e){}
+  location.search = "?live=" + fresh;
 });
 
 window.addEventListener("beforeunload", () => {

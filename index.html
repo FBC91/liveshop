@@ -134,6 +134,37 @@ body{
 }
 .player-fallback .fb-cta:hover{background:var(--portfolio-amber-l)}
 .player-fallback .fb-cta.on{display:inline-flex}
+.chat-ctx{
+  display:flex;align-items:center;gap:.6rem;padding:.55rem .8rem;
+  background:var(--portfolio-bg2);border-bottom:1px solid var(--portfolio-ink30);
+}
+.chat-ctx .ctx-thumb{
+  width:34px;height:34px;flex:0 0 34px;border-radius:6px;overflow:hidden;
+  background:var(--portfolio-bg);display:flex;align-items:center;justify-content:center;font-size:1.1rem;
+}
+.chat-ctx .ctx-thumb img{width:100%;height:100%;object-fit:cover}
+.chat-ctx .ctx-info{flex:1;min-width:0}
+.chat-ctx .ctx-lbl{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--portfolio-ink60)}
+.chat-ctx .ctx-name{font-size:.78rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-ctx .ctx-price{font-size:.74rem;color:var(--portfolio-amber);font-weight:600}
+.chat-ctx .ctx-clear{
+  border:none;background:none;cursor:pointer;color:var(--portfolio-ink60);
+  font-size:.9rem;padding:.2rem .3rem;border-radius:4px;
+}
+.chat-ctx .ctx-clear:hover{background:var(--portfolio-ink30);color:var(--portfolio-ink)}
+.name-ask{
+  display:flex;gap:.4rem;padding:.6rem .8rem;border-bottom:1px solid var(--portfolio-ink30);
+  background:var(--portfolio-bg2);
+}
+.name-ask input{
+  flex:1;min-width:0;border:1px solid var(--portfolio-ink30);border-radius:6px;
+  padding:.45rem .6rem;font:inherit;font-size:.78rem;background:#fff;color:var(--portfolio-ink);
+}
+.name-ask button{
+  border:none;border-radius:6px;background:var(--portfolio-ink);color:#F9F6F0;
+  font:inherit;font-size:.74rem;font-weight:600;padding:.45rem .7rem;cursor:pointer;
+}
+.name-ask button:hover{background:var(--portfolio-amber);color:#14120F}
 .live-badge{
   position:absolute;top:.7rem;left:.7rem;z-index:3;
   background:var(--live);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.1em;
@@ -313,7 +344,7 @@ body{
 <div class="demo-banner">
   <b>Demo en vivo</b>
   <span>Live shopping con WebRTC + Supabase Realtime.</span>
-  <a href="host/">Consola del vendedor →</a>
+  <a href="host/" id="hostLink1">Consola del vendedor →</a>
   <a href="/">← portfolio</a>
 </div>
 
@@ -337,11 +368,11 @@ body{
       <ol class="try">
         <li>Abrí la <b>consola del vendedor</b> en otra pestaña y dale <i>Iniciar transmisión</i>.</li>
         <li>Volvé acá: vas a ver el video y el catálogo aparecer solos.</li>
-        <li>Tocá <b>Comprar</b> en un producto — se abre el chat con el vendedor.</li>
+        <li>Tocá <b>Lo quiero</b> en un producto — se abre el chat, con el producto fijado arriba.</li>
         <li>Desde la consola, enviá el <b>link de pago</b> y pagalo desde acá.</li>
       </ol>
     </div>
-    <a class="panel-link" href="host/">🎥 Abrir consola del vendedor</a>
+    <a class="panel-link" href="host/" id="hostLink2">🎥 Abrir consola del vendedor</a>
     <div class="footnote">
       Checkout simulado, no se procesa dinero real. ·
       <a href="https://github.com/FBC91" target="_blank" rel="noopener">código en GitHub ↗</a>
@@ -391,6 +422,19 @@ body{
     </div>
     <button class="icon-btn" id="chatClose" type="button" aria-label="Cerrar chat">✕</button>
   </header>
+  <form class="name-ask" id="nameAsk" hidden autocomplete="off">
+    <input id="nameInput" type="text" maxlength="24" placeholder="¿Cómo te llamás?" aria-label="Tu nombre">
+    <button type="submit">Guardar</button>
+  </form>
+  <div class="chat-ctx" id="chatCtx" hidden>
+    <div class="ctx-thumb" id="ctxThumb">📦</div>
+    <div class="ctx-info">
+      <div class="ctx-lbl">Consultando por</div>
+      <div class="ctx-name" id="ctxName"></div>
+    </div>
+    <div class="ctx-price" id="ctxPrice"></div>
+    <button class="ctx-clear" id="ctxClear" type="button" aria-label="Quitar producto del chat">✕</button>
+  </div>
   <div class="chat-body" id="chatBody" role="log" aria-live="polite"></div>
   <form class="chat-input" id="chatForm" autocomplete="off">
     <input type="text" id="chatInput" placeholder="Escribí un mensaje" maxlength="400" aria-label="Mensaje" enterkeyhint="send">
@@ -427,10 +471,33 @@ const SEED = [
 ];
 const DEMO_DELAY_MS = 3000;   // cuanto esperamos al vendedor antes de caer al catalogo demo
 
-const ROOM = (new URLSearchParams(location.search).get("live") || "demo")
-  .toLowerCase().replace(/[^a-z0-9-]/g,"").slice(0,24) || "demo";
-const PEER_ID = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2));
-const MY_NAME = "Comprador " + PEER_ID.slice(0,4).toUpperCase();
+/* Cada visitante trabaja en su propia sala. Si todos cayeran en "demo", dos
+   personas probando el portfolio a la vez compartirian vendedor y chats. */
+const cleanRoom = v => String(v || "").toLowerCase().replace(/[^a-z0-9-]/g,"").slice(0,24);
+const ROOM = (function(){
+  const fromUrl = cleanRoom(new URLSearchParams(location.search).get("live"));
+  if (fromUrl){ try{ sessionStorage.setItem("liveshop_room", fromUrl); }catch(e){} return fromUrl; }
+  let saved = "";
+  try{ saved = cleanRoom(sessionStorage.getItem("liveshop_room")); }catch(e){}
+  if (saved) return saved;
+  const fresh = "s" + Math.random().toString(36).slice(2,8);
+  try{ sessionStorage.setItem("liveshop_room", fresh); }catch(e){}
+  return fresh;
+})();
+const HOST_URL = "host/?live=" + encodeURIComponent(ROOM);
+/* La identidad se persiste: sin esto, recargar la pagina genera un comprador
+   nuevo para el vendedor y el link de pago que le habian mandado queda huerfano. */
+const PEER_ID = (function(){
+  let id = "";
+  try{ id = sessionStorage.getItem("liveshop_peer") || ""; }catch(e){}
+  if (!id){
+    id = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2));
+    try{ sessionStorage.setItem("liveshop_peer", id); }catch(e){}
+  }
+  return id;
+})();
+let MY_NAME = "Comprador " + PEER_ID.slice(0,4).toUpperCase();
+try{ MY_NAME = sessionStorage.getItem("liveshop_nombre") || MY_NAME; }catch(e){}
 
 /* ===================== analitica (mismo patron que hotelia) ===================== */
 const ANALYTICS = (function(){
@@ -567,8 +634,14 @@ function enterDemoMode(){
 function exitDemoMode(){
   if (!demoMode) return;
   demoMode = false;
-  $("chatBody").innerHTML = "";
-  unread = 0; paintBadge();
+  /* No se borra lo que el visitante ya escribio: solo se avisa que ahora hay
+     alguien del otro lado y se reenvia la consulta que habia quedado colgada. */
+  if ($("chatBody").children.length) pushSys("Se conectó un vendedor. Ya podés escribirle.", true);
+  if (chatCtxProd){
+    send("chat", {to:"host", from:PEER_ID, nombre:MY_NAME, kind:"buy",
+                  text:"Hola, quiero comprar: " + chatCtxProd.nombre + " (" + money(chatCtxProd.precio) + ")",
+                  producto:{id:chatCtxProd.id, nombre:chatCtxProd.nombre, precio:chatCtxProd.precio}});
+  }
 }
 
 /* ===================== catalogo ===================== */
@@ -619,12 +692,54 @@ function renderGrid(){
             (out ? "Sin stock" : "Quedan " + Number(p.stock)) +
           '</div>' +
           '<button class="buy-btn" data-id="' + esc(p.id) + '"' + (out ? " disabled" : "") + '>' +
-            (out ? "Agotado" : "Comprar") +
+            (out ? "Agotado" : "Lo quiero") +
           '</button>' +
         '</div>' +
       '</article>';
   }).join("");
 }
+
+/* Contexto del chat: sin esto el comprador abre el panel y no ve por cual de
+   todos los productos esta preguntando. */
+let chatCtxProd = null;
+
+function setChatContext(prod){
+  chatCtxProd = prod;
+  const box = $("chatCtx");
+  if (!prod){ box.hidden = true; return; }
+  $("ctxThumb").innerHTML = prod.img
+    ? '<img src="' + esc(prod.img) + '" alt="">'
+    : esc(prod.emoji || "📦");
+  $("ctxName").textContent = prod.nombre;
+  $("ctxPrice").textContent = money(prod.precio);
+  box.hidden = false;
+}
+$("ctxClear").addEventListener("click", () => setChatContext(null));
+
+/* Nombre del comprador. Se pide dentro del chat y no bloquea nada: sin esto el
+   vendedor ve un hash tipo "Comprador A3F2" en su lista. */
+let nameAsked = false;
+try{ nameAsked = !!sessionStorage.getItem("liveshop_nombre"); }catch(e){}
+
+function maybeAskName(){
+  if (nameAsked) return;
+  $("nameAsk").hidden = false;
+}
+
+$("nameAsk").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const v = $("nameInput").value.trim().slice(0,24);
+  if (v){
+    MY_NAME = v;
+    try{ sessionStorage.setItem("liveshop_nombre", v); }catch(err){}
+    channel.track({role:"buyer", nombre:MY_NAME, at:Date.now()}).catch(() => {});
+    send("chat", {to:"host", from:PEER_ID, nombre:MY_NAME, kind:"text",
+                  text:"(me llamo " + v + ")"});
+    pushSys("Te presentaste como " + v, true);
+  }
+  nameAsked = true;
+  $("nameAsk").hidden = true;
+});
 
 $("grid").addEventListener("click", (e) => {
   const btn = e.target.closest(".buy-btn");
@@ -632,18 +747,16 @@ $("grid").addEventListener("click", (e) => {
   const prod = state.productos.find(p => p.id === btn.dataset.id);
   if (!prod) return;
   openChat();
+  setChatContext(prod);
+  const texto = "Hola, quiero comprar: " + prod.nombre + " (" + money(prod.precio) + ")";
+  renderChat({kind:"text", text:texto}, "out");
   if (demoMode){
-    pushSys("Consultaste por " + prod.nombre);
-    renderChat({kind:"text", text:"Hola, quiero comprar: " + prod.nombre + " (" + money(prod.precio) + ")"}, "out");
     pushSys("No hay ningún vendedor conectado. Abrí la consola del vendedor en otra pestaña para responder este mensaje y mandarte el link de pago.");
     ANALYTICS.track("liveshop_buy_click", {room:ROOM, producto:prod.nombre, demo:true});
     return;
   }
-  const texto = "Hola, quiero comprar: " + prod.nombre + " (" + money(prod.precio) + ")";
-  pushSys("Consultaste por " + prod.nombre);
   send("chat", {to:"host", from:PEER_ID, nombre:MY_NAME, kind:"buy",
                 text:texto, producto:{id:prod.id, nombre:prod.nombre, precio:prod.precio}});
-  renderChat({kind:"text", text:texto}, "out");
   ANALYTICS.track("liveshop_buy_click", {room:ROOM, producto:prod.nombre});
 });
 
@@ -750,6 +863,7 @@ $("soundBtn").addEventListener("click", () => {
 /* ===================== chat ===================== */
 function openChat(){
   chatOpen = true; unread = 0; paintBadge();
+  maybeAskName();
   $("chat").classList.add("open");
   $("scrim").classList.add("on");
   $("chatFab").classList.remove("show");
@@ -825,7 +939,8 @@ $("chatForm").addEventListener("submit", (e) => {
   const input = $("chatInput");
   const text = input.value.trim();
   if (!text) return;
-  send("chat", {to:"host", from:PEER_ID, nombre:MY_NAME, kind:"text", text:text});
+  send("chat", {to:"host", from:PEER_ID, nombre:MY_NAME, kind:"text", text:text,
+                producto: chatCtxProd ? {id:chatCtxProd.id, nombre:chatCtxProd.nombre, precio:chatCtxProd.precio} : null});
   renderChat({kind:"text", text:text}, "out");
   input.value = "";
   $("chatSend").disabled = true;
@@ -848,6 +963,9 @@ window.addEventListener("storage", (e) => {
 window.addEventListener("beforeunload", () => {
   try{ send("signal", {to:"host", from:PEER_ID, kind:"leave"}); }catch(e){}
 });
+
+/* los links a la consola llevan la sala, si no el vendedor abriria otra distinta */
+["hostLink1","hostLink2","fbCta"].forEach(id => { const el = $(id); if (el) el.href = HOST_URL; });
 
 /* estado inicial */
 showFallback("📡", "Buscando al vendedor…",
