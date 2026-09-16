@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>LiveShop · Ingresar como vendedor</title>
+<meta name="description" content="Ingresá o creá tu cuenta de vendedor en LiveShop para transmitir en vivo y administrar tu catálogo.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎥</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F9F6F0;
+  --bg-soft:#F2EDE4;
+  --card:#FFFFFF;
+  --ink:#1A1916;
+  --ink-soft:#5A5750;
+  --ink-faint:#8B887F;
+  --line:#E2DDD2;
+  --amber:#B8862A;
+  --amber-l:#D4A84B;
+  --amber-soft:#F5EAD4;
+  --red:#C0392B;
+  --red-soft:#F9E2DF;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;display:flex;flex-direction:column;
+}
+button,input{font-family:inherit}
+
+.banner{
+  background:var(--ink);color:#F9F6F0;padding:.6rem 1rem;font-size:.78rem;
+  display:flex;align-items:center;justify-content:center;gap:.9rem;flex-wrap:wrap;
+}
+.banner b{color:var(--amber-l);letter-spacing:.12em;text-transform:uppercase;font-size:.7rem}
+.banner a{color:var(--amber-l);text-decoration:none;border-bottom:1px solid transparent}
+.banner a:hover{border-color:var(--amber-l)}
+
+.wrap{
+  flex:1;display:flex;align-items:center;justify-content:center;padding:1.5rem 1rem;
+  background:linear-gradient(180deg,var(--bg-soft) 0%, var(--bg) 100%);
+}
+.box{
+  width:100%;max-width:400px;background:var(--card);border:1px solid var(--line);
+  border-radius:14px;box-shadow:0 8px 30px rgba(26,25,22,.08);overflow:hidden;
+}
+.head{padding:1.4rem 1.5rem .4rem;display:flex;align-items:center;gap:.7rem}
+.logo{
+  width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,var(--amber-l),var(--amber));font-size:1.2rem;flex-shrink:0;
+}
+.head h1{font-size:1.05rem;font-weight:700;line-height:1.2}
+.head small{display:block;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);font-weight:500}
+
+.tabs{display:flex;gap:.25rem;padding:.8rem 1.5rem 0;border-bottom:1px solid var(--line)}
+.tab{
+  background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;
+  padding:.55rem .8rem .65rem;font-size:.85rem;color:var(--ink-soft);
+}
+.tab[aria-selected="true"]{color:var(--amber);border-bottom-color:var(--amber);font-weight:600}
+
+form{padding:1.2rem 1.5rem 1.5rem;display:flex;flex-direction:column;gap:.85rem}
+form[hidden]{display:none}
+.field{display:flex;flex-direction:column;gap:.3rem}
+.field label{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+.field input{
+  border:1px solid var(--line);border-radius:8px;padding:.6rem .75rem;font-size:.92rem;
+  background:var(--bg);color:var(--ink);outline:none;width:100%;
+}
+.field input:focus{border-color:var(--amber)}
+.hint{font-size:.72rem;color:var(--ink-faint);line-height:1.5}
+.btn{
+  border:none;border-radius:8px;padding:.75rem 1rem;font-size:.9rem;font-weight:600;cursor:pointer;
+  background:var(--amber);color:#fff;transition:filter .15s;
+}
+.btn:hover:not(:disabled){filter:brightness(1.08)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.err{
+  background:var(--red-soft);border:1px solid #EFC9C3;color:#8C2A1F;
+  border-radius:8px;padding:.55rem .7rem;font-size:.8rem;line-height:1.45;
+}
+.err[hidden]{display:none}
+.demo{
+  margin:0 1.5rem 1.5rem;background:var(--amber-soft);border:1px solid #EBD6A9;border-radius:10px;
+  padding:.8rem .9rem;font-size:.78rem;line-height:1.55;color:var(--ink-soft);
+}
+.demo b{color:var(--ink)}
+.demo code{font-family:ui-monospace,monospace;background:#fff;border:1px solid #EBD6A9;border-radius:4px;padding:0 .3rem}
+.demo button{
+  margin-top:.5rem;border:1px solid var(--amber);background:#fff;color:var(--amber);font-weight:600;
+  font-size:.76rem;border-radius:6px;padding:.35rem .7rem;cursor:pointer;
+}
+.demo button:hover{background:var(--amber);color:#fff}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<div class="banner">
+  <b>LiveShop</b>
+  <a href="../">← Ver lives como comprador</a>
+  <a href="/">portfolio</a>
+</div>
+
+<main class="wrap">
+  <section class="box" aria-label="Acceso de vendedores">
+    <div class="head">
+      <span class="logo" aria-hidden="true">🎥</span>
+      <h1>Acceso de vendedores<small>Para comprar no hace falta cuenta</small></h1>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button class="tab" id="tabLogin" role="tab" aria-selected="true" type="button">Ingresar</button>
+      <button class="tab" id="tabSignup" role="tab" aria-selected="false" type="button">Crear cuenta</button>
+    </div>
+
+    <form id="loginForm" autocomplete="on">
+      <div class="field">
+        <label for="lUser">Usuario</label>
+        <input id="lUser" name="username" type="text" autocomplete="username" autocapitalize="none" maxlength="24" required>
+      </div>
+      <div class="field">
+        <label for="lPass">Contraseña</label>
+        <input id="lPass" name="password" type="password" autocomplete="current-password" maxlength="72" required>
+      </div>
+      <div class="err" id="lErr" role="alert" hidden></div>
+      <button class="btn" type="submit" id="lBtn">Ingresar</button>
+    </form>
+
+    <form id="signupForm" autocomplete="off" hidden>
+      <div class="field">
+        <label for="sName">Nombre de la tienda</label>
+        <input id="sName" type="text" maxlength="40" placeholder="Ej: Ropa de Ana" required>
+      </div>
+      <div class="field">
+        <label for="sUser">Usuario</label>
+        <input id="sUser" type="text" autocomplete="username" autocapitalize="none" maxlength="24" pattern="[A-Za-z0-9_-]{3,24}" required>
+        <div class="hint">3 a 24 caracteres: letras, números, guion o guion bajo. No se puede cambiar.</div>
+      </div>
+      <div class="field">
+        <label for="sPass">Contraseña</label>
+        <input id="sPass" type="password" autocomplete="new-password" minlength="6" maxlength="72" required>
+      </div>
+      <div class="field">
+        <label for="sPass2">Repetir contraseña</label>
+        <input id="sPass2" type="password" autocomplete="new-password" minlength="6" maxlength="72" required>
+      </div>
+      <div class="hint">
+        Demo pública de portfolio: no uses una contraseña que uses en otro sitio. Las métricas de tu
+        cuenta (visitas, ventas simuladas) son visibles para el administrador de la demo.
+      </div>
+      <div class="err" id="sErr" role="alert" hidden></div>
+      <button class="btn" type="submit" id="sBtn">Crear cuenta</button>
+    </form>
+
+    <div class="demo">
+      <b>¿Solo querés probar?</b> Usá la cuenta demo:
+      usuario <code>Vendedor</code> · contraseña <code>Vendedor</code>.
+      Es compartida: si otra persona ya está transmitiendo con ella, vas a poder editar el catálogo
+      pero no salir en vivo.
+      <br><button type="button" id="useDemo">Completar con la cuenta demo</button>
+    </div>
+  </section>
+</main>
+
+<script src="../comun.js"></script>
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+
+function destino(cuenta){
+  return cuenta && cuenta.rol === "admin" ? "../admin/" : "../host/";
+}
+
+/* Si ya hay una sesion valida no tiene sentido pedir login otra vez. */
+(async function(){
+  if (!LS.token()) return;
+  try{
+    const yo = await LS.rpc("liveshop_yo", {p_token:LS.token()});
+    location.replace(destino(yo.cuenta));
+  }catch(e){
+    if (e.code === "sesion_invalida") LS.clearToken();
+  }
+})();
+
+function showTab(which){
+  const login = which === "login";
+  $("tabLogin").setAttribute("aria-selected", String(login));
+  $("tabSignup").setAttribute("aria-selected", String(!login));
+  $("loginForm").hidden = !login;
+  $("signupForm").hidden = login;
+  (login ? $("lUser") : $("sName")).focus();
+}
+$("tabLogin").addEventListener("click", () => showTab("login"));
+$("tabSignup").addEventListener("click", () => showTab("signup"));
+if (location.hash === "#registro") showTab("signup");
+
+function showErr(el, msg){
+  el.textContent = msg;
+  el.hidden = !msg;
+}
+
+$("useDemo").addEventListener("click", () => {
+  showTab("login");
+  $("lUser").value = "Vendedor";
+  $("lPass").value = "Vendedor";
+  $("lBtn").focus();
+});
+
+$("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  showErr($("lErr"), "");
+  $("lBtn").disabled = true;
+  $("lBtn").textContent = "Ingresando…";
+  try{
+    const r = await LS.rpc("liveshop_login", {p_usuario:$("lUser").value, p_password:$("lPass").value});
+    LS.setToken(r.token);
+    location.replace(destino(r.cuenta));
+  }catch(err){
+    showErr($("lErr"), err.message);
+    $("lBtn").disabled = false;
+    $("lBtn").textContent = "Ingresar";
+  }
+});
+
+$("signupForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  showErr($("sErr"), "");
+  if ($("sPass").value !== $("sPass2").value){
+    showErr($("sErr"), "Las contraseñas no coinciden.");
+    return;
+  }
+  $("sBtn").disabled = true;
+  $("sBtn").textContent = "Creando…";
+  try{
+    const r = await LS.rpc("liveshop_registrar", {
+      p_usuario:$("sUser").value, p_password:$("sPass").value, p_nombre:$("sName").value
+    });
+    LS.setToken(r.token);
+    location.replace("../host/");
+  }catch(err){
+    showErr($("sErr"), err.message);
+    $("sBtn").disabled = false;
+    $("sBtn").textContent = "Crear cuenta";
+  }
+});
+</script>
+</body>
+</html>

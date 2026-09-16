@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>LiveShop · Administración</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F9F6F0;
+  --bg-soft:#F2EDE4;
+  --card:#FFFFFF;
+  --ink:#1A1916;
+  --ink-soft:#5A5750;
+  --ink-faint:#8B887F;
+  --line:#E2DDD2;
+  --grid:#EFEBE3;
+  --amber:#B8862A;
+  --amber-l:#D4A84B;
+  --amber-soft:#F5EAD4;
+  --green:#1E7E5A;
+  --red:#C0392B;
+  --radius:10px;
+  --shadow:0 1px 3px rgba(26,25,22,.06), 0 4px 14px rgba(26,25,22,.05);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;display:flex;flex-direction:column;
+}
+button,select{font-family:inherit}
+[hidden]{display:none !important}
+
+.topbar{
+  background:var(--ink);color:#F9F6F0;padding:.85rem 1.25rem;
+  display:flex;align-items:center;gap:1rem;flex-wrap:wrap;position:sticky;top:0;z-index:20;
+}
+.brand{display:flex;align-items:center;gap:.6rem;font-weight:600}
+.brand .logo{
+  width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,var(--amber-l),var(--amber));
+}
+.brand small{display:block;font-weight:400;font-size:.68rem;color:#bdb8ab;letter-spacing:.08em;text-transform:uppercase}
+.spacer{flex:1}
+.top-link{color:var(--amber-l);font-size:.75rem;text-decoration:none}
+.top-btn{
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#F9F6F0;
+  font-size:.75rem;padding:.45rem .8rem;border-radius:8px;cursor:pointer;
+}
+.top-btn:hover{background:rgba(255,255,255,.16)}
+
+main{flex:1;padding:1.25rem;max-width:1280px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:1.5rem}
+.note{
+  background:var(--amber-soft);border:1px solid #EBD6A9;color:#6B4E14;
+  border-radius:8px;padding:.6rem .8rem;font-size:.78rem;line-height:1.5;
+}
+.head{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+h1{font-size:1.25rem;font-weight:700}
+h2{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);font-weight:600;margin-bottom:.75rem}
+select{border:1px solid var(--line);border-radius:8px;padding:.45rem .6rem;font-size:.84rem;background:var(--card);color:var(--ink)}
+.state-box{
+  background:var(--card);border:1px dashed var(--line);border-radius:var(--radius);
+  padding:2rem 1rem;text-align:center;color:var(--ink-faint);font-size:.85rem;grid-column:1/-1;
+}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.75rem}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow)}
+.kpi .lbl{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+.kpi .val{font-size:1.6rem;font-weight:700;margin-top:.3rem;line-height:1}
+.kpi .sub{font-size:.72rem;color:var(--ink-faint);margin-top:.25rem}
+
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem}
+.chart{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:1rem;min-width:0}
+.chart-title{font-size:.9rem;font-weight:600}
+.chart-sub{font-size:.72rem;color:var(--ink-faint);margin-top:.15rem}
+.plot{position:relative;height:160px;margin-top:.9rem;display:flex}
+.axis{
+  display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;
+  font-size:.64rem;color:var(--ink-faint);padding-right:.4rem;width:2.8rem;flex-shrink:0;
+}
+.bars{
+  flex:1;min-width:0;position:relative;display:flex;align-items:flex-end;
+  border-bottom:1px solid var(--line);
+  background-image:linear-gradient(var(--grid) 1px, transparent 1px);
+  background-size:100% 50%;
+}
+.col{flex:1;min-width:0;height:100%;display:flex;align-items:flex-end;justify-content:center;position:relative}
+.col .bar{width:min(24px,70%);border-radius:4px 4px 0 0}
+.col:hover .bar{filter:brightness(1.12)}
+.xlabels{display:flex;margin-left:2.8rem;font-size:.62rem;color:var(--ink-faint);margin-top:.3rem}
+.xlabels span{flex:1;min-width:0;text-align:center;white-space:nowrap;overflow:visible}
+.tip{
+  position:fixed;z-index:30;pointer-events:none;background:var(--ink);color:#F9F6F0;
+  font-size:.74rem;padding:.4rem .55rem;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.2);white-space:nowrap;
+}
+.tip b{display:block;font-size:.66rem;font-weight:500;color:#bdb8ab}
+details.table-view{margin-top:.7rem;font-size:.76rem}
+details.table-view summary{cursor:pointer;color:var(--ink-soft)}
+details.table-view table{margin-top:.5rem}
+
+.table-wrap{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+th,td{padding:.55rem .7rem;text-align:right;white-space:nowrap;border-bottom:1px solid var(--grid)}
+th:first-child,td:first-child{text-align:left}
+th{font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);font-weight:600;background:var(--bg-soft)}
+thead th[data-k]{cursor:pointer;user-select:none}
+th[aria-sort="descending"]::after{content:" ↓";color:var(--amber)}
+th[aria-sort="ascending"]::after{content:" ↑";color:var(--amber)}
+#rows tr{cursor:pointer}
+#rows tr:hover{background:var(--bg)}
+#rows tr.sel{background:var(--amber-soft)}
+td .who{font-weight:600}
+td .u{font-size:.7rem;color:var(--ink-faint)}
+
+.detail{background:var(--card);border:1px solid var(--amber);border-radius:var(--radius);box-shadow:var(--shadow);padding:1rem}
+.detail-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:.8rem}
+.detail-head .t{font-size:1rem;font-weight:700}
+.detail-head .s{font-size:.74rem;color:var(--ink-faint)}
+.detail-head a{font-size:.76rem;color:var(--amber);text-decoration:none;font-weight:600}
+.detail .kpi{box-shadow:none}
+.link-btn{background:none;border:none;color:var(--ink-faint);cursor:pointer;font-size:.76rem;margin-left:.6rem}
+
+.boot{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;align-items:center;justify-content:center;text-align:center;padding:1rem;color:var(--ink-soft)}
+.boot a{color:var(--amber)}
+@media (max-width:520px){ main{padding:.85rem} }
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<div class="boot" id="boot"><p id="bootMsg">Verificando acceso…</p></div>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="logo" aria-hidden="true">📊</span>
+    <span>LiveShop<small>Administración</small></span>
+  </div>
+  <div class="spacer"></div>
+  <a class="top-link" href="../">Ver lives ↗</a>
+  <button class="top-btn" id="logoutBtn" type="button">Salir</button>
+</header>
+
+<main>
+  <div class="note">
+    <b>Administrador demo</b> (usuario <code>admin</code>, contraseña <code>admin</code>, se restablece todos los días).
+    Solo muestra números agregados: no da acceso a chats, catálogos ni datos de compradores.
+  </div>
+
+  <div class="head">
+    <h1>Métricas de vendedores</h1>
+    <select id="range" aria-label="Período">
+      <option value="1">Hoy</option>
+      <option value="7">Últimos 7 días</option>
+      <option value="30" selected>Últimos 30 días</option>
+      <option value="90">Últimos 90 días</option>
+    </select>
+  </div>
+
+  <section aria-labelledby="totTitle">
+    <h2 id="totTitle">Todos los vendedores</h2>
+    <div class="kpis" id="totals"><div class="state-box">Cargando…</div></div>
+  </section>
+
+  <section aria-labelledby="serieTitle">
+    <h2 id="serieTitle">Evolución diaria</h2>
+    <div class="charts">
+      <div class="chart" id="chartFact"></div>
+      <div class="chart" id="chartEnt"></div>
+    </div>
+  </section>
+
+  <section class="detail" id="detail" hidden aria-live="polite"></section>
+
+  <section aria-labelledby="vendTitle">
+    <h2 id="vendTitle">Por vendedor · tocá una fila para ver el detalle</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th data-k="nombre">Vendedor</th>
+            <th data-k="entradas">Entradas</th>
+            <th data-k="compradores">Compradores</th>
+            <th data-k="interes">Interés</th>
+            <th data-k="mensajes">Mensajes</th>
+            <th data-k="links">Links</th>
+            <th data-k="pagos">Pagos</th>
+            <th data-k="facturado">Facturado</th>
+            <th data-k="conversion">Conversión</th>
+            <th data-k="transmisiones">Lives</th>
+            <th data-k="pico">Pico</th>
+          </tr>
+        </thead>
+        <tbody id="rows"><tr><td colspan="11" style="text-align:center;color:var(--ink-faint)">Cargando…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<div class="tip" id="tip" hidden></div>
+
+<script src="../comun.js"></script>
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+const esc = LS.esc;
+const money = LS.money;
+const fmt = n => new Intl.NumberFormat("es-UY",{maximumFractionDigits:0}).format(Number(n) || 0);
+const TOKEN = LS.token();
+
+let DATA = null;
+let sortKey = "facturado";
+let sortAsc = false;
+let selected = null;
+
+function goLogin(){ location.replace("../vendedor/"); }
+
+async function api(fn, args){
+  try{
+    return await LS.rpc(fn, Object.assign({p_token:TOKEN}, args || {}));
+  }catch(err){
+    if (err.code === "sesion_invalida"){ LS.clearToken(); goLogin(); }
+    throw err;
+  }
+}
+
+function pct(a, b){ return b ? Math.round(a / b * 100) + "%" : "—"; }
+
+function kpi(lbl, val, sub){
+  return '<div class="kpi"><div class="lbl">' + esc(lbl) + '</div><div class="val">' + esc(val) +
+         '</div><div class="sub">' + esc(sub) + '</div></div>';
+}
+
+function kpisFor(m, conVendedores){
+  const n = k => Number(m[k]) || 0;
+  const rtcTotal = n("video_ok") + n("video_falla");
+  return (conVendedores ? kpi("Vendedores", fmt(n("vendedores")), fmt(n("activos")) + " con actividad") : "") +
+    kpi("Entradas", fmt(n("entradas")), fmt(n("compradores")) + " compradores únicos") +
+    kpi("Interés", fmt(n("interes")), "clics en “Lo quiero”") +
+    kpi("Mensajes", fmt(n("mensajes")), "enviados + recibidos") +
+    kpi("Links de pago", fmt(n("links")), money(n("monto_links")) + " ofrecidos") +
+    kpi("Pagos", fmt(n("pagos")), "confirmados") +
+    kpi("Facturado", money(n("facturado")), "pagos simulados") +
+    kpi("Conversión", pct(n("pagos"), n("links")), "pagos / links") +
+    kpi("Transmisiones", fmt(n("transmisiones")), "pico " + fmt(n("pico")) + " espectadores") +
+    kpi("Video P2P", pct(n("video_ok"), rtcTotal), fmt(n("video_ok")) + " de " + fmt(rtcTotal) + " conectaron");
+}
+
+/* Dos graficos de una serie en vez de uno con doble eje: facturado y entradas
+   tienen escalas que no se comparan entre si. */
+function niceCeil(v){
+  const p = Math.pow(10, Math.floor(Math.log10(v)));
+  const f = v / p;
+  return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p;
+}
+function shortDay(iso){
+  const parts = String(iso).split("-");
+  return Number(parts[2]) + "/" + Number(parts[1]);
+}
+
+function columnChart(el, titulo, sub, serie, key, color, format){
+  const max = Math.max(0, ...serie.map(d => Number(d[key]) || 0));
+  const top = max > 0 ? niceCeil(max) : 1;
+  const step = Math.max(1, Math.ceil(serie.length / 7));
+  el.innerHTML =
+    '<div class="chart-title">' + esc(titulo) + '</div>' +
+    '<div class="chart-sub">' + esc(sub) + '</div>' +
+    '<div class="plot">' +
+      '<div class="axis"><span>' + esc(format(top)) + '</span><span>' + esc(format(top / 2)) + '</span><span>0</span></div>' +
+      '<div class="bars">' +
+        serie.map(d => {
+          const v = Number(d[key]) || 0;
+          return '<div class="col" data-dia="' + esc(d.dia) + '" data-val="' + esc(format(v)) + '">' +
+                 '<div class="bar" style="height:' + (v / top * 100).toFixed(1) + '%;background:' + color + '"></div></div>';
+        }).join("") +
+      '</div>' +
+    '</div>' +
+    '<div class="xlabels">' +
+      serie.map((d, i) => '<span>' + ((serie.length - 1 - i) % step === 0 ? esc(shortDay(d.dia)) : "") + '</span>').join("") +
+    '</div>' +
+    '<details class="table-view"><summary>Ver como tabla</summary><table><thead><tr><th>Día</th><th>' + esc(titulo) +
+      '</th></tr></thead><tbody>' +
+      serie.map(d => '<tr><td>' + esc(d.dia) + '</td><td>' + esc(format(Number(d[key]) || 0)) + '</td></tr>').join("") +
+    '</tbody></table></details>';
+}
+
+document.addEventListener("mousemove", (e) => {
+  const col = e.target.closest && e.target.closest(".col[data-dia]");
+  const tip = $("tip");
+  if (!col){ tip.hidden = true; return; }
+  tip.innerHTML = '<b>' + esc(col.dataset.dia) + '</b>' + esc(col.dataset.val);
+  tip.hidden = false;
+  const x = Math.min(e.clientX + 12, window.innerWidth - tip.offsetWidth - 8);
+  tip.style.left = Math.max(8, x) + "px";
+  tip.style.top = Math.max(8, e.clientY - tip.offsetHeight - 10) + "px";
+});
+
+function sortedRows(){
+  const rows = (DATA.vendedores || []).map(v => Object.assign({}, v, {
+    conversion: Number(v.links) ? Number(v.pagos) / Number(v.links) : -1
+  }));
+  rows.sort((a, b) => {
+    const x = sortKey === "nombre" ? String(a.nombre).toLowerCase() : Number(a[sortKey]) || 0;
+    const y = sortKey === "nombre" ? String(b.nombre).toLowerCase() : Number(b[sortKey]) || 0;
+    return (x < y ? -1 : x > y ? 1 : 0) * (sortAsc ? 1 : -1);
+  });
+  return rows;
+}
+
+function renderTable(){
+  document.querySelectorAll("th[data-k]").forEach(th => {
+    if (th.dataset.k === sortKey) th.setAttribute("aria-sort", sortAsc ? "ascending" : "descending");
+    else th.removeAttribute("aria-sort");
+  });
+  const rows = sortedRows();
+  if (!rows.length){
+    $("rows").innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--ink-faint)">Todavía no hay vendedores.</td></tr>';
+    return;
+  }
+  $("rows").innerHTML = rows.map(v =>
+    '<tr data-u="' + esc(v.usuario) + '"' + (selected === v.usuario ? ' class="sel"' : "") + '>' +
+      '<td><div class="who">' + esc(v.nombre) + '</div><div class="u">@' + esc(v.usuario) + ' · sala ' + esc(v.sala) + '</div></td>' +
+      '<td>' + fmt(v.entradas) + '</td>' +
+      '<td>' + fmt(v.compradores) + '</td>' +
+      '<td>' + fmt(v.interes) + '</td>' +
+      '<td>' + fmt(v.mensajes) + '</td>' +
+      '<td>' + fmt(v.links) + '</td>' +
+      '<td>' + fmt(v.pagos) + '</td>' +
+      '<td>' + money(v.facturado) + '</td>' +
+      '<td>' + pct(Number(v.pagos), Number(v.links)) + '</td>' +
+      '<td>' + fmt(v.transmisiones) + '</td>' +
+      '<td>' + fmt(v.pico) + '</td>' +
+    '</tr>'
+  ).join("");
+}
+
+function renderDetail(){
+  const box = $("detail");
+  const v = selected && (DATA.vendedores || []).find(x => x.usuario === selected);
+  if (!v){ box.hidden = true; return; }
+  box.hidden = false;
+  box.innerHTML =
+    '<div class="detail-head">' +
+      '<div><div class="t">' + esc(v.nombre) + '</div>' +
+      '<div class="s">@' + esc(v.usuario) + ' · sala ' + esc(v.sala) + ' · alta ' +
+        esc(new Date(v.created_at).toLocaleDateString("es-UY")) + '</div></div>' +
+      '<div><a href="../?live=' + encodeURIComponent(v.sala) + '" target="_blank" rel="noopener">Abrir su sala ↗</a>' +
+      '<button class="link-btn" type="button" id="closeDetail">✕ cerrar</button></div>' +
+    '</div>' +
+    '<div class="kpis">' + kpisFor(v, false) + '</div>';
+  $("closeDetail").addEventListener("click", () => { selected = null; renderTable(); renderDetail(); });
+}
+
+$("rows").addEventListener("click", (e) => {
+  const tr = e.target.closest("tr[data-u]");
+  if (!tr) return;
+  selected = selected === tr.dataset.u ? null : tr.dataset.u;
+  renderTable(); renderDetail();
+  if (selected) $("detail").scrollIntoView({behavior:"smooth", block:"nearest"});
+});
+
+document.querySelectorAll("th[data-k]").forEach(th => {
+  th.addEventListener("click", () => {
+    if (!DATA) return;
+    if (sortKey === th.dataset.k) sortAsc = !sortAsc;
+    else { sortKey = th.dataset.k; sortAsc = th.dataset.k === "nombre"; }
+    renderTable();
+  });
+});
+
+async function load(){
+  const dias = Number($("range").value) || 30;
+  $("totals").innerHTML = '<div class="state-box">Cargando…</div>';
+  try{
+    DATA = await api("liveshop_metricas_admin", {p_dias:dias});
+  }catch(err){
+    $("totals").innerHTML = '<div class="state-box">No se pudieron cargar las métricas (' + esc(err.message) + ').</div>';
+    return;
+  }
+  $("totals").innerHTML = kpisFor(DATA.totales || {}, true);
+  const serie = DATA.serie || [];
+  columnChart($("chartFact"), "Facturado por día", "Pagos confirmados, en UYU", serie, "facturado", "var(--amber)",
+              v => v >= 1000 ? fmt(v / 1000) + " k" : fmt(v));
+  columnChart($("chartEnt"), "Entradas por día", "Visitas a las salas de todos los vendedores", serie, "entradas", "var(--green)", fmt);
+  renderTable();
+  renderDetail();
+}
+$("range").addEventListener("change", load);
+
+$("logoutBtn").addEventListener("click", async () => {
+  try{ await LS.rpc("liveshop_logout", {p_token:TOKEN}); }catch(e){}
+  LS.clearToken();
+  goLogin();
+});
+
+(async function boot(){
+  if (!TOKEN){ goLogin(); return; }
+  let yo;
+  try{
+    yo = await api("liveshop_yo");
+  }catch(err){
+    if (err.code === "sesion_invalida") return;
+    $("bootMsg").innerHTML = "No se pudo verificar tu sesión: " + esc(err.message) + '<br><a href="">Reintentar</a>';
+    return;
+  }
+  if (yo.cuenta.rol !== "admin"){ location.replace("../host/"); return; }
+  $("boot").hidden = true;
+  load();
+})();
+</script>
+</body>
+</html>

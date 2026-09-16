@@ -10,8 +10,14 @@ referencia exhaustiva.
 - **Producción:** https://facundobolani.com/liveshop/
 - **Repositorio:** https://github.com/FBC91/FBC91.github.io (carpeta `liveshop/`)
 - **Ruta local:** `C:\Users\facun\liveshop\`
-- **Último estado documentado:** commit `ece7cb7`, 9 de septiembre de 2026
+- **Último estado documentado:** cuentas de vendedor, 16 de septiembre de 2026 (ver Parte VII)
 - **Autor:** Facundo Bolani
+
+> **Cambio de modelo (16/09/2026).** LiveShop pasó de "sin cuentas, catálogo en el
+> navegador, sala aleatoria por visitante" a "cuentas de vendedor, datos en
+> Postgres, una sala fija por vendedor, directorio de lives y panel de admin".
+> La **Parte VII** describe el modelo nuevo y manda sobre cualquier sección
+> anterior que la contradiga.
 
 ---
 
@@ -69,16 +75,18 @@ tarjeta. Integrar Mercado Pago exigiría cuenta de comercio, credenciales,
 webhooks y un backend para recibirlos. Nada de eso demuestra una capacidad
 adicional en una demo, y sí agregaría riesgo real de manejar dinero ajeno.
 
-**Sin cuentas ni login.** Nadie se registra. Un formulario de registro entre el
-visitante y la demo mataría la mayoría de las visitas.
+**Sin cuentas de comprador.** El comprador nunca se registra: un formulario entre
+el visitante y la compra mataría la mayoría de las visitas. *(Hasta el 16/09/2026
+tampoco había cuentas de vendedor; ahora sí las hay, con una cuenta demo pública
+para que el visitante no tenga que registrarse. Ver Parte VII.)*
 
 **Sin carrito ni cantidades.** Una consulta es por un producto. El carrito es un
 patrón resuelto del e-commerce tradicional y no aporta nada a la tesis de este
 producto, que es la conversación en vivo.
 
-**Sin base de datos de productos.** El catálogo vive en el navegador del
-vendedor. Persistirlo exigiría tablas, autenticación y permisos. Para una demo
-suma complejidad sin mostrar nada nuevo.
+**Sin Supabase Auth.** Las cuentas de vendedor usan tablas y funciones propias,
+no el sistema de autenticación de Supabase: ese sistema exige email, y dar de alta
+o baja usuarios necesita la clave de servicio, que no puede viajar al navegador.
 
 **Sin moderación de chat ni antifraude.** Son necesarios en producción real,
 irrelevantes en una demo de portfolio.
@@ -177,16 +185,16 @@ hay vendedor en línea, y el estado en línea/desconectado de cada comprador.
 
 ## 9. Dónde vive cada dato
 
-No hay base de datos de negocio. Todo el estado vive en el navegador.
-
 | Dato | Dónde | Alcance |
 |---|---|---|
-| Catálogo de productos | `localStorage` del vendedor | Persiste entre sesiones |
-| Sala del vendedor | `localStorage` del vendedor | Persiste; sobrevive refresh |
-| Conversaciones y métricas de sala | `localStorage` del vendedor | Persiste por sala |
-| Sala del comprador | `sessionStorage` | Dura lo que la pestaña |
-| Identidad del comprador | `sessionStorage` | Dura lo que la pestaña |
-| Nombre del comprador | `sessionStorage` | Dura lo que la pestaña |
+| Cuentas de vendedor y admin | `liveshop_vendedores` (Postgres) | Permanente |
+| Catálogo, título, destacado | `liveshop_productos` + `liveshop_vendedores` | Permanente, por vendedor |
+| Sala del vendedor | columna `sala` de `liveshop_vendedores` | Fija; la cambia el vendedor |
+| Conversaciones | `liveshop_conversaciones` | Por vendedor, últimas 100 |
+| Métricas | `liveshop_eventos` + `liveshop_pagos` | Por vendedor |
+| Sesión del vendedor | token en `localStorage` (`liveshop_token`); hash en `liveshop_sesiones` | 7 días |
+| Quién está en vivo | presencia del canal `liveshop:lobby` | Mientras dure la transmisión |
+| Identidad y nombre del comprador | `sessionStorage` | Dura lo que la pestaña |
 | Aviso de pago entre pestañas | `localStorage` | Efímero |
 
 **Por qué `sessionStorage` del lado del comprador:** cada pestaña es un
@@ -195,30 +203,31 @@ compartirían identidad y colisionarían en la sala.
 
 ## 10. El modelo de salas
 
-Cada visitante genera su propia sala, con un identificador tipo `s7als01`.
+Cada vendedor tiene **una sola sala, fija**: un código único (por defecto, su
+usuario) que forma su link público `/liveshop/?live=<sala>`. El vendedor puede
+cambiar el código desde *Mi cuenta*; el link viejo deja de funcionar.
 
-Cuando el comprador abre la consola del vendedor desde cualquiera de los tres
-links de su página, la sala viaja en la URL como `?live=<sala>`. Así ambas
-puntas coinciden sin que el usuario tenga que copiar nada.
+*(Modelo anterior, reemplazado: cada visitante generaba una sala aleatoria tipo
+`s7als01` y la pasaba a la consola por URL. Aislaba visitantes, pero no permite
+un link estable por tienda ni un directorio.)*
 
-La consola recuerda su sala en `localStorage`, para que un refresh durante una
-transmisión no cambie de sala y no pierda las conversaciones guardadas.
+El riesgo que el modelo aleatorio evitaba — dos personas operando la misma sala —
+reaparece con la cuenta demo compartida. Se resuelve con la regla "una transmisión
+por cuenta" (sección 26).
 
 ## 11. Modo demo
 
-Si a los 3 segundos no hay ningún vendedor en línea, o si el canal de tiempo
-real falla, el comprador entra en **modo demo**: se muestra un catálogo de
-ejemplo y un botón para abrir la consola del vendedor en otra pestaña.
+Si a los 3 segundos el vendedor de la sala no está conectado, o si el canal de
+tiempo real falla, el comprador ve el **catálogo guardado de ese vendedor** (leído
+de la base con `liveshop_sala`) y un aviso de que no está transmitiendo. En la sala
+de la cuenta demo, el aviso ofrece entrar como vendedor.
 
-**Por qué existe:** el catálogo real vive en el navegador del vendedor. Sin
-transmisión activa, la página quedaba completamente vacía. Como el 99% de las
-visitas a un portfolio llegan cuando nadie está transmitiendo, la demo mostraba
-una pantalla muerta casi siempre.
+**Por qué existe:** el 99% de las visitas a un portfolio llegan cuando nadie está
+transmitiendo; una sala vacía no cuenta nada.
 
-El catálogo semilla está duplicado a propósito en las dos páginas (constante
-`SEED`). **Si se modifica uno hay que modificar el otro.** Se aceptó la
-duplicación para no introducir un archivo compartido y romper la propiedad de
-"cada página es autocontenida".
+*(Antes se mostraba un catálogo de ejemplo fijo, la constante `SEED`, duplicado en
+dos páginas. Ya no existe en el frontend: el catálogo de ejemplo vive solo en la
+función SQL `liveshop__seed_catalogo`.)*
 
 ---
 
@@ -486,9 +495,15 @@ participante, y quedó registro en la analítica (eventos `liveshop_webrtc_ok`).
 **Alto — dependencia compartida.** El proyecto de Supabase es el mismo que usa
 Hotelia. Si se pausa, se borra o se agota su cuota, caen las dos demos.
 
-**Medio — el catálogo semilla está duplicado.** La constante `SEED` existe en las
-dos páginas. Si se editan por separado, el comprador vería un catálogo distinto
-al del vendedor.
+**Medio — credenciales demo públicas.** `admin`/`admin` deja ver las métricas
+(visitas y facturación simulada) de todos los vendedores registrados. Es
+intencional para el portfolio y se advierte en el registro, pero en un producto
+real esa cuenta no debe existir.
+
+**Medio — el catálogo se reemplaza completo.** Guardar el catálogo borra e
+inserta todos los productos. Si entre dos guardados se registra un pago, el stock
+descontado puede pisarse con el valor viejo. La ventana es de menos de un
+segundo y solo con dos consolas de la misma cuenta editando a la vez.
 
 **Medio — confirmación de pago falsificable.** La confirmación la emite el
 navegador del comprador. En una demo sin dinero real es irrelevante; en
@@ -499,11 +514,16 @@ de estado, que tiene un tope cercano a 256 KB. La consola avisa antes de
 llegar, pero si alguien ignora el aviso, los compradores dejan de recibir el
 catálogo.
 
-**Bajo — sin control de acceso a la consola.** Cualquiera puede abrir la consola
-del vendedor. Es intencional: es lo que permite que un visitante pruebe el flujo
-completo solo.
+**Bajo — peso del directorio.** `liveshop_directorio` devuelve hasta 48 tiendas
+con 10 productos cada una, fotos incluidas como data URL. Con muchas tiendas con
+fotos, la portada se vuelve pesada. La mejora es mover las fotos a Supabase
+Storage.
 
 ## 23. Trabajo pendiente
+
+**Aplicar `sql/001_cuentas_vendedor.sql` en Supabase ANTES de publicar el
+frontend nuevo.** Sin esas tablas y funciones, las páginas nuevas no cargan
+catálogos, no permiten login y el directorio queda vacío. Ver sección 28.
 
 **TURN.** Lo único del plan de mejoras que quedó sin hacer, porque requiere
 contratar el servicio. Cerraría el 15-20% de conexiones de video que fallan.
@@ -557,6 +577,138 @@ Ver sección 21. La verificación se hizo con scripts contra el entorno real, no
 con mocks del propio código. Un test suite permanente sería lo correcto para un
 producto en evolución; para una demo cerrada, la verificación puntual documentada
 es proporcional.
+
+---
+
+# PARTE VII — CUENTAS DE VENDEDOR (septiembre 2026)
+
+## 24. Qué cambió
+
+| Antes | Ahora |
+|---|---|
+| Sin login; cualquiera abría la consola | Vendedores con usuario y contraseña; el comprador sigue sin cuenta |
+| Catálogo y chats en `localStorage` | En Postgres, por vendedor, desde cualquier dispositivo |
+| Sala aleatoria por visitante | Una sala fija por vendedor, con link público y código editable |
+| Portada = una sala | Portada = directorio: *En vivo ahora* + tiendas con carrusel de productos |
+| Métricas globales del demo | Métricas por vendedor + panel de admin con totales y detalle |
+
+Páginas nuevas: `vendedor/` (login y registro) y `admin/` (métricas). Archivo
+compartido nuevo: `comun.js` (config de Supabase, cliente RPC, mensajes de error,
+helpers). Migración: `sql/001_cuentas_vendedor.sql`.
+
+## 25. Cuentas y la marca "protegido"
+
+- **Registro público.** Cualquiera crea su cuenta de vendedor. Usuario de 3 a 24
+  caracteres (`a-z0-9_-`), no se puede cambiar. Contraseña de 6 a 72, guardada con
+  bcrypt (`crypt` + `gen_salt('bf')`).
+- **Cada vendedor gestiona solo su cuenta:** nombre, foto, código de sala,
+  contraseña (pide la actual y cierra las demás sesiones) y borrado (pide la
+  contraseña y escribir el usuario; borra en cascada catálogo, chats y métricas).
+- **Cuentas demo:** `Vendedor`/`Vendedor` (rol vendedor) y `admin`/`admin` (rol admin).
+- **`protegido`** es una columna booleana que tienen en `true` solo esas dos
+  cuentas. Las funciones de la base, no la interfaz, rechazan con
+  `LS:cuenta_protegida`: borrar la cuenta, cambiar la contraseña y cambiar la
+  sala. Sí se permite editar nombre, foto y catálogo. La tienda demo además puede
+  llamar a `liveshop_catalogo_restaurar_demo`.
+- **Reset diario:** `liveshop__reset_demo()` vuelve a poner las contraseñas
+  públicas y la marca de protegida. Lo programa `pg_cron` a las 06:17 UTC dentro de
+  la misma migración. Si `pg_cron` no está habilitado, la migración lo avisa con
+  un `NOTICE` y el resto funciona igual.
+- **Usuarios reservados:** `admin`, `administrador`, `root`, `soporte`,
+  `liveshop`, `vendedor`.
+
+## 26. Una transmisión por cuenta
+
+La consola publica su presencia en la sala con `{role:"host", live, since, hostId}`.
+
+- Si otra consola de la misma cuenta está en vivo, esta queda **pasiva**: no
+  responde `hello`, no emite `state`, no cuenta mensajes en métricas, y el botón de
+  transmitir queda deshabilitado con un aviso. Sí ve chats y edita el catálogo.
+- `goLive` vuelve a chequear después del permiso de cámara, que puede tardar.
+- Si dos consolas salen en vivo casi a la vez, en el siguiente `sync` la que tiene
+  `since` mayor se baja sola y lo avisa.
+- Los pagos se registran por `ref` con `on conflict do nothing`: aunque dos
+  consolas reciban el mismo `paid`, el stock baja una sola vez.
+
+## 27. Directorio y lobby
+
+- Canal de presencia global `liveshop:lobby`. La consola, solo mientras transmite,
+  hace `track({sala, usuario, nombre, titulo, viewers, max, since})` y `untrack`
+  al cortar. Si se cierra la pestaña, Supabase la saca sola.
+- La portada escucha el lobby y cruza con `liveshop_directorio()` (hasta 48
+  tiendas, 10 productos cada una) para las fotos. Si aparece en vivo una sala que
+  no está en la lista (tienda recién creada), recarga el directorio, como máximo
+  cada 15 s.
+- Carrusel: la pista contiene la lista dos veces y se desplaza −50% en loop. Se
+  pausa con hover. Con `prefers-reduced-motion` pasa a una fila con scroll manual
+  sin duplicados.
+
+## 28. Base de datos: modelo de acceso e instalación
+
+**Modelo.** Todas las tablas `liveshop_*` tienen RLS activo y **ninguna
+política**, y se les revocan permisos a `anon` y `authenticated`. La única puerta
+son funciones `SECURITY DEFINER`:
+
+| Pública (sin token) | Con token de vendedor | Solo admin |
+|---|---|---|
+| `liveshop_registrar`, `liveshop_login`, `liveshop_directorio`, `liveshop_sala`, `liveshop_evento` | `liveshop_yo`, `liveshop_logout`, `liveshop_cuenta_editar`, `liveshop_cuenta_borrar`, `liveshop_catalogo_guardar`, `liveshop_catalogo_restaurar_demo`, `liveshop_conversaciones_guardar`, `liveshop_evento_host`, `liveshop_pago_registrar`, `liveshop_metricas` | `liveshop_metricas_admin` |
+
+Los helpers `liveshop__*` (doble guion bajo) no tienen permiso de ejecución para
+`anon`. Es crítico: `liveshop__cuenta` devuelve la fila con el hash y
+`liveshop__reset_demo` resetea cuentas. El bloque final de permisos los revoca
+explícitamente, porque Supabase da `EXECUTE` a `anon` sobre toda función nueva.
+
+- **Tokens:** 32 bytes aleatorios; en la base se guarda solo su SHA-256. Vencen a
+  los 7 días.
+- **Límite de intentos:** login, 8 fallos cada 15 minutos por IP+usuario (con la
+  IP incluida, un visitante no bloquea la cuenta demo para los demás). Registro, 5
+  por hora por IP. La IP sale de `cf-connecting-ip` o `x-forwarded-for` de
+  `request.headers`.
+- **Errores:** las funciones fallan con `LS:<codigo>`; login y registro devuelven
+  `{ok:false, error}` para que el intento fallido quede grabado (un `raise`
+  desharía el insert del limitador). `comun.js` traduce los códigos a mensajes.
+- **Métricas:** eventos del comprador (`entrada`, `interes`, `video_ok`,
+  `video_falla`) son públicos y se asocian por sala. `entrada` y `video_ok` se
+  deduplican por sesión cada 30 minutos. Los eventos del vendedor (`transmision`,
+  `mensaje`, `link_pago`, `pico`) y los pagos requieren token. El facturado sale de
+  `liveshop_pagos`, no de eventos. `analytics_events` y `liveshop_overview` siguen
+  funcionando igual que antes, para el uso global del demo.
+
+**Instalación.** La sesión de trabajo no tenía acceso de escritura a Supabase:
+solo la clave anónima, que no ejecuta SQL. Pasos:
+
+1. Supabase → proyecto `myebxfostbafuogfymqa` → SQL Editor → pegar y ejecutar
+   `liveshop/sql/001_cuentas_vendedor.sql` completo. Es idempotente.
+2. Si aparece el `NOTICE` de `pg_cron`: Database → Extensions → habilitar
+   `pg_cron` y volver a ejecutar el último bloque `do $$ … cron.schedule … $$`.
+3. Recién después, hacer push del frontend a `main`.
+
+## 29. Cómo se verificó
+
+Sin acceso a Supabase, se verificó contra un Postgres real embebido (PGlite, con
+pgcrypto), con los mismos roles `anon` y `authenticated`:
+
+- **SQL (57 checks):** la migración aplicada dos veces (idempotencia); `anon` no
+  lee ni escribe tablas ni ejecuta helpers; login demo y admin; cuentas
+  protegidas; registro con validaciones y usuarios reservados; aislamiento de
+  catálogo, stock y chats entre vendedores; catálogo inválido que no borra el
+  anterior; pago idempotente y stock que no baja de 0; métricas por vendedor y de
+  admin; cambio de contraseña que cierra otras sesiones; borrado en cascada;
+  límite de intentos por IP; reset diario.
+- **Páginas (50 checks):** las cinco páginas reales cargadas en jsdom, con las RPC
+  contra ese Postgres y un bus de Realtime en memoria compartido entre ventanas.
+  Cubre login y registro; boot de consola; producto persistido; directorio con
+  carrusel; live que aparece y desaparece del directorio; segunda consola
+  bloqueada y habilitada al cortar la primera; comprador que recibe estado,
+  consulta con producto, conversación persistida, link de pago, pago que descuenta
+  stock una sola vez y catálogo actualizado; sala inexistente; restaurar demo;
+  cambio de perfil y de sala, con rechazo de sala ajena; panel admin con totales,
+  gráfico, tabla y detalle; vendedor común rechazado en admin; borrado de cuenta;
+  token vencido. Sin errores de JavaScript.
+
+**No verificado:** el comportamiento contra el Supabase real (encabezados de IP,
+`pg_cron`, permisos por defecto del proyecto) y el video entre dos navegadores
+reales. Conviene repetir el flujo a mano después de instalar.
 
 ---
 

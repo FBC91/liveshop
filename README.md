@@ -28,24 +28,49 @@ ahí mismo.
 
 ---
 
-## 2. Las tres pantallas
+## 2. Las pantallas
 
-El producto son tres páginas. Cada una es una persona distinta en un momento
+El producto son seis vistas. Cada una es una persona distinta en un momento
 distinto.
 
 | Pantalla | Quién la usa | Para qué |
 |---|---|---|
-| `/liveshop/` | El comprador | Ve el video y el catálogo, pregunta, paga |
-| `/liveshop/host/` | El vendedor | Transmite, gestiona el catálogo, responde y cobra |
+| `/liveshop/` | El comprador | Ve qué tiendas están en vivo y recorre las demás |
+| `/liveshop/?live=<sala>` | El comprador | Ve el video y el catálogo de una tienda, pregunta, paga |
+| `/liveshop/vendedor/` | El vendedor | Ingresa o crea su cuenta |
+| `/liveshop/host/` | El vendedor | Transmite, gestiona catálogo y cuenta, responde y cobra |
+| `/liveshop/admin/` | El administrador | Ve las métricas de todos los vendedores |
 | `/liveshop/pago/` | El comprador | Confirma el pago (simulado) |
+
+**Para comprar no hace falta cuenta.** Solo los vendedores y el administrador
+ingresan con usuario y contraseña.
+
+### Cuentas de prueba
+
+| Usuario | Contraseña | Qué es |
+|---|---|---|
+| `Vendedor` | `Vendedor` | Tienda demo pública, con catálogo de ejemplo |
+| `admin` | `admin` | Administrador demo: solo ve métricas |
+
+Las dos se restablecen todas las noches y están **protegidas**: no se pueden
+borrar ni cambiar su contraseña (ni, en el caso de la tienda demo, su sala). La
+tienda demo sí deja editar nombre, foto y catálogo, y tiene un botón para volver
+al catálogo de ejemplo.
 
 ---
 
 ## 3. El flujo completo
 
-**El vendedor abre su consola.** Carga productos con nombre, precio, stock y una
-foto o un emoji. Toca "Salir en vivo" y el navegador le pide permiso para usar la
-cámara. Desde ese momento está transmitiendo.
+**El vendedor ingresa a su consola.** Con la cuenta demo o con una propia que crea
+en un minuto. Carga productos con nombre, precio, stock y una foto o un emoji: se
+guardan en su cuenta, así que siguen ahí desde cualquier computadora. Toca "Iniciar
+transmisión" y el navegador le pide permiso para usar la cámara. Desde ese momento
+está transmitiendo.
+
+**El comprador encuentra la tienda.** En la portada de LiveShop aparece arriba,
+en *En vivo ahora*. Las tiendas que no están transmitiendo se muestran abajo con
+su foto, su nombre y un carrusel de sus productos. El vendedor también puede
+pasar directamente el link fijo de su sala.
 
 **El comprador entra al live.** Ve el video, y debajo el catálogo con precios y
 stock. El vendedor puede "destacar" un producto y en la pantalla del comprador
@@ -106,6 +131,19 @@ también va por Supabase.
 *Por qué:* resuelve las dos necesidades con una sola herramienta, tiene plan
 gratuito, y no hay que escribir ni mantener un servidor propio.
 
+### Las cuentas y los datos: la base de Supabase
+
+Vendedores, catálogos, conversaciones y métricas se guardan en la base de datos
+de Supabase. La página nunca lee ni escribe las tablas directamente: le pide cada
+cosa a una función de la base ("dame mi catálogo", "guardá este producto") que
+primero comprueba quién está pidiendo.
+
+*Por qué:* la clave que usa la página es pública — cualquiera puede verla en el
+código. Si esa clave pudiera leer las tablas, cualquiera podría leer las
+contraseñas o el catálogo de otro vendedor. Con las funciones como única puerta,
+cada vendedor solo alcanza lo suyo. Las contraseñas se guardan cifradas de forma
+que ni siquiera la base puede devolverlas.
+
 ### El alojamiento: GitHub Pages
 
 Las tres páginas son archivos HTML que se publican gratis desde GitHub, con el
@@ -118,10 +156,14 @@ que actualizar ni que asegurar.
 
 No usa React ni ninguna librería de interfaz. Es HTML, CSS y JavaScript común.
 
-*Por qué:* cada página es un solo archivo que se abre y funciona. No hay proceso
+*Por qué:* cada página es un archivo que se abre y funciona. No hay proceso
 de compilación, ni dependencias que se rompan con el tiempo, ni carpeta de
-librerías que pese cientos de megas. Para un producto de tres pantallas, un
+librerías que pese cientos de megas. Para un producto de este tamaño, un
 framework agregaría más mantenimiento que beneficio.
+
+La única pieza compartida es `comun.js`: la conexión con la base y los mensajes de
+error. Cuatro páginas hablando con las mismas funciones no podían tener cada una
+su propia copia sin que tarde o temprano se desincronizaran.
 
 ### Lo que cuesta
 
@@ -132,15 +174,26 @@ públicos de Google que ayudan a los navegadores a encontrarse.
 
 ## 5. Decisiones y sus porqués
 
-### Cada visitante tiene su propia sala
+### Cada vendedor tiene una sola sala, con link fijo
 
-Cuando dos personas entran al mismo tiempo, no se cruzan: cada una trabaja en su
-propia sala aislada.
+La sala es el código del link que el vendedor comparte (`?live=mi-tienda`). Es
+siempre la misma: hoy vende zapatillas y mañana remeras, y sus compradores usan
+el mismo link. Si quiere, puede cambiar el código desde *Mi cuenta*.
 
-*Por qué:* al principio todos caían en una sala compartida. Si dos personas
-probaban la demo simultáneamente, compartían vendedor — y peor, si las dos abrían
-la consola del vendedor, cada una recibía los mensajes dirigidos a la otra. Con
-poco tráfico no se notaba; el día que la demo se comparte en LinkedIn, sí.
+*Por qué:* un link que cambia cada vez obliga a volver a difundirlo en cada
+transmisión, que es justamente la fricción que el producto quiere sacar.
+
+### Una cuenta no puede transmitir desde dos lugares a la vez
+
+Si la misma cuenta está abierta en dos pestañas o dispositivos, solo una puede
+estar en vivo. La otra ve un aviso, puede editar el catálogo y leer los chats,
+pero el botón de transmitir queda bloqueado hasta que la primera termine.
+
+*Por qué:* la cuenta demo es pública, así que dos visitantes la van a usar al
+mismo tiempo. Dos transmisiones en la misma sala le mandarían al comprador dos
+videos y dos catálogos contradictorios. Antes esto se evitaba dándole a cada
+visitante una sala aleatoria; con salas fijas por vendedor, la regla pasa a ser
+"una transmisión por cuenta".
 
 ### El chat siempre muestra de qué producto se habla
 
@@ -160,13 +213,12 @@ promete algo que no pasa hace que el usuario desconfíe del resto de la pantalla
 
 ### Si no hay nadie transmitiendo, igual se ve algo
 
-Cuando nadie está en vivo, el visitante ve un catálogo de ejemplo y un botón para
-abrir la consola del vendedor en otra pestaña y probar el flujo completo solo.
+La portada muestra todas las tiendas con un carrusel de sus productos, y entrar a
+una tienda que no está en vivo muestra su catálogo real. Si el comprador escribe y
+el vendedor se conecta mientras sigue en la página, la consulta le llega.
 
-*Por qué:* el catálogo real vive en el navegador del vendedor. Sin transmisión
-activa, la página quedaba vacía. Como pieza de portfolio eso es fatal: el 99% de
-las visitas caen cuando nadie está transmitiendo, y una pantalla vacía no cuenta
-nada.
+*Por qué:* como pieza de portfolio, el 99% de las visitas caen cuando nadie está
+transmitiendo, y una pantalla vacía no cuenta nada.
 
 ### El stock baja cuando alguien paga
 
@@ -228,31 +280,36 @@ Las fotos de los productos viajan dentro del mensaje del catálogo, y ese mensaj
 tiene un límite. La consola avisa cuando se está acercando y sugiere usar emojis
 en lugar de fotos.
 
-### El catálogo vive en el navegador del vendedor
+### La cuenta demo la comparten todos
 
-No hay base de datos de productos. Si el vendedor cambia de computadora, carga el
-catálogo de nuevo.
+Cualquier visitante puede vaciarle el catálogo a la tienda demo. Por eso tiene un
+botón *Restaurar catálogo demo*, y por eso no se puede borrar ni cambiarle la
+contraseña.
 
-*Por qué:* para una demo, guardar productos en una base de datos agrega
-complejidad sin mostrar nada nuevo. La decisión sería distinta en un producto real.
+### El administrador demo tiene contraseña pública
+
+`admin`/`admin` es a propósito, para que quien evalúa el portfolio pueda ver el
+panel. La consecuencia es que las métricas de cualquier vendedor registrado
+(visitas y ventas simuladas) son visibles para cualquiera. La pantalla de registro
+lo advierte. En un producto real esa cuenta no existiría.
 
 ---
 
 ## 7. Cómo se mide
 
-La demo registra eventos anónimos de uso: cuánta gente entra, cuántos tocan un
-producto, cuántos links de pago se mandan, cuántos se pagan, y qué porcentaje de
-conexiones de video logran establecerse.
+Cada vendedor tiene sus propias métricas: entradas a su sala, compradores únicos,
+clics en "Lo quiero", mensajes, links de pago, pagos, facturado, conversión,
+transmisiones, pico de espectadores y porcentaje de conexiones de video que
+funcionaron. Se ven en su consola, pestaña **Métricas**, por hoy, 7, 30 o 90 días.
 
-Se ven en la consola del vendedor, pestaña **Métricas**, sección *Uso del demo*,
-con ventana de 30 días.
+El **administrador** ve lo mismo para todos los vendedores: los totales
+agrupados, la evolución día por día, y una tabla con una fila por vendedor que al
+tocarla muestra su detalle.
 
-Los números que responde son: ¿alguien entró?, ¿le interesó algún producto?, ¿el
-video funciona en el mundo real o falla más de lo esperado?
-
-**Sobre privacidad:** no se guarda ningún dato personal — ni nombres, ni mensajes,
-ni direcciones IP. Y la pantalla de métricas solo puede pedir totales ya sumados;
-no tiene permiso para leer eventos individuales, ni siquiera anónimos.
+**Sobre privacidad:** las métricas no guardan nombres ni direcciones IP. Las
+conversaciones sí se guardan, porque el vendedor necesita recuperarlas desde otro
+dispositivo, pero solo las puede leer ese vendedor: ni el administrador ni otros
+vendedores tienen acceso. El administrador solo ve números.
 
 ---
 

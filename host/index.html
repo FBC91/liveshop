@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>LiveShop · Consola del vendedor</title>
 <meta name="description" content="Consola del vendedor de LiveShop: transmisión en vivo, catálogo en tiempo real, chats 1-a-1 y envío de links de pago.">
+<meta name="robots" content="noindex">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎥</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,6 +38,16 @@ body{
 }
 button,input,select,textarea{font-family:inherit}
 
+/* ─── Carga inicial ─── */
+.boot{
+  position:fixed;inset:0;z-index:100;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;text-align:center;padding:1rem;
+}
+.boot[hidden]{display:none}
+.boot .em{font-size:2.4rem;margin-bottom:.6rem}
+.boot p{font-size:.9rem;color:var(--ink-soft);max-width:40ch;line-height:1.5}
+.boot .btn{margin-top:1rem}
+
 /* ─── Topbar ─── */
 .topbar{
   background:var(--ink);color:#F9F6F0;
@@ -46,8 +57,9 @@ button,input,select,textarea{font-family:inherit}
 .topbar .brand{display:flex;align-items:center;gap:.6rem;font-weight:600;font-size:1rem}
 .topbar .brand .logo{
   width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(135deg,var(--amber-l),var(--amber));font-size:1.05rem;
+  background:linear-gradient(135deg,var(--amber-l),var(--amber));font-size:1.05rem;overflow:hidden;
 }
+.topbar .brand .logo img{width:100%;height:100%;object-fit:cover}
 .topbar .brand small{display:block;font-weight:400;font-size:.68rem;color:#bdb8ab;letter-spacing:.08em;text-transform:uppercase}
 .topbar .spacer{flex:1}
 .conn{display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:#bdb8ab}
@@ -88,6 +100,7 @@ main{flex:1;padding:1.25rem;max-width:1280px;width:100%;margin:0 auto}
 .view.active{display:block}
 h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin:.25rem 0 .75rem;font-weight:600}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.card-title{font-size:.95rem;font-weight:700}
 .state-box{
   background:var(--card);border:1px dashed var(--line);border-radius:var(--radius);
   padding:2.25rem 1rem;text-align:center;color:var(--ink-faint);font-size:.85rem;
@@ -95,6 +108,7 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
 
 /* ─── KPIs ─── */
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.75rem;margin-bottom:1.25rem}
+.kpis > .state-box{grid-column:1/-1}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow)}
 .kpi .lbl{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
 .kpi .val{font-size:1.7rem;font-weight:700;margin-top:.3rem;line-height:1}
@@ -132,6 +146,7 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
   background:var(--bg);color:var(--ink);outline:none;width:100%;
 }
 .field input:focus,.field select:focus{border-color:var(--amber)}
+.field input:disabled{color:var(--ink-faint);cursor:not-allowed}
 .btn{
   border:none;border-radius:8px;padding:.65rem 1rem;font-size:.85rem;font-weight:600;
   cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:.45rem;
@@ -158,9 +173,19 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
   background:var(--red-soft);border:1px solid #EFC9C3;color:#8C2A1F;
   border-radius:8px;padding:.6rem .75rem;font-size:.76rem;line-height:1.5;
 }
+.note{
+  background:var(--amber-soft);border:1px solid #EBD6A9;color:#6B4E14;
+  border-radius:8px;padding:.6rem .75rem;font-size:.78rem;line-height:1.5;
+}
+.note[hidden],.warn[hidden]{display:none}
+.msg-line{font-size:.76rem;min-height:1em;line-height:1.4}
+.msg-line.ok{color:var(--green)}
+.msg-line.err{color:var(--red)}
 
 /* ─── Catálogo ─── */
 .cat-grid{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:1rem;align-items:start}
+.cat-bar{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;margin-bottom:.75rem}
+.cat-bar .msg-line{flex:1}
 .prod-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem}
 .pcard{
   background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
@@ -254,6 +279,28 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
 .conv-input button{width:38px;height:38px;border-radius:50%;border:none;background:var(--amber);color:#fff;cursor:pointer;flex-shrink:0}
 .conv-input button:disabled{opacity:.45;cursor:not-allowed}
 
+/* ─── Métricas ─── */
+.metrics-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:.75rem}
+.metrics-head h2.section{margin:0}
+.metrics-head select{
+  border:1px solid var(--line);border-radius:8px;padding:.4rem .6rem;font-size:.82rem;background:var(--card);color:var(--ink);
+}
+
+/* ─── Mi cuenta ─── */
+.acc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:1rem;align-items:start}
+.acc-grid .note{grid-column:1/-1}
+.photo-row{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
+.avatar-lg{
+  width:64px;height:64px;border-radius:50%;flex-shrink:0;overflow:hidden;
+  background:linear-gradient(135deg,var(--amber-l),var(--amber));color:#fff;font-weight:700;font-size:1.3rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.avatar-lg img{width:100%;height:100%;object-fit:cover}
+.photo-row .photo-acts{display:flex;flex-direction:column;gap:.4rem;min-width:0}
+.photo-row input[type=file]{font-size:.74rem;max-width:100%}
+.danger{border-color:#EFC9C3}
+.danger .card-title{color:var(--red)}
+
 /* ─── Modal ─── */
 .modal-scrim{
   position:fixed;inset:0;background:rgba(26,25,22,.5);z-index:80;
@@ -284,16 +331,24 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
 </head>
 <body>
 
+<div class="boot" id="boot">
+  <div>
+    <div class="em">🎥</div>
+    <p id="bootMsg">Cargando tu tienda…</p>
+    <button class="btn btn-primary" id="bootRetry" type="button" hidden>Reintentar</button>
+  </div>
+</div>
+
 <header class="topbar">
   <div class="brand">
-    <span class="logo" aria-hidden="true">🎥</span>
-    <span>LiveShop<small>Consola del vendedor</small></span>
+    <span class="logo" id="brandLogo" aria-hidden="true">🎥</span>
+    <span><span id="brandName">LiveShop</span><small id="brandUser">Consola del vendedor</small></span>
   </div>
   <div class="spacer"></div>
   <div class="conn" id="conn"><span class="dot"></span><span id="connText">conectando…</span></div>
-  <button class="top-btn" id="newRoomBtn" type="button" title="Generar una sala nueva">🔀 Nueva sala</button>
-  <a class="top-link" href="../" target="_blank" rel="noopener">Vista del comprador ↗</a>
-  <a class="top-link" href="/">← portfolio</a>
+  <a class="top-link" id="buyerViewLink" href="../" target="_blank" rel="noopener">Ver mi sala como comprador ↗</a>
+  <a class="top-link" href="../">Todos los lives</a>
+  <button class="top-btn" id="logoutBtn" type="button">Salir</button>
 </header>
 
 <nav class="tabs" role="tablist" aria-label="Secciones de la consola">
@@ -301,6 +356,7 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
   <button class="tab" data-view="catalog" role="tab">🛍️ Catálogo</button>
   <button class="tab" data-view="chats" role="tab">💬 Chats <span class="badge" id="chatsBadge"></span></button>
   <button class="tab" data-view="metrics" role="tab">📈 Métricas</button>
+  <button class="tab" data-view="account" role="tab">👤 Mi cuenta</button>
 </nav>
 
 <main>
@@ -310,8 +366,8 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
     <div class="kpis">
       <div class="kpi"><div class="lbl">Espectadores</div><div class="val" id="kViewers">0</div><div class="sub">conectados ahora</div></div>
       <div class="kpi"><div class="lbl">Chats abiertos</div><div class="val" id="kChats">0</div><div class="sub">compradores que escribieron</div></div>
-      <div class="kpi"><div class="lbl">Links enviados</div><div class="val" id="kLinks">0</div><div class="sub">links de pago</div></div>
-      <div class="kpi"><div class="lbl">Pagos</div><div class="val" id="kPaid">0</div><div class="sub">confirmados</div></div>
+      <div class="kpi"><div class="lbl">Links enviados</div><div class="val" id="kLinks">0</div><div class="sub">hoy</div></div>
+      <div class="kpi"><div class="lbl">Pagos</div><div class="val" id="kPaid">0</div><div class="sub">confirmados hoy</div></div>
     </div>
 
     <h2 class="section">Transmisión</h2>
@@ -327,6 +383,10 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
       </div>
 
       <div class="card panel">
+        <div class="note" id="otherHostNote" hidden>
+          Esta cuenta ya está transmitiendo desde otro dispositivo o pestaña. Podés editar el catálogo
+          y ver los chats, pero no salir en vivo hasta que esa transmisión termine.
+        </div>
         <div class="field">
           <label for="titleInput">Título del live</label>
           <input id="titleInput" type="text" maxlength="60" placeholder="Ej: Liquidación de verano">
@@ -337,7 +397,7 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
             <code id="shareUrl">—</code>
             <button class="btn btn-ghost btn-sm" id="copyBtn" type="button">Copiar</button>
           </div>
-          <div class="hint">Sala <b id="roomLbl">demo</b>. Quien abra este link entra directo a tu transmisión.</div>
+          <div class="hint">Sala <b id="roomLbl">—</b>. Es tu link fijo: quien lo abra entra directo a tu transmisión. Lo podés cambiar en <i>Mi cuenta</i>.</div>
         </div>
         <button class="btn btn-primary" id="goLiveBtn" type="button">🔴 Iniciar transmisión</button>
         <button class="btn btn-danger" id="stopBtn" type="button" style="display:none">⏹ Terminar transmisión</button>
@@ -355,7 +415,11 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
 
   <!-- ─────────── CATÁLOGO ─────────── -->
   <section class="view" id="view-catalog">
-    <h2 class="section">Catálogo del live</h2>
+    <h2 class="section">Catálogo de tu tienda</h2>
+    <div class="cat-bar">
+      <div class="msg-line" id="catStatus">Los cambios se guardan solos.</div>
+      <button class="btn btn-ghost btn-sm" id="restoreDemo" type="button" hidden>↺ Restaurar catálogo demo</button>
+    </div>
     <div class="cat-grid">
       <form class="card panel" id="prodForm">
         <div class="field">
@@ -412,21 +476,109 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
 
   <!-- ─────────── MÉTRICAS ─────────── -->
   <section class="view" id="view-metrics">
-    <h2 class="section">Métricas de la sesión</h2>
-    <div class="kpis">
-      <div class="kpi"><div class="lbl">Espectadores pico</div><div class="val" id="mPeak">0</div><div class="sub">simultáneos</div></div>
-      <div class="kpi"><div class="lbl">Mensajes</div><div class="val" id="mMsgs">0</div><div class="sub">enviados + recibidos</div></div>
-      <div class="kpi"><div class="lbl">Links de pago</div><div class="val" id="mLinks">0</div><div class="sub">enviados</div></div>
-      <div class="kpi"><div class="lbl">Conversión</div><div class="val" id="mConv">—</div><div class="sub">pagos / links</div></div>
-      <div class="kpi"><div class="lbl">Facturado</div><div class="val" id="mTotal">$ 0</div><div class="sub">pagos confirmados</div></div>
-      <div class="kpi"><div class="lbl">Video P2P</div><div class="val" id="mRtc">0</div><div class="sub">conexiones establecidas</div></div>
+    <div class="metrics-head">
+      <h2 class="section">Métricas de tu tienda</h2>
+      <select id="mRange" aria-label="Período">
+        <option value="1">Hoy</option>
+        <option value="7">Últimos 7 días</option>
+        <option value="30" selected>Últimos 30 días</option>
+        <option value="90">Últimos 90 días</option>
+      </select>
     </div>
-    <div class="state-box">
-      Las métricas de arriba son de esta sala y sobreviven a un refresh del navegador.
-    </div>
+    <div class="kpis" id="mKpis"><div class="state-box">Cargando…</div></div>
+    <p class="hint">
+      Se guardan por cuenta y sobreviven a cambiar de dispositivo. Entradas y compradores únicos no
+      cuentan dos veces a quien recarga la página. El pico es el máximo de espectadores simultáneos.
+    </p>
+  </section>
 
-    <h2 class="section" style="margin-top:1.5rem">Uso del demo</h2>
-    <div id="usageBox" class="state-box">Cargando…</div>
+  <!-- ─────────── MI CUENTA ─────────── -->
+  <section class="view" id="view-account">
+    <h2 class="section">Mi cuenta</h2>
+    <div class="acc-grid">
+      <div class="note" id="protNote" hidden>
+        <b>Cuenta demo pública.</b> La comparten todos los visitantes del portfolio, por eso no se
+        puede borrar ni cambiar su contraseña o su sala. Nombre, foto y catálogo sí se pueden editar,
+        y el catálogo se restaura desde la pestaña Catálogo.
+      </div>
+
+      <form class="card panel" id="profileForm">
+        <div class="card-title">Perfil</div>
+        <div class="field">
+          <label for="accUser">Usuario</label>
+          <input id="accUser" type="text" disabled>
+        </div>
+        <div class="field">
+          <label for="accName">Nombre de la tienda</label>
+          <input id="accName" type="text" maxlength="40" required>
+        </div>
+        <div class="field">
+          <label for="accPhoto">Foto o logo</label>
+          <div class="photo-row">
+            <div class="avatar-lg" id="accAvatar"></div>
+            <div class="photo-acts">
+              <input id="accPhoto" type="file" accept="image/*">
+              <button class="btn btn-ghost btn-sm" id="accPhotoClear" type="button">Quitar foto</button>
+            </div>
+          </div>
+          <div class="hint">Se muestra en el directorio de lives. Se reduce a 160 px.</div>
+        </div>
+        <div class="msg-line" id="profileMsg"></div>
+        <button class="btn btn-primary" type="submit">Guardar perfil</button>
+      </form>
+
+      <form class="card panel" id="roomForm">
+        <div class="card-title">Sala</div>
+        <div class="field">
+          <label for="accRoom">Código de sala</label>
+          <input id="accRoom" type="text" maxlength="24" autocapitalize="none" required>
+          <div class="hint" id="accRoomPreview"></div>
+        </div>
+        <div class="hint">
+          Tenés una sola sala y es tu link fijo. Si cambiás el código, el link anterior deja de funcionar
+          para quien lo tenga guardado.
+        </div>
+        <div class="msg-line" id="roomMsg"></div>
+        <button class="btn btn-primary" type="submit">Cambiar código</button>
+      </form>
+
+      <form class="card panel" id="passForm" autocomplete="off">
+        <div class="card-title">Contraseña</div>
+        <div class="field">
+          <label for="passOld">Contraseña actual</label>
+          <input id="passOld" type="password" autocomplete="current-password" maxlength="72" required>
+        </div>
+        <div class="field">
+          <label for="passNew">Nueva contraseña</label>
+          <input id="passNew" type="password" autocomplete="new-password" minlength="6" maxlength="72" required>
+        </div>
+        <div class="field">
+          <label for="passNew2">Repetir nueva contraseña</label>
+          <input id="passNew2" type="password" autocomplete="new-password" minlength="6" maxlength="72" required>
+        </div>
+        <div class="hint">Al cambiarla se cierran las sesiones abiertas en otros dispositivos.</div>
+        <div class="msg-line" id="passMsg"></div>
+        <button class="btn btn-primary" type="submit">Cambiar contraseña</button>
+      </form>
+
+      <form class="card panel danger" id="deleteForm" autocomplete="off">
+        <div class="card-title">Borrar cuenta</div>
+        <div class="hint">
+          Se borran tu catálogo, tus conversaciones y tus métricas, y tu sala deja de existir.
+          No se puede deshacer.
+        </div>
+        <div class="field">
+          <label for="delPass">Contraseña</label>
+          <input id="delPass" type="password" autocomplete="current-password" maxlength="72" required>
+        </div>
+        <div class="field">
+          <label for="delConfirm">Escribí tu usuario para confirmar</label>
+          <input id="delConfirm" type="text" autocapitalize="none" maxlength="24" required>
+        </div>
+        <div class="msg-line" id="delMsg"></div>
+        <button class="btn btn-danger" type="submit">Borrar mi cuenta</button>
+      </form>
+    </div>
   </section>
 
 </main>
@@ -455,13 +607,11 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="../comun.js"></script>
 <script>
 "use strict";
 
 /* ===================== configuracion ===================== */
-const SB_URL = "https://myebxfostbafuogfymqa.supabase.co";
-const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZWJ4Zm9zdGJhZnVvZ2Z5bXFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MjAyMjAsImV4cCI6MjA5NTM5NjIyMH0.ZkIJvOa_bvRX3hlwKWyEuy3CI2hOxEYau2ojbCQacJY";
-
 /* Sin TURN, ~15-20% de las conexiones fallan (NAT simetrico, redes moviles).
    Para hacerlo solido: pegar credenciales de un TURN en TURN_SERVERS. */
 const TURN_SERVERS = [];
@@ -474,24 +624,16 @@ const ICE_SERVERS = [
    subida se multiplica. A 720p son ~2 Mbps por espectador; con 6 se satura una
    conexion hogareña y se degrada el video para todos. 3 es el limite honesto.
    Pasar de aca requiere un SFU, que es otro proyecto. */
-const MAX_VIEWERS = 3;
+const MAX_VIEWERS = LS.MAX_VIEWERS;
 const EMOJIS = ["📦","👕","👖","👟","🧥","👜","⌚","💍","🕶️","🧢","💄","🧴","📱","🎧","☕","🍫","🌿","🕯️","🎁","🖼️"];
 
-/* La sala llega por ?live= desde la vista del comprador. Si se abre la consola
-   sola, se genera una propia y se recuerda, para que un refresh no cambie de sala
-   y se pierdan las conversaciones guardadas. */
-const cleanRoom = v => String(v || "").toLowerCase().replace(/[^a-z0-9-]/g,"").slice(0,24);
-const ROOM = (function(){
-  const fromUrl = cleanRoom(new URLSearchParams(location.search).get("live"));
-  if (fromUrl){ try{ localStorage.setItem("liveshop_host_room", fromUrl); }catch(e){} return fromUrl; }
-  let saved = "";
-  try{ saved = cleanRoom(localStorage.getItem("liveshop_host_room")); }catch(e){}
-  if (saved) return saved;
-  const fresh = "s" + Math.random().toString(36).slice(2,8);
-  try{ localStorage.setItem("liveshop_host_room", fresh); }catch(e){}
-  return fresh;
-})();
+const TOKEN = LS.token();
 const HOST_ID = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2));
+
+/* La cuenta y la sala llegan de la base al arrancar (boot). La sala ya no viene
+   por URL: cada vendedor tiene una sola, fija, que es su link publico. */
+let CUENTA = null;
+let ROOM = "";
 
 /* ===================== analitica ===================== */
 const ANALYTICS = (function(){
@@ -502,9 +644,9 @@ const ANALYTICS = (function(){
   const lang = (document.documentElement.lang || navigator.language || "es").slice(0,2);
   function track(event_type, props){
     try{
-      fetch(SB_URL + "/rest/v1/analytics_events", {
+      fetch(LS.SB_URL + "/rest/v1/analytics_events", {
         method:"POST", keepalive:true,
-        headers:{"Content-Type":"application/json","apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Prefer":"return=minimal"},
+        headers:{"Content-Type":"application/json","apikey":LS.SB_KEY,"Authorization":"Bearer "+LS.SB_KEY,"Prefer":"return=minimal"},
         body:JSON.stringify({event_type:event_type, session_id:sid, page:PAGE, channel:"web", lang:lang,
                              device:device, referrer:(document.referrer||"direct"), props:props||{}})
       }).catch(function(){});
@@ -515,17 +657,43 @@ const ANALYTICS = (function(){
 
 /* ===================== helpers ===================== */
 const $ = id => document.getElementById(id);
-const esc = s => String(s ?? "").replace(/[&<>"']/g, c =>
-  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const money = n => "$ " + new Intl.NumberFormat("es-UY",{maximumFractionDigits:0}).format(Number(n)||0);
+const esc = LS.esc;
+const money = LS.money;
 const now = () => new Date().toLocaleTimeString("es-UY",{hour:"2-digit",minute:"2-digit"});
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2)).slice(0,8);
 const refCode = () => "LS-" + Math.random().toString(36).slice(2,8).toUpperCase();
 
+function goLogin(){ location.replace("../vendedor/"); }
+
+/* Toda llamada autenticada pasa por aca: si la sesion vencio, volvemos al login
+   en vez de dejar la consola fallando en silencio. */
+async function api(fn, args){
+  try{
+    return await LS.rpc(fn, Object.assign({p_token:TOKEN}, args || {}));
+  }catch(err){
+    if (err.code === "sesion_invalida"){ LS.clearToken(); goLogin(); }
+    throw err;
+  }
+}
+
+/* Metricas por vendedor: van a liveshop_eventos, no a analytics_events, para que
+   el admin pueda separarlas por cuenta. Nunca bloquean la operacion. */
+function metric(tipo, valor){
+  api("liveshop_evento_host", {p_tipo:tipo, p_valor:(valor == null ? 1 : valor)}).catch(() => {});
+}
+
+function setMsg(el, text, kind){
+  el.textContent = text || "";
+  el.className = "msg-line" + (kind ? " " + kind : "");
+}
+
 /* ===================== estado ===================== */
 let live = false;
+let liveSince = 0;
+let livePeak = 0;
+let viewersNow = 0;
 let localStream = null;
-let titulo = localStorage.getItem("liveshop_titulo") || "LiveShop";
+let titulo = "LiveShop";
 let productos = [];
 let destacado = null;
 let editingId = null;
@@ -533,69 +701,59 @@ let selectedEmoji = EMOJIS[0];
 let pendingImg = null;
 
 const peers = new Map();   // peerId -> {pc, ice:[]}
-const buyers = new Map();  // peerId -> {nombre, online, msgs:[], unread, lastProduct}
+const buyers = new Map();  // peerId -> {nombre, online, msgs:[], unread, lastProduct, productos}
 let activeBuyer = null;
 
-const metrics = {peak:0, msgs:0, links:0, paid:0, total:0, rtc:0};
+/* ===================== conversaciones (persistidas por vendedor) ===================== */
+/* Antes vivian en localStorage: cambiar de navegador perdia todos los chats. Se
+   suben con debounce y solo las que cambiaron. */
+const dirtyBuyers = new Set();
+let convTimer = null;
 
-/* Las conversaciones y las metricas viven en memoria: sin esto, un F5 durante
-   una transmision borra todos los chats y el vendedor pierde las ventas en curso. */
-const SESSION_KEY = "liveshop_sesion_" + ROOM;
-
-function saveSession(){
-  try{
-    const data = {
-      metrics: metrics,
-      buyers: Array.from(buyers.entries()).map(([id, b]) => [id, {
-        nombre:b.nombre, online:false, msgs:b.msgs, unread:b.unread,
-        lastProduct:b.lastProduct, productos:b.productos
-      }])
-    };
-    localStorage.setItem(SESSION_KEY, JSON.stringify(data));
-  }catch(e){}
+function saveSession(id){
+  if (id) dirtyBuyers.add(id);
+  clearTimeout(convTimer);
+  convTimer = setTimeout(flushConversations, 1500);
 }
 
-function loadSession(){
-  let data = null;
-  try{ data = JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); }catch(e){}
-  if (!data) return;
-  if (data.metrics) Object.assign(metrics, data.metrics);
-  (data.buyers || []).forEach(([id, b]) => {
-    buyers.set(id, {nombre:b.nombre || "Comprador", online:false, msgs:b.msgs || [],
-                    unread:b.unread || 0, lastProduct:b.lastProduct || null,
-                    productos:b.productos || []});
+async function flushConversations(){
+  convTimer = null;
+  if (!dirtyBuyers.size) return;
+  const ids = Array.from(dirtyBuyers).slice(0, 50);
+  ids.forEach(id => dirtyBuyers.delete(id));
+  const lista = ids.filter(id => buyers.has(id)).map(id => {
+    const b = buyers.get(id);
+    return {id:id, datos:{nombre:b.nombre, msgs:b.msgs.slice(-200), unread:b.unread,
+                          lastProduct:b.lastProduct, productos:b.productos}};
   });
+  try{
+    if (lista.length) await api("liveshop_conversaciones_guardar", {p_lista:lista});
+  }catch(err){
+    ids.forEach(id => dirtyBuyers.add(id));
+    clearTimeout(convTimer);
+    convTimer = setTimeout(flushConversations, 8000);
+    return;
+  }
+  if (dirtyBuyers.size) saveSession();
 }
-loadSession();
 
-/* Mismo catalogo semilla que la vista del comprador: la primera vez que se abre
-   la consola ya hay productos, no hace falta cargarlos a mano para probar la demo. */
-const SEED = [
-  {id:"seed-1", nombre:"Zapatillas urbanas",   precio:4900, stock:6, emoji:"👟", img:null},
-  {id:"seed-2", nombre:"Auriculares wireless", precio:2300, stock:9, emoji:"🎧", img:null},
-  {id:"seed-3", nombre:"Reloj minimalista",    precio:7500, stock:3, emoji:"⌚", img:null},
-  {id:"seed-4", nombre:"Mochila impermeable",  precio:3200, stock:0, emoji:"🎒", img:null},
-  {id:"seed-5", nombre:"Lentes de sol",        precio:1800, stock:12, emoji:"🕶️", img:null}
-];
-
-const savedCatalog = localStorage.getItem("liveshop_catalog");
-try{ productos = JSON.parse(savedCatalog || "null"); }catch(e){ productos = null; }
-if (!Array.isArray(productos)) productos = null;
-if (productos === null){
-  productos = SEED.map(p => Object.assign({}, p));
-  destacado = "seed-2";
-  try{ localStorage.setItem("liveshop_catalog", JSON.stringify(productos)); }catch(e){}
+function loadSession(lista){
+  (lista || []).forEach(({id, datos}) => {
+    const b = datos || {};
+    buyers.set(id, {nombre:b.nombre || "Comprador", online:false, msgs:Array.isArray(b.msgs) ? b.msgs : [],
+                    unread:b.unread || 0, lastProduct:b.lastProduct || null,
+                    productos:Array.isArray(b.productos) ? b.productos : []});
+  });
 }
 
 /* ===================== realtime ===================== */
-const sb = window.supabase.createClient(SB_URL, SB_KEY, {realtime:{params:{eventsPerSecond:20}}});
-/* presence.enabled es obligatorio: sin el flag el Realtime de Supabase acepta el track()
-   pero nunca emite sync, los compradores quedan siempre offline y se cierran sus conexiones. */
-const channel = sb.channel("liveshop:" + ROOM, {
-  config:{ presence:{key:HOST_ID, enabled:true}, broadcast:{self:false} }
-});
+let sb = null;
+let channel = null;
+let lobby = null;
+let lobbyReady = false;
 
 function send(event, payload){
+  if (!channel) return Promise.resolve();
   return channel.send({type:"broadcast", event:event, payload:payload});
 }
 
@@ -604,7 +762,51 @@ function setConn(kind, text){
   $("connText").textContent = text;
 }
 
+/* Una cuenta = una sala. Si la misma cuenta esta abierta en dos lugares (la demo
+   publica lo garantiza), solo una consola puede transmitir: dos emisores en la
+   misma sala mandarian ofertas de video y estados contradictorios al comprador. */
+function otherHosts(){
+  const out = [];
+  if (!channel) return out;
+  Object.entries(channel.presenceState()).forEach(([key, arr]) => {
+    if (key === HOST_ID) return;
+    arr.forEach(p => { if (p.role === "host") out.push(p); });
+  });
+  return out;
+}
+function otherLiveHost(){
+  return otherHosts().find(p => p.live) || null;
+}
+function passive(){
+  return !live && !!otherLiveHost();
+}
+
+function trackPresence(){
+  if (!channel) return;
+  channel.track({role:"host", live:live, since:liveSince, hostId:HOST_ID, at:Date.now()}).catch(() => {});
+}
+
+/* El directorio de lives lee este canal: un vendedor aparece "en vivo" mientras
+   su consola este transmitiendo, y desaparece solo si se cierra la pestaña. */
+let lobbyTimer = null;
+function lobbyUpdate(){
+  clearTimeout(lobbyTimer);
+  lobbyTimer = setTimeout(() => {
+    if (!lobby || !lobbyReady) return;
+    if (!live){ lobby.untrack().catch(() => {}); return; }
+    lobby.track({sala:ROOM, usuario:CUENTA.usuario, nombre:CUENTA.nombre, titulo:titulo,
+                 viewers:viewersNow, max:MAX_VIEWERS, since:liveSince}).catch(() => {});
+  }, 400);
+}
+
+function paintHostNote(){
+  const other = passive();
+  $("otherHostNote").hidden = !other;
+  $("goLiveBtn").disabled = other;
+}
+
 function broadcastState(to){
+  if (passive()) return;
   const payload = {live:live, titulo:titulo, productos:productos, destacado:destacado};
   if (to) payload.to = to;
   send("state", payload);
@@ -660,87 +862,117 @@ function ensureBuyer(id, nombre){
   return buyers.get(id);
 }
 
-channel
-  .on("broadcast", {event:"hello"}, ({payload}) => {
-    if (!payload || !payload.peerId) return;
-    const id = payload.peerId;
-    ensureBuyer(id, payload.nombre).online = true;
-    renderBuyers(); paintKpis();
-    broadcastState(id);
-    if (live) startPeer(id);
-  })
-  .on("broadcast", {event:"signal"}, ({payload}) => {
-    if (!payload || payload.to !== "host") return;
-    handleSignal(payload).catch(err => console.warn("[signal]", err));
-  })
-  .on("broadcast", {event:"chat"}, ({payload}) => {
-    if (!payload || payload.to !== "host" || !payload.from) return;
-    const id = payload.from;
-    const b = ensureBuyer(id, payload.nombre);
-    /* Se guardan todas las consultas: con lastProduct solo, un comprador que
-       pregunta por tres productos hacia que el link de pago saliera con el ultimo. */
-    if (payload.producto){
-      b.lastProduct = payload.producto;
-      if (!b.productos.some(x => x.id === payload.producto.id)) b.productos.push(payload.producto);
-    }
-    b.msgs.push({dir:"in", kind:"text", text:payload.text, t:now()});
-    metrics.msgs++;
-    if (activeBuyer === id) renderConv(); else b.unread++;
-    renderBuyers(); paintBadges(); paintKpis(); saveSession();
-    if (document.hidden || activeBuyer !== id) notifyNewMessage(b.nombre);
-  })
-  .on("broadcast", {event:"paid"}, ({payload}) => {
-    if (!payload || !payload.peerId) return;
-    const b = buyers.get(payload.peerId);
-    if (!b) return;
-    const card = b.msgs.find(m => m.kind === "payment" && m.pago && m.pago.ref === payload.ref);
-    if (card && !card.pago.paid){
-      card.pago.paid = true;
-      metrics.paid++;
-      metrics.total += Number(card.pago.monto) || 0;
-      /* Un pago tiene que mover el stock: si no, el catalogo sigue diciendo
-         "quedan 6" despues de vender y se nota que es una maqueta. */
-      const prod = card.pago.productoId && productos.find(x => x.id === card.pago.productoId);
-      if (prod && Number(prod.stock) > 0){
-        prod.stock = Number(prod.stock) - 1;
-        saveCatalog();
-      }
-    }
-    b.msgs.push({dir:"sys", kind:"system", ok:true, text:"Pago confirmado · ref " + payload.ref, t:now()});
-    if (activeBuyer === payload.peerId) renderConv();
-    renderBuyers(); paintKpis(); saveSession();
-    ANALYTICS.track("liveshop_paid", {room:ROOM, ref:payload.ref});
-  })
-  .on("presence", {event:"sync"}, () => {
-    const st = channel.presenceState();
-    const onlineIds = new Set();
-    let viewers = 0;
-    Object.entries(st).forEach(([key, arr]) => {
-      arr.forEach(p => {
-        if (p.role === "buyer"){ viewers++; onlineIds.add(key); }
-      });
-    });
-    onlineIds.forEach(id => ensureBuyer(id));
-    buyers.forEach((b, id) => {
-      const wasOnline = b.online;
-      b.online = onlineIds.has(id);
-      if (!b.online && wasOnline) dropPeer(id);
-    });
-    metrics.peak = Math.max(metrics.peak, viewers);
-    renderBuyers(); renderConv(); paintKpis();
-  })
-  .subscribe(async (status) => {
-    if (status === "SUBSCRIBED"){
-      setConn("online", "sala " + ROOM);
-      await channel.track({role:"host", at:Date.now()});
-      broadcastState();
-      ANALYTICS.track("liveshop_host_open", {room:ROOM});
-    } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT"){
-      setConn("offline", "sin conexión");
-    } else if (status === "CLOSED"){
-      setConn("", "reconectando…");
-    }
+function connectRealtime(){
+  sb = window.supabase.createClient(LS.SB_URL, LS.SB_KEY, {realtime:{params:{eventsPerSecond:20}}});
+  /* presence.enabled es obligatorio: sin el flag el Realtime de Supabase acepta el track()
+     pero nunca emite sync, los compradores quedan siempre offline y se cierran sus conexiones. */
+  channel = sb.channel("liveshop:" + ROOM, {
+    config:{ presence:{key:HOST_ID, enabled:true}, broadcast:{self:false} }
   });
+
+  channel
+    .on("broadcast", {event:"hello"}, ({payload}) => {
+      if (!payload || !payload.peerId) return;
+      const id = payload.peerId;
+      ensureBuyer(id, payload.nombre).online = true;
+      renderBuyers(); paintKpis();
+      if (passive()) return;
+      broadcastState(id);
+      if (live) startPeer(id);
+    })
+    .on("broadcast", {event:"signal"}, ({payload}) => {
+      if (!payload || payload.to !== "host") return;
+      handleSignal(payload).catch(err => console.warn("[signal]", err));
+    })
+    .on("broadcast", {event:"chat"}, ({payload}) => {
+      if (!payload || payload.to !== "host" || !payload.from) return;
+      const id = payload.from;
+      const b = ensureBuyer(id, payload.nombre);
+      /* Se guardan todas las consultas: con lastProduct solo, un comprador que
+         pregunta por tres productos hacia que el link de pago saliera con el ultimo. */
+      if (payload.producto){
+        b.lastProduct = payload.producto;
+        if (!b.productos.some(x => x.id === payload.producto.id)) b.productos.push(payload.producto);
+      }
+      b.msgs.push({dir:"in", kind:"text", text:payload.text, t:now()});
+      if (!passive()) metric("mensaje");   // con dos consolas abiertas, cuenta una sola
+      if (activeBuyer === id) renderConv(); else b.unread++;
+      renderBuyers(); paintBadges(); paintKpis(); saveSession(id);
+      if (document.hidden || activeBuyer !== id) notifyNewMessage(b.nombre);
+    })
+    .on("broadcast", {event:"paid"}, ({payload}) => {
+      if (!payload || !payload.peerId) return;
+      const b = buyers.get(payload.peerId);
+      if (!b) return;
+      const card = b.msgs.find(m => m.kind === "payment" && m.pago && m.pago.ref === payload.ref);
+      if (card && !card.pago.paid){
+        card.pago.paid = true;
+        registrarPago(card.pago);
+      }
+      b.msgs.push({dir:"sys", kind:"system", ok:true, text:"Pago confirmado · ref " + payload.ref, t:now()});
+      if (activeBuyer === payload.peerId) renderConv();
+      renderBuyers(); paintKpis(); saveSession(payload.peerId);
+      ANALYTICS.track("liveshop_paid", {room:ROOM, vendedor:CUENTA.usuario, ref:payload.ref});
+    })
+    .on("presence", {event:"sync"}, () => {
+      const st = channel.presenceState();
+      const onlineIds = new Set();
+      let viewers = 0;
+      Object.entries(st).forEach(([key, arr]) => {
+        arr.forEach(p => {
+          if (p.role === "buyer"){ viewers++; onlineIds.add(key); }
+        });
+      });
+      onlineIds.forEach(id => ensureBuyer(id));
+      buyers.forEach((b, id) => {
+        const wasOnline = b.online;
+        b.online = onlineIds.has(id);
+        if (!b.online && wasOnline) dropPeer(id);
+      });
+
+      /* Dos consolas que salen en vivo casi a la vez pasan las dos el chequeo de
+         goLive; gana la que empezo antes y la otra se baja sola. */
+      if (live){
+        const rival = otherHosts().find(p => p.live &&
+          (p.since < liveSince || (p.since === liveSince && String(p.hostId) < HOST_ID)));
+        if (rival){
+          stopLive();
+          showRtcWarn("Otra consola de esta cuenta empezó a transmitir antes. Tu transmisión se detuvo para no pisarla.");
+        }
+      }
+
+      if (viewers !== viewersNow){
+        viewersNow = viewers;
+        lobbyUpdate();
+      }
+      if (live && viewers > livePeak){
+        livePeak = viewers;
+        metric("pico", viewers);
+      }
+      paintHostNote();
+      renderBuyers(); renderConv(); paintKpis();
+    })
+    .subscribe(async (status) => {
+      if (status === "SUBSCRIBED"){
+        setConn("online", "sala " + ROOM);
+        trackPresence();
+        broadcastState();
+        ANALYTICS.track("liveshop_host_open", {room:ROOM, vendedor:CUENTA.usuario});
+      } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT"){
+        setConn("offline", "sin conexión");
+      } else if (status === "CLOSED"){
+        setConn("", "reconectando…");
+      }
+    });
+
+  lobby = sb.channel("liveshop:lobby", {
+    config:{ presence:{key:HOST_ID, enabled:true}, broadcast:{self:false} }
+  });
+  lobby.subscribe((status) => {
+    lobbyReady = status === "SUBSCRIBED";
+    if (lobbyReady) lobbyUpdate();
+  });
+}
 
 /* ===================== WebRTC (emisor) ===================== */
 async function startPeer(peerId){
@@ -756,7 +988,6 @@ async function startPeer(peerId){
     if (e.candidate) send("signal", {to:peerId, from:"host", kind:"ice", data:e.candidate.toJSON()});
   };
   pc.onconnectionstatechange = () => {
-    if (pc.connectionState === "connected"){ metrics.rtc++; paintKpis(); }
     if (pc.connectionState === "failed" || pc.connectionState === "closed") dropPeer(peerId);
   };
   const offer = await pc.createOffer();
@@ -793,31 +1024,55 @@ async function handleSignal(msg){
   }
 }
 
+function showRtcWarn(text){
+  $("rtcWarn").style.display = text ? "block" : "none";
+  $("rtcWarn").textContent = text || "";
+}
+
 async function goLive(){
-  $("rtcWarn").style.display = "none";
+  showRtcWarn("");
+  if (otherLiveHost()){
+    paintHostNote();
+    showRtcWarn("Esta cuenta ya está transmitiendo desde otro lugar. Esperá a que termine esa transmisión.");
+    return;
+  }
   try{
     localStream = await navigator.mediaDevices.getUserMedia({
       video:{width:{ideal:1280}, height:{ideal:720}}, audio:true
     });
   }catch(err){
-    $("rtcWarn").style.display = "block";
-    $("rtcWarn").textContent = "No se pudo acceder a la cámara: " + (err && err.name ? err.name : "error") +
-      ". Revisá los permisos del navegador. Fuera de localhost hace falta HTTPS.";
+    showRtcWarn("No se pudo acceder a la cámara: " + (err && err.name ? err.name : "error") +
+      ". Revisá los permisos del navegador. Fuera de localhost hace falta HTTPS.");
+    return;
+  }
+  /* se vuelve a chequear: pedir permiso de camara puede tardar varios segundos */
+  if (otherLiveHost()){
+    localStream.getTracks().forEach(t => t.stop());
+    localStream = null;
+    paintHostNote();
+    showRtcWarn("Mientras dabas permiso a la cámara, otra consola de esta cuenta salió en vivo.");
     return;
   }
   live = true;
+  liveSince = Date.now();
+  livePeak = 0;
   $("localVideo").srcObject = localStream;
   $("previewOff").style.display = "none";
   $("onAir").classList.add("show");
   $("goLiveBtn").style.display = "none";
   $("stopBtn").style.display = "inline-flex";
+  trackPresence();
+  lobbyUpdate();
   broadcastState();
   buyers.forEach((b, id) => { if (b.online) startPeer(id); });
-  ANALYTICS.track("liveshop_go_live", {room:ROOM});
+  metric("transmision");
+  ANALYTICS.track("liveshop_go_live", {room:ROOM, vendedor:CUENTA.usuario});
 }
 
 function stopLive(){
+  if (!live) return;
   live = false;
+  liveSince = 0;
   peers.forEach((p, id) => { send("signal", {to:id, from:"host", kind:"bye"}); });
   Array.from(peers.keys()).forEach(dropPeer);
   if (localStream){ localStream.getTracks().forEach(t => t.stop()); localStream = null; }
@@ -827,7 +1082,10 @@ function stopLive(){
   $("goLiveBtn").style.display = "inline-flex";
   $("stopBtn").style.display = "none";
   broadcastState();
-  ANALYTICS.track("liveshop_stop_live", {room:ROOM});
+  trackPresence();
+  lobbyUpdate();
+  paintHostNote();
+  ANALYTICS.track("liveshop_stop_live", {room:ROOM, vendedor:CUENTA.usuario});
 }
 
 $("goLiveBtn").addEventListener("click", goLive);
@@ -839,11 +1097,35 @@ $("stopBtn").addEventListener("click", stopLive);
 const PAYLOAD_WARN = 150 * 1024;
 const PAYLOAD_MAX  = 240 * 1024;
 
+let catTimer = null;
+
+function setCatStatus(text, kind){
+  setMsg($("catStatus"), text, kind);
+}
+
+/* Cada cambio se publica al instante por broadcast y se guarda en la base con
+   debounce: tipear un titulo no dispara una escritura por tecla. */
 function saveCatalog(){
-  try{ localStorage.setItem("liveshop_catalog", JSON.stringify(productos)); }catch(e){}
   checkPayload();
   broadcastState();
   renderProds();
+  queueCatalogSave();
+}
+
+function queueCatalogSave(){
+  setCatStatus("Guardando…");
+  clearTimeout(catTimer);
+  catTimer = setTimeout(persistCatalog, 700);
+}
+
+async function persistCatalog(){
+  catTimer = null;
+  try{
+    await api("liveshop_catalogo_guardar", {p_productos:productos, p_titulo:titulo, p_destacado:destacado});
+    setCatStatus("Cambios guardados.", "ok");
+  }catch(err){
+    setCatStatus("No se pudo guardar: " + err.message, "err");
+  }
 }
 
 function checkPayload(){
@@ -876,28 +1158,10 @@ $("emojiRow").addEventListener("click", (e) => {
   renderEmojis();
 });
 
-function shrink(file, max){
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      const scale = Math.min(1, max / Math.max(img.width, img.height));
-      const c = document.createElement("canvas");
-      c.width = Math.round(img.width * scale);
-      c.height = Math.round(img.height * scale);
-      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-      URL.revokeObjectURL(url);
-      resolve(c.toDataURL("image/jpeg", 0.6));
-    };
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("bad image")); };
-    img.src = url;
-  });
-}
-
 $("pImg").addEventListener("change", async (e) => {
   const file = e.target.files && e.target.files[0];
   if (!file){ pendingImg = null; return; }
-  try{ pendingImg = await shrink(file, 320); }
+  try{ pendingImg = await LS.shrink(file, 320); }
   catch(err){ pendingImg = null; $("pImg").value = ""; }
 });
 
@@ -923,6 +1187,10 @@ $("prodForm").addEventListener("submit", (e) => {
       if (pendingImg) p.img = pendingImg;
     }
   } else {
+    if (productos.length >= 40){
+      setCatStatus("El catálogo admite hasta 40 productos.", "err");
+      return;
+    }
     productos.push({id:uid(), nombre:nombre, precio:precio, stock:stock, emoji:selectedEmoji, img:pendingImg});
   }
   resetForm();
@@ -981,6 +1249,47 @@ $("prodList").addEventListener("click", (e) => {
   }
 });
 
+/* La cuenta demo es de todos: cualquiera puede vaciarle el catalogo, asi que
+   cualquiera puede devolverlo al de ejemplo. Confirmacion en dos toques, sin
+   dialogos del navegador. */
+let restoreArmed = false;
+let restoreTimer = null;
+$("restoreDemo").addEventListener("click", async () => {
+  const btn = $("restoreDemo");
+  if (!restoreArmed){
+    restoreArmed = true;
+    btn.textContent = "¿Reemplazar el catálogo actual? Tocá de nuevo";
+    restoreTimer = setTimeout(() => { restoreArmed = false; btn.textContent = "↺ Restaurar catálogo demo"; }, 4000);
+    return;
+  }
+  clearTimeout(restoreTimer);
+  restoreArmed = false;
+  btn.disabled = true;
+  btn.textContent = "Restaurando…";
+  clearTimeout(catTimer);   // un guardado pendiente pisaria la restauracion
+  catTimer = null;
+  try{
+    const r = await api("liveshop_catalogo_restaurar_demo");
+    applyCuenta(r.cuenta);
+    productos = normalizarProductos(r.productos);
+    destacado = r.cuenta.destacado || null;
+    titulo = r.cuenta.titulo || "LiveShop";
+    $("titleInput").value = titulo;
+    resetForm();
+    checkPayload(); broadcastState(); renderProds(); lobbyUpdate();
+    setCatStatus("Catálogo demo restaurado.", "ok");
+  }catch(err){
+    setCatStatus("No se pudo restaurar: " + err.message, "err");
+  }
+  btn.disabled = false;
+  btn.textContent = "↺ Restaurar catálogo demo";
+});
+
+function normalizarProductos(lista){
+  return (lista || []).map(p => ({id:p.id, nombre:p.nombre, precio:Number(p.precio) || 0,
+                                  stock:Number(p.stock) || 0, emoji:p.emoji || "📦", img:p.img || null}));
+}
+
 /* ===================== chats ===================== */
 function renderBuyers(){
   const list = $("buyerList");
@@ -1011,7 +1320,7 @@ $("buyerList").addEventListener("click", (e) => {
   const b = buyers.get(activeBuyer);
   if (b) b.unread = 0;
   clearNotify();
-  renderBuyers(); renderConv(); paintBadges(); saveSession();
+  renderBuyers(); renderConv(); paintBadges(); saveSession(activeBuyer);
 });
 
 function renderConv(){
@@ -1063,10 +1372,10 @@ $("convForm").addEventListener("submit", (e) => {
   if (!b) return;
   send("chat", {to:activeBuyer, from:"host", kind:"text", text:text});
   b.msgs.push({dir:"out", kind:"text", text:text, t:now()});
-  metrics.msgs++;
+  metric("mensaje");
   $("convInput").value = "";
   $("convSend").disabled = true;
-  renderConv(); renderBuyers(); paintKpis(); saveSession();
+  renderConv(); renderBuyers(); paintKpis(); saveSession(activeBuyer);
 });
 
 /* ===================== link de pago ===================== */
@@ -1115,55 +1424,73 @@ $("payForm").addEventListener("submit", (e) => {
   };
   send("chat", {to:activeBuyer, from:"host", kind:"payment", text:"Link de pago", pago:pago});
   b.msgs.push({dir:"out", kind:"payment", pago:pago, t:now()});
-  metrics.links++;
   $("payScrim").classList.remove("open");
-  renderConv(); renderBuyers(); paintKpis(); saveSession();
-  ANALYTICS.track("liveshop_paylink_sent", {room:ROOM, monto:pago.monto});
+  renderConv(); renderBuyers(); paintKpis(); saveSession(activeBuyer);
+  metric("link_pago", pago.monto);
+  setTimeout(refreshToday, 800);
+  ANALYTICS.track("liveshop_paylink_sent", {room:ROOM, vendedor:CUENTA.usuario, monto:pago.monto});
 });
 
-/* ===================== uso agregado del demo ===================== */
-/* Se lee por RPC y no por SELECT: la funcion devuelve solo agregados, asi que
-   no hay que abrir analytics_events a lectura publica. */
-let usageLoaded = false;
-
-async function loadUsage(){
-  if (usageLoaded) return;
-  usageLoaded = true;
-  const box = $("usageBox");
+/* Un pago tiene que mover el stock: si no, el catalogo sigue diciendo "quedan 6"
+   despues de vender. El descuento lo hace la base, atomico y una sola vez por ref,
+   asi que dos consolas de la misma cuenta no lo descuentan dos veces. */
+async function registrarPago(pago){
   try{
-    const r = await fetch(SB_URL + "/rest/v1/rpc/liveshop_overview", {
-      method:"POST",
-      headers:{"Content-Type":"application/json", apikey:SB_KEY, Authorization:"Bearer " + SB_KEY},
-      body:JSON.stringify({days:30})
+    const r = await api("liveshop_pago_registrar", {
+      p_ref:pago.ref, p_producto_id:pago.productoId || null, p_monto:pago.monto
     });
-    if (!r.ok) throw new Error("HTTP " + r.status);
-    const d = await r.json();
-    const t = d.totals || {};
-    const rtcTotal = (t.webrtc_ok || 0) + (t.webrtc_fail || 0);
-    const rtcPct = rtcTotal ? Math.round((t.webrtc_ok || 0) / rtcTotal * 100) + "%" : "—";
-    const conv = (t.buy_clicks || 0) ? Math.round((t.paid || 0) / t.buy_clicks * 100) + "%" : "—";
-    box.innerHTML =
-      '<div class="kpis" style="margin:0 0 .6rem">' +
-        kpi("Sesiones", t.sessions || 0, "últimos 30 días") +
-        kpi("Entradas al live", t.joins || 0, "compradores") +
-        kpi("Transmisiones", t.go_live || 0, "iniciadas") +
-        kpi("Interés", t.buy_clicks || 0, "clics en un producto") +
-        kpi("Links de pago", t.paylinks_sent || 0, "enviados") +
-        kpi("Pagos", t.paid || 0, "confirmados") +
-        kpi("Video P2P", rtcPct, (t.webrtc_ok || 0) + " de " + rtcTotal + " conectaron") +
-        kpi("Conversión", conv, "pagos / interés") +
-      '</div>' +
-      '<p style="font-size:.72rem;color:var(--muted,#9A958A)">Ventana: últimos 30 días · fuente: analytics_events (Supabase) vía función de agregados. No se exponen eventos individuales.</p>';
+    const prod = pago.productoId && productos.find(x => x.id === pago.productoId);
+    if (prod && r && r.stock != null && Number(prod.stock) !== Number(r.stock)){
+      prod.stock = Number(r.stock);
+      checkPayload(); broadcastState(); renderProds();
+    }
+    refreshToday();
   }catch(err){
-    usageLoaded = false;
-    box.textContent = "No se pudo leer el uso del demo (" + (err && err.message ? err.message : "error") + ").";
+    console.warn("[pago]", err);
   }
 }
 
+/* ===================== metricas ===================== */
 function kpi(lbl, val, sub){
   return '<div class="kpi"><div class="lbl">' + esc(lbl) + '</div>' +
          '<div class="val">' + esc(val) + '</div>' +
          '<div class="sub">' + esc(sub) + '</div></div>';
+}
+
+async function loadMetrics(){
+  const box = $("mKpis");
+  const dias = Number($("mRange").value) || 30;
+  box.innerHTML = '<div class="state-box">Cargando…</div>';
+  try{
+    const m = await api("liveshop_metricas", {p_dias:dias});
+    const n = k => Number(m && m[k]) || 0;
+    const conv = n("links") ? Math.round(n("pagos") / n("links") * 100) + "%" : "—";
+    const rtcTotal = n("video_ok") + n("video_falla");
+    const rtc = rtcTotal ? Math.round(n("video_ok") / rtcTotal * 100) + "%" : "—";
+    box.innerHTML =
+      kpi("Entradas", n("entradas"), "visitas a tu sala") +
+      kpi("Compradores", n("compradores"), "únicos") +
+      kpi("Interés", n("interes"), "clics en “Lo quiero”") +
+      kpi("Mensajes", n("mensajes"), "enviados + recibidos") +
+      kpi("Links de pago", n("links"), money(n("monto_links")) + " ofrecidos") +
+      kpi("Pagos", n("pagos"), "confirmados") +
+      kpi("Facturado", money(n("facturado")), "pagos simulados") +
+      kpi("Conversión", conv, "pagos / links") +
+      kpi("Transmisiones", n("transmisiones"), "iniciadas") +
+      kpi("Pico", n("pico"), "espectadores simultáneos") +
+      kpi("Video P2P", rtc, n("video_ok") + " de " + rtcTotal + " conectaron");
+  }catch(err){
+    box.innerHTML = '<div class="state-box">No se pudieron cargar las métricas (' + esc(err.message) + ').</div>';
+  }
+}
+$("mRange").addEventListener("change", loadMetrics);
+
+async function refreshToday(){
+  try{
+    const m = await api("liveshop_metricas", {p_dias:1});
+    $("kLinks").textContent = Number(m && m.links) || 0;
+    $("kPaid").textContent = Number(m && m.pagos) || 0;
+  }catch(e){}
 }
 
 /* ===================== KPIs / tabs ===================== */
@@ -1172,14 +1499,6 @@ function paintKpis(){
   buyers.forEach(b => { if (b.online) online++; });
   $("kViewers").textContent = online;
   $("kChats").textContent = Array.from(buyers.values()).filter(b => b.msgs.length).length;
-  $("kLinks").textContent = metrics.links;
-  $("kPaid").textContent = metrics.paid;
-  $("mPeak").textContent = metrics.peak;
-  $("mMsgs").textContent = metrics.msgs;
-  $("mLinks").textContent = metrics.links;
-  $("mConv").textContent = metrics.links ? Math.round(metrics.paid / metrics.links * 100) + "%" : "—";
-  $("mTotal").textContent = money(metrics.total);
-  $("mRtc").textContent = metrics.rtc;
 }
 
 function paintBadges(){
@@ -1196,20 +1515,18 @@ document.querySelectorAll(".tab").forEach(tab => {
     document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
     tab.classList.add("active");
     $("view-" + tab.dataset.view).classList.add("active");
-    if (tab.dataset.view === "metrics") loadUsage();
+    if (tab.dataset.view === "metrics") loadMetrics();
   });
 });
 
 /* ===================== sala / titulo ===================== */
-const shareUrl = new URL("../?live=" + encodeURIComponent(ROOM), location.href).href;
-$("shareUrl").textContent = shareUrl;
-$("roomLbl").textContent = ROOM;
-$("maxLbl").textContent = MAX_VIEWERS;
-$("titleInput").value = titulo;
+function shareUrlFor(sala){
+  return new URL("../?live=" + encodeURIComponent(sala), location.href).href;
+}
 
 $("copyBtn").addEventListener("click", async () => {
   try{
-    await navigator.clipboard.writeText(shareUrl);
+    await navigator.clipboard.writeText(shareUrlFor(ROOM));
     $("copyBtn").textContent = "¡Copiado!";
   }catch(e){
     $("copyBtn").textContent = "Copiá a mano";
@@ -1219,28 +1536,188 @@ $("copyBtn").addEventListener("click", async () => {
 
 $("titleInput").addEventListener("input", (e) => {
   titulo = e.target.value.trim() || "LiveShop";
-  try{ localStorage.setItem("liveshop_titulo", titulo); }catch(err){}
   broadcastState();
+  queueCatalogSave();
+  lobbyUpdate();
 });
 
-$("newRoomBtn").addEventListener("click", () => {
-  const fresh = "s" + Math.random().toString(36).slice(2,8);
-  try{ localStorage.setItem("liveshop_host_room", fresh); }catch(e){}
-  location.search = "?live=" + fresh;
+/* ===================== mi cuenta ===================== */
+function avatarHtml(cuenta){
+  return cuenta.foto ? '<img src="' + esc(cuenta.foto) + '" alt="">' : esc(LS.initials(cuenta.nombre));
+}
+
+function applyCuenta(c){
+  CUENTA = c;
+  $("brandName").textContent = c.nombre;
+  $("brandUser").textContent = "@" + c.usuario + " · consola del vendedor";
+  $("brandLogo").innerHTML = c.foto ? '<img src="' + esc(c.foto) + '" alt="">' : "🎥";
+  $("accUser").value = c.usuario;
+  $("accName").value = c.nombre;
+  $("accAvatar").innerHTML = avatarHtml(c);
+  $("accRoom").value = c.sala;
+  $("accRoomPreview").textContent = shareUrlFor(c.sala);
+  $("shareUrl").textContent = shareUrlFor(c.sala);
+  $("roomLbl").textContent = c.sala;
+  $("buyerViewLink").href = "../?live=" + encodeURIComponent(c.sala);
+
+  $("protNote").hidden = !c.protegido;
+  $("restoreDemo").hidden = !c.protegido;
+  ["roomForm","passForm","deleteForm"].forEach(id => {
+    $(id).querySelectorAll("input,button").forEach(el => { el.disabled = !!c.protegido; });
+  });
+}
+
+let pendingPhoto;   // undefined = sin cambios, "" = quitar, data URL = nueva
+$("accPhoto").addEventListener("change", async (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  try{
+    pendingPhoto = await LS.shrink(file, 160, 0.75);
+    $("accAvatar").innerHTML = '<img src="' + esc(pendingPhoto) + '" alt="">';
+  }catch(err){
+    setMsg($("profileMsg"), "No se pudo leer la imagen.", "err");
+    $("accPhoto").value = "";
+  }
+});
+$("accPhotoClear").addEventListener("click", () => {
+  pendingPhoto = "";
+  $("accPhoto").value = "";
+  $("accAvatar").innerHTML = esc(LS.initials($("accName").value));
 });
 
-window.addEventListener("beforeunload", () => {
-  if (live){ try{ peers.forEach((p, id) => send("signal", {to:id, from:"host", kind:"bye"})); }catch(e){} }
+$("profileForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const cambios = {nombre:$("accName").value};
+  if (pendingPhoto !== undefined) cambios.foto = pendingPhoto;
+  setMsg($("profileMsg"), "Guardando…");
+  try{
+    applyCuenta(await api("liveshop_cuenta_editar", {p_cambios:cambios}));
+    pendingPhoto = undefined;
+    $("accPhoto").value = "";
+    lobbyUpdate();
+    setMsg($("profileMsg"), "Perfil guardado.", "ok");
+  }catch(err){
+    setMsg($("profileMsg"), err.message, "err");
+  }
+});
+
+$("accRoom").addEventListener("input", (e) => {
+  const v = LS.cleanRoom(e.target.value);
+  $("accRoomPreview").textContent = v ? shareUrlFor(v) : "";
+});
+
+$("roomForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const sala = LS.cleanRoom($("accRoom").value);
+  if (sala === ROOM){ setMsg($("roomMsg"), "Ese ya es tu código."); return; }
+  if (live){ setMsg($("roomMsg"), "Terminá la transmisión antes de cambiar la sala.", "err"); return; }
+  setMsg($("roomMsg"), "Guardando…");
+  try{
+    await api("liveshop_cuenta_editar", {p_cambios:{sala:sala}});
+    await flushPending();
+    /* el canal de realtime esta atado a la sala: recargar es la forma limpia de cambiarlo */
+    location.reload();
+  }catch(err){
+    setMsg($("roomMsg"), err.message, "err");
+  }
+});
+
+$("passForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if ($("passNew").value !== $("passNew2").value){
+    setMsg($("passMsg"), "Las contraseñas nuevas no coinciden.", "err");
+    return;
+  }
+  setMsg($("passMsg"), "Guardando…");
+  try{
+    await api("liveshop_cuenta_editar", {p_cambios:{password_actual:$("passOld").value, password_nueva:$("passNew").value}});
+    $("passForm").reset();
+    setMsg($("passMsg"), "Contraseña actualizada.", "ok");
+  }catch(err){
+    setMsg($("passMsg"), err.message, "err");
+  }
+});
+
+$("deleteForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if ($("delConfirm").value.trim().toLowerCase() !== CUENTA.usuario){
+    setMsg($("delMsg"), "El usuario escrito no coincide con el tuyo.", "err");
+    return;
+  }
+  setMsg($("delMsg"), "Borrando…");
+  try{
+    await api("liveshop_cuenta_borrar", {p_password:$("delPass").value});
+    stopLive();
+    LS.clearToken();
+    location.replace("../");
+  }catch(err){
+    setMsg($("delMsg"), err.message, "err");
+  }
+});
+
+async function flushPending(){
+  if (catTimer){ clearTimeout(catTimer); await persistCatalog(); }
+  if (convTimer){ clearTimeout(convTimer); await flushConversations(); }
+}
+
+$("logoutBtn").addEventListener("click", async () => {
+  $("logoutBtn").disabled = true;
+  stopLive();
+  try{ await flushPending(); }catch(e){}
+  try{ await LS.rpc("liveshop_logout", {p_token:TOKEN}); }catch(e){}
+  LS.clearToken();
+  goLogin();
+});
+
+window.addEventListener("beforeunload", (e) => {
+  if (live){ try{ peers.forEach((p, id) => send("signal", {to:id, from:"host", kind:"bye"})); }catch(err){} }
+  /* un cambio de catalogo todavia sin guardar se perderia en silencio */
+  if (catTimer){ e.preventDefault(); e.returnValue = ""; }
 });
 
 /* ===================== init ===================== */
-renderEmojis();
-renderProds();
-checkPayload();
-renderBuyers();
-renderConv();
-paintKpis();
-paintBadges();
+async function boot(){
+  if (!TOKEN){ goLogin(); return; }
+  $("bootRetry").hidden = true;
+  $("bootMsg").textContent = "Cargando tu tienda…";
+  let yo;
+  try{
+    yo = await api("liveshop_yo");
+  }catch(err){
+    if (err.code === "sesion_invalida") return;   // api() ya redirigio
+    $("bootMsg").textContent = "No se pudo cargar tu cuenta: " + err.message;
+    $("bootRetry").hidden = false;
+    return;
+  }
+  if (yo.cuenta.rol === "admin"){ location.replace("../admin/"); return; }
+
+  ROOM = yo.cuenta.sala;
+  titulo = yo.cuenta.titulo || "LiveShop";
+  destacado = yo.cuenta.destacado || null;
+  productos = normalizarProductos(yo.productos);
+  loadSession(yo.conversaciones);
+  applyCuenta(yo.cuenta);
+
+  $("maxLbl").textContent = MAX_VIEWERS;
+  $("titleInput").value = titulo;
+  renderEmojis();
+  renderProds();
+  checkPayload();
+  renderBuyers();
+  renderConv();
+  paintKpis();
+  paintBadges();
+  $("boot").hidden = true;
+
+  try{
+    connectRealtime();
+  }catch(err){
+    setConn("offline", "sin tiempo real");
+  }
+  refreshToday();
+}
+$("bootRetry").addEventListener("click", boot);
+boot();
 </script>
 </body>
 </html>

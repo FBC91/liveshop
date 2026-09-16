@@ -35,18 +35,143 @@ body{
   -webkit-font-smoothing:antialiased;
   display:flex;flex-direction:column;
 }
+[hidden]{display:none !important}
 
 /* ---------- banner ---------- */
 .demo-banner{
   background:var(--portfolio-ink);color:#F9F6F0;
   padding:.6rem 1rem;font-size:.78rem;letter-spacing:.02em;
-  display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap;text-align:center;
+  display:flex;align-items:center;justify-content:center;gap:.5rem .9rem;flex-wrap:wrap;text-align:center;
 }
 .demo-banner b{color:var(--portfolio-amber-l);letter-spacing:.12em;text-transform:uppercase;font-size:.7rem}
 .demo-banner a{color:var(--portfolio-amber-l);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s}
 .demo-banner a:hover{border-color:var(--portfolio-amber-l)}
 
-/* ---------- layout ---------- */
+/* ---------- directorio ---------- */
+.dir{
+  flex:1;width:100%;
+  background:linear-gradient(180deg,var(--portfolio-bg2) 0%, var(--portfolio-bg) 340px);
+}
+.dir-inner{max-width:1120px;margin:0 auto;padding:2rem 1.25rem 3rem;display:flex;flex-direction:column;gap:2.25rem}
+.hero{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:2rem;align-items:start}
+.tag{
+  font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--portfolio-amber);
+  font-weight:600;margin-bottom:.4rem;
+}
+.hero h1{font-weight:700;font-size:2rem;line-height:1.15}
+.hero h1 span{color:var(--portfolio-amber);font-weight:400}
+.hero p{font-size:.92rem;line-height:1.6;color:var(--portfolio-ink60);margin-top:.8rem;max-width:56ch}
+.stack{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1rem}
+.stack span{
+  font-size:.7rem;padding:.25rem .6rem;background:#fff;border:1px solid var(--portfolio-ink30);
+  border-radius:99px;color:var(--portfolio-ink60);letter-spacing:.04em;
+}
+.hero-cta{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1.25rem}
+.btn-a{
+  display:inline-flex;align-items:center;gap:.45rem;font-size:.82rem;font-weight:600;
+  text-decoration:none;padding:.6rem 1rem;border-radius:8px;transition:background .15s,color .15s,filter .15s;
+}
+.btn-a.solid{background:var(--portfolio-amber);color:#fff}
+.btn-a.solid:hover{filter:brightness(1.08)}
+.btn-a.line{border:1px solid var(--portfolio-amber);color:var(--portfolio-amber)}
+.btn-a.line:hover{background:var(--portfolio-amber);color:#fff}
+ol.try{
+  list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:.5rem;
+  background:#fff;border:1px solid var(--portfolio-ink30);border-radius:8px;padding:.9rem 1rem;
+}
+ol.try li{
+  counter-increment:s;font-size:.8rem;color:var(--portfolio-ink60);line-height:1.5;
+  padding-left:1.5rem;position:relative;
+}
+ol.try li::before{
+  content:counter(s);position:absolute;left:0;top:.05rem;
+  width:1.05rem;height:1.05rem;border-radius:50%;background:var(--portfolio-amber);color:#fff;
+  font-size:.62rem;font-weight:700;display:flex;align-items:center;justify-content:center;
+}
+ol.try code{font-family:ui-monospace,monospace;font-size:.76rem;background:var(--portfolio-bg2);padding:0 .25rem;border-radius:3px}
+
+.dir-section h2{
+  font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--portfolio-ink60);
+  font-weight:600;margin-bottom:.8rem;display:flex;align-items:center;gap:.5rem;
+}
+.dir-section h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--live);animation:pulse 1.4s ease-in-out infinite}
+.dir-empty{
+  background:#fff;border:1px dashed var(--portfolio-ink30);border-radius:12px;
+  padding:1.5rem 1rem;text-align:center;font-size:.85rem;color:var(--portfolio-ink60);line-height:1.6;
+}
+.dir-empty a{color:var(--portfolio-amber);font-weight:600;text-decoration:none}
+.dir-empty button{
+  margin-top:.6rem;border:1px solid var(--portfolio-amber);background:#fff;color:var(--portfolio-amber);
+  font:inherit;font-size:.78rem;font-weight:600;padding:.35rem .8rem;border-radius:6px;cursor:pointer;
+}
+
+.avatar{
+  width:44px;height:44px;border-radius:50%;flex-shrink:0;overflow:hidden;
+  background:linear-gradient(135deg,var(--portfolio-amber-l),var(--portfolio-amber));
+  display:flex;align-items:center;justify-content:center;color:#1A1916;font-weight:700;font-size:.95rem;
+}
+.avatar img{width:100%;height:100%;object-fit:cover;display:block}
+
+.live-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.9rem}
+.live-card{
+  background:var(--stage-bg);color:var(--stage-text);border:1px solid var(--stage-bd);border-radius:14px;
+  text-decoration:none;overflow:hidden;display:flex;flex-direction:column;
+  transition:transform .2s,box-shadow .2s;box-shadow:0 8px 24px rgba(0,0,0,.14);
+}
+.live-card:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(0,0,0,.2)}
+.live-card .screen{
+  aspect-ratio:16/8;position:relative;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 40%, #2A2620 0%, #131110 75%);
+}
+.live-card .screen .avatar{width:64px;height:64px;font-size:1.3rem;box-shadow:0 0 0 3px var(--live)}
+.live-card .badge{
+  position:absolute;top:.6rem;left:.6rem;background:var(--live);color:#fff;font-size:.62rem;font-weight:700;
+  letter-spacing:.1em;padding:.2rem .5rem;border-radius:4px;display:inline-flex;align-items:center;gap:.3rem;
+}
+.live-card .badge .pulse{width:6px;height:6px;border-radius:50%;background:#fff;animation:pulse 1.4s ease-in-out infinite}
+.live-card .viewers{
+  position:absolute;top:.6rem;right:.6rem;background:rgba(0,0,0,.55);color:#fff;font-size:.66rem;
+  padding:.2rem .45rem;border-radius:4px;
+}
+.live-card .viewers.full{background:var(--live)}
+.live-card .info{padding:.75rem .9rem .9rem}
+.live-card .t{font-size:.92rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.live-card .n{font-size:.75rem;color:var(--stage-muted);margin-top:.15rem}
+
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:.9rem}
+.shop-card{
+  background:#fff;border:1px solid var(--portfolio-ink30);border-radius:14px;overflow:hidden;
+  text-decoration:none;color:inherit;display:flex;flex-direction:column;
+  transition:border-color .2s,box-shadow .2s;
+}
+.shop-card:hover{border-color:var(--portfolio-amber);box-shadow:0 8px 24px rgba(26,25,22,.08)}
+.shop-card .head{display:flex;align-items:center;gap:.7rem;padding:.9rem .9rem .7rem}
+.shop-card .who{flex:1;min-width:0}
+.shop-card .n{font-size:.92rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shop-card .u{font-size:.72rem;color:#8B887F}
+.shop-card .off{font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:#8B887F;border:1px solid var(--portfolio-ink30);border-radius:99px;padding:.15rem .5rem;white-space:nowrap}
+.shop-card .go{font-size:.74rem;color:var(--portfolio-amber);font-weight:600;padding:.6rem .9rem .8rem;border-top:1px solid var(--portfolio-bg2)}
+
+/* carrusel infinito: la pista tiene la lista dos veces y se desplaza la mitad */
+.marquee{
+  overflow:hidden;padding:.2rem 0 .9rem;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
+          mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
+}
+.marquee-track{display:flex;width:max-content;animation:marquee var(--dur,30s) linear infinite}
+.shop-card:hover .marquee-track,.marquee:focus-within .marquee-track{animation-play-state:paused}
+@keyframes marquee{to{transform:translateX(-50%)}}
+.mitem{
+  width:112px;margin-right:.6rem;flex-shrink:0;background:var(--portfolio-bg);border:1px solid var(--portfolio-bg2);
+  border-radius:10px;overflow:hidden;
+}
+.mitem .img{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:2rem;background:var(--portfolio-bg2)}
+.mitem .img img{width:100%;height:100%;object-fit:cover;display:block}
+.mitem .mn{font-size:.7rem;font-weight:600;padding:.35rem .45rem 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mitem .mp{font-size:.72rem;color:var(--portfolio-amber);font-weight:700;padding:0 .45rem .4rem}
+.marquee-empty{font-size:.78rem;color:#8B887F;padding:.2rem .9rem 1rem}
+
+/* ---------- sala ---------- */
 .stage{
   flex:1;display:flex;align-items:stretch;justify-content:center;
   padding:1.5rem;gap:2rem;
@@ -57,29 +182,7 @@ body{
   padding-top:1rem;color:var(--portfolio-ink);
 }
 .info-panel h1{font-weight:700;font-size:1.5rem;line-height:1.2}
-.info-panel .tag{
-  font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--portfolio-amber);
-  font-weight:600;margin-bottom:.4rem;
-}
 .info-panel p{font-size:.88rem;line-height:1.6;color:var(--portfolio-ink60)}
-.info-panel .stack{display:flex;flex-wrap:wrap;gap:.4rem}
-.info-panel .stack span{
-  font-size:.7rem;padding:.25rem .6rem;background:#fff;border:1px solid var(--portfolio-ink30);
-  border-radius:99px;color:var(--portfolio-ink60);letter-spacing:.04em;
-}
-.info-panel ol.try{
-  list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:.5rem;
-  background:#fff;border:1px solid var(--portfolio-ink30);border-radius:8px;padding:.9rem 1rem;
-}
-.info-panel ol.try li{
-  counter-increment:s;font-size:.8rem;color:var(--portfolio-ink60);line-height:1.5;
-  padding-left:1.5rem;position:relative;
-}
-.info-panel ol.try li::before{
-  content:counter(s);position:absolute;left:0;top:.05rem;
-  width:1.05rem;height:1.05rem;border-radius:50%;background:var(--portfolio-amber);color:#fff;
-  font-size:.62rem;font-weight:700;display:flex;align-items:center;justify-content:center;
-}
 .panel-link{
   display:inline-flex;align-items:center;gap:.45rem;
   font-size:.78rem;font-weight:600;color:var(--portfolio-amber);
@@ -91,7 +194,6 @@ body{
 .info-panel .footnote{font-size:.7rem;color:#8B887F;line-height:1.5}
 .info-panel .footnote a{color:var(--portfolio-amber);text-decoration:none}
 
-/* ---------- shop ---------- */
 .shop{
   flex:1 1 auto;max-width:760px;
   background:var(--stage-bg);border:1px solid #d8d3c8;border-radius:18px;overflow:hidden;
@@ -103,17 +205,16 @@ body{
   display:flex;align-items:center;gap:.75rem;
   padding:.7rem 1rem;background:var(--stage-panel);border-bottom:1px solid var(--stage-bd);
 }
-.shop-avatar{
-  width:38px;height:38px;border-radius:50%;flex-shrink:0;
-  background:linear-gradient(135deg,var(--portfolio-amber-l),var(--portfolio-amber));
-  display:flex;align-items:center;justify-content:center;color:#1A1916;font-weight:700;
-}
+.shop-header .avatar{width:38px;height:38px}
 .shop-hdr-info{flex:1;min-width:0}
 .shop-title{font-size:.95rem;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.shop-sub{font-size:.72rem;color:var(--stage-muted);margin-top:2px;display:flex;align-items:center;gap:.3rem}
+.shop-sub{font-size:.72rem;color:var(--stage-muted);margin-top:2px;display:flex;align-items:center;gap:.3rem;min-width:0}
+.shop-sub span:last-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .conn-dot{width:6px;height:6px;border-radius:50%;background:#ffb02e;flex-shrink:0;transition:background .3s}
 .conn-dot.on{background:var(--ok)}
 .conn-dot.off{background:var(--live)}
+.back-link{color:var(--stage-muted);font-size:.72rem;text-decoration:none;white-space:nowrap}
+.back-link:hover{color:var(--stage-text)}
 
 /* player */
 .player{position:relative;background:#000;aspect-ratio:16/9;flex-shrink:0;overflow:hidden}
@@ -125,7 +226,7 @@ body{
 }
 .player-fallback .em{font-size:2.6rem;line-height:1}
 .player-fallback .t{font-size:.86rem;font-weight:600}
-.player-fallback .s{font-size:.74rem;color:var(--stage-muted);max-width:34ch;line-height:1.5}
+.player-fallback .s{font-size:.74rem;color:var(--stage-muted);max-width:40ch;line-height:1.5}
 .player-fallback .fb-cta{
   margin-top:.5rem;display:none;align-items:center;gap:.4rem;
   background:var(--portfolio-amber);color:#14120F;text-decoration:none;
@@ -175,7 +276,7 @@ body{
   width:6px;height:6px;border-radius:50%;background:#fff;animation:pulse 1.4s ease-in-out infinite;
 }
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
-.viewers{
+.player .viewers{
   position:absolute;top:.7rem;right:.7rem;z-index:3;
   background:rgba(0,0,0,.55);color:#fff;font-size:.68rem;font-weight:500;
   padding:.25rem .5rem;border-radius:4px;backdrop-filter:blur(4px);
@@ -242,13 +343,9 @@ body{
   display:flex;align-items:center;gap:.6rem;padding:.75rem 1rem;
   background:#16241E;border-bottom:1px solid #223029;color:#E9EDEF;
 }
-.chat-hdr .avatar{
-  width:34px;height:34px;border-radius:50%;flex-shrink:0;
-  background:linear-gradient(135deg,#00a884,#005c4b);
-  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.9rem;
-}
+.chat-hdr .avatar{width:34px;height:34px;font-size:.8rem;background:linear-gradient(135deg,#00a884,#005c4b);color:#fff}
 .chat-hdr-info{flex:1;min-width:0}
-.chat-hdr-name{font-size:.9rem;font-weight:600}
+.chat-hdr-name{font-size:.9rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chat-hdr-status{font-size:.7rem;color:#8696a0}
 .icon-btn{
   background:none;border:none;color:#8696a0;font-size:1.2rem;cursor:pointer;
@@ -321,6 +418,8 @@ body{
 .chat-fab .badge.on{display:inline-flex}
 
 @media (max-width:880px){
+  .hero{grid-template-columns:1fr}
+  .hero h1{font-size:1.6rem}
   .stage{flex-direction:column;align-items:center;padding:1rem;gap:1.25rem}
   .info-panel{flex:initial;width:100%;max-width:760px;padding-top:0}
   .shop{width:100%;height:auto;max-height:none}
@@ -328,6 +427,8 @@ body{
 }
 @media (max-width:480px){
   .demo-banner{font-size:.7rem}
+  .dir-inner{padding:1.25rem 1rem 2.5rem}
+  .shop-grid,.live-grid{grid-template-columns:1fr}
   .stage{padding:0}
   .info-panel{display:none}
   .shop{border-radius:0;border:none;box-shadow:none}
@@ -336,6 +437,10 @@ body{
 }
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+  /* sin movimiento, el carrusel pasa a ser una fila con scroll manual */
+  .marquee{overflow-x:auto;-webkit-mask-image:none;mask-image:none}
+  .marquee-track{animation-name:none}
+  .marquee-track .dup{display:none}
 }
 </style>
 </head>
@@ -343,12 +448,60 @@ body{
 
 <div class="demo-banner">
   <b>Demo en vivo</b>
-  <span>Live shopping con WebRTC + Supabase Realtime.</span>
-  <a href="host/" id="hostLink1">Consola del vendedor →</a>
+  <span>Live shopping con WebRTC + Supabase.</span>
+  <a href="vendedor/">🎥 Soy vendedor · Ingresar</a>
   <a href="/">← portfolio</a>
 </div>
 
-<main class="stage">
+<!-- ─────────── DIRECTORIO (sin ?live=) ─────────── -->
+<main class="dir" id="dirView" hidden>
+  <div class="dir-inner">
+    <section class="hero">
+      <div>
+        <div class="tag">Proyecto de portfolio · 2026</div>
+        <h1>LiveShop <span>· Compra en vivo</span></h1>
+        <p>
+          Tiendas que venden transmitiendo desde su cámara. Entrá a un live, preguntá por chat
+          sin salir de la transmisión y pagá desde el mismo lugar. Para comprar no necesitás cuenta.
+        </p>
+        <div class="stack">
+          <span>WebRTC</span><span>Supabase Realtime</span><span>Postgres + RPC</span><span>Vanilla JS</span><span>GitHub Pages</span>
+        </div>
+        <div class="hero-cta">
+          <a class="btn-a solid" href="vendedor/">🎥 Soy vendedor</a>
+          <a class="btn-a line" href="vendedor/#registro">Crear mi tienda</a>
+        </div>
+      </div>
+      <div>
+        <div class="tag" style="margin-bottom:.5rem">Cómo probarlo</div>
+        <ol class="try">
+          <li>Entrá como vendedor con usuario <code>Vendedor</code> y contraseña <code>Vendedor</code>, o creá tu propia tienda.</li>
+          <li>Iniciá la transmisión: tu tienda aparece acá en <b>En vivo ahora</b>.</li>
+          <li>En otra pestaña, entrá a ese live y tocá <b>Lo quiero</b> en un producto.</li>
+          <li>Desde la consola, mandá el <b>link de pago</b> y pagalo desde el live.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="dir-section" aria-labelledby="liveTitle">
+      <h2 id="liveTitle"><span class="dot" aria-hidden="true"></span>En vivo ahora</h2>
+      <div class="live-grid" id="liveGrid"></div>
+      <div class="dir-empty" id="liveEmpty">
+        Nadie está transmitiendo en este momento.
+        <br><a href="vendedor/">Entrá como vendedor</a> y sé el primero.
+      </div>
+    </section>
+
+    <section class="dir-section" aria-labelledby="shopsTitle">
+      <h2 id="shopsTitle">Tiendas</h2>
+      <div class="shop-grid" id="shopGrid"></div>
+      <div class="dir-empty" id="shopMsg">Cargando tiendas…</div>
+    </section>
+  </div>
+</main>
+
+<!-- ─────────── SALA (con ?live=) ─────────── -->
+<main class="stage" id="roomView" hidden>
 
   <aside class="info-panel">
     <div>
@@ -358,21 +511,17 @@ body{
     <p>
       Venta por streaming en tiempo real. El vendedor transmite desde su cámara por <em>WebRTC</em>,
       publica el catálogo en vivo y atiende a cada comprador en un chat 1-a-1 donde le envía un
-      link de pago. Sin servidor propio: la señalización y la mensajería van por Supabase Realtime.
+      link de pago.
     </p>
-    <div class="stack">
-      <span>WebRTC</span><span>Supabase Realtime</span><span>Vanilla JS</span><span>GitHub Pages</span>
-    </div>
     <div>
       <div class="tag" style="margin-bottom:.5rem">Cómo probarlo</div>
       <ol class="try">
-        <li>Abrí la <b>consola del vendedor</b> en otra pestaña y dale <i>Iniciar transmisión</i>.</li>
-        <li>Volvé acá: vas a ver el video y el catálogo aparecer solos.</li>
-        <li>Tocá <b>Lo quiero</b> en un producto — se abre el chat, con el producto fijado arriba.</li>
-        <li>Desde la consola, enviá el <b>link de pago</b> y pagalo desde acá.</li>
+        <li>Tocá <b>Lo quiero</b> en un producto: se abre el chat con el producto fijado arriba.</li>
+        <li>Si el vendedor está en vivo, te responde y te manda el link de pago.</li>
+        <li>¿Querés ver el otro lado? Entrá como vendedor con <code>Vendedor</code> / <code>Vendedor</code>.</li>
       </ol>
     </div>
-    <a class="panel-link" href="host/" id="hostLink2">🎥 Abrir consola del vendedor</a>
+    <a class="panel-link" href="./">← Todos los lives</a>
     <div class="footnote">
       Checkout simulado, no se procesa dinero real. ·
       <a href="https://github.com/FBC91" target="_blank" rel="noopener">código en GitHub ↗</a>
@@ -381,20 +530,21 @@ body{
 
   <section class="shop" aria-label="Transmisión en vivo y catálogo">
     <header class="shop-header">
-      <div class="shop-avatar" aria-hidden="true">L</div>
+      <div class="avatar" id="shopAvatar" aria-hidden="true">L</div>
       <div class="shop-hdr-info">
         <div class="shop-title" id="shopTitle">LiveShop</div>
         <div class="shop-sub"><span class="conn-dot" id="connDot"></span><span id="connText">conectando…</span></div>
       </div>
+      <a class="back-link" href="./">Todos los lives</a>
     </header>
 
     <div class="player">
       <video id="remoteVideo" autoplay playsinline muted></video>
       <div class="player-fallback" id="playerFb">
         <div class="em">📡</div>
-        <div class="t" id="fbTitle">Esperando al vendedor…</div>
-        <div class="s" id="fbSub">Cuando alguien inicie la transmisión desde la consola, el video aparece acá automáticamente.</div>
-        <a class="fb-cta" id="fbCta" href="host/" target="_blank" rel="noopener">🎥 Abrir consola del vendedor ↗</a>
+        <div class="t" id="fbTitle">Buscando la sala…</div>
+        <div class="s" id="fbSub"></div>
+        <a class="fb-cta" id="fbCta" href="vendedor/">🎥 Ingresar como vendedor</a>
       </div>
       <div class="live-badge" id="liveBadge"><span class="pulse"></span>EN VIVO</div>
       <div class="viewers" id="viewers">👁 0</div>
@@ -402,9 +552,9 @@ body{
     </div>
 
     <div class="shop-body">
-      <div class="section-lbl">Productos del live</div>
+      <div class="section-lbl">Productos</div>
       <div class="grid" id="grid"></div>
-      <div class="empty" id="empty">El vendedor todavía no publicó productos.</div>
+      <div class="empty" id="empty">Esta tienda todavía no publicó productos.</div>
     </div>
   </section>
 
@@ -415,10 +565,10 @@ body{
 
 <aside class="chat" id="chat" aria-label="Chat con el vendedor">
   <header class="chat-hdr">
-    <div class="avatar" aria-hidden="true">V</div>
+    <div class="avatar" id="chatAvatar" aria-hidden="true">V</div>
     <div class="chat-hdr-info">
-      <div class="chat-hdr-name">Vendedor</div>
-      <div class="chat-hdr-status" id="chatStatus">en línea</div>
+      <div class="chat-hdr-name" id="chatName">Vendedor</div>
+      <div class="chat-hdr-status" id="chatStatus">conectando…</div>
     </div>
     <button class="icon-btn" id="chatClose" type="button" aria-label="Cerrar chat">✕</button>
   </header>
@@ -443,13 +593,11 @@ body{
 </aside>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="comun.js"></script>
 <script>
 "use strict";
 
 /* ===================== configuracion ===================== */
-const SB_URL = "https://myebxfostbafuogfymqa.supabase.co";
-const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZWJ4Zm9zdGJhZnVvZ2Z5bXFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MjAyMjAsImV4cCI6MjA5NTM5NjIyMH0.ZkIJvOa_bvRX3hlwKWyEuy3CI2hOxEYau2ojbCQacJY";
-
 /* STUN publico. Sin TURN, ~15-20% de las conexiones fallan (NAT simetrico, redes moviles).
    Para hacerlo solido: pegar credenciales de un TURN aca abajo. */
 const TURN_SERVERS = [];
@@ -459,32 +607,12 @@ const ICE_SERVERS = [
 ].concat(TURN_SERVERS);
 
 const CONNECT_TIMEOUT_MS = 8000;
+const OFFLINE_DELAY_MS = 3000;   // cuanto esperamos al vendedor antes de mostrar su catalogo sin live
 
-/* Si nadie transmite, mostramos este catalogo para que la demo no quede vacia.
-   Tiene que ser identico al SEED de host/index.html. */
-const SEED = [
-  {id:"seed-1", nombre:"Zapatillas urbanas",   precio:4900, stock:6, emoji:"👟"},
-  {id:"seed-2", nombre:"Auriculares wireless", precio:2300, stock:9, emoji:"🎧"},
-  {id:"seed-3", nombre:"Reloj minimalista",    precio:7500, stock:3, emoji:"⌚"},
-  {id:"seed-4", nombre:"Mochila impermeable",  precio:3200, stock:0, emoji:"🎒"},
-  {id:"seed-5", nombre:"Lentes de sol",        precio:1800, stock:12, emoji:"🕶️"}
-];
-const DEMO_DELAY_MS = 3000;   // cuanto esperamos al vendedor antes de caer al catalogo demo
+/* Cada vendedor tiene una sala fija que es su link publico (?live=<sala>).
+   Sin sala en la URL, esta pagina es el directorio de lives. */
+const ROOM = LS.cleanRoom(new URLSearchParams(location.search).get("live"));
 
-/* Cada visitante trabaja en su propia sala. Si todos cayeran en "demo", dos
-   personas probando el portfolio a la vez compartirian vendedor y chats. */
-const cleanRoom = v => String(v || "").toLowerCase().replace(/[^a-z0-9-]/g,"").slice(0,24);
-const ROOM = (function(){
-  const fromUrl = cleanRoom(new URLSearchParams(location.search).get("live"));
-  if (fromUrl){ try{ sessionStorage.setItem("liveshop_room", fromUrl); }catch(e){} return fromUrl; }
-  let saved = "";
-  try{ saved = cleanRoom(sessionStorage.getItem("liveshop_room")); }catch(e){}
-  if (saved) return saved;
-  const fresh = "s" + Math.random().toString(36).slice(2,8);
-  try{ sessionStorage.setItem("liveshop_room", fresh); }catch(e){}
-  return fresh;
-})();
-const HOST_URL = "host/?live=" + encodeURIComponent(ROOM);
 /* La identidad se persiste: sin esto, recargar la pagina genera un comprador
    nuevo para el vendedor y el link de pago que le habian mandado queda huerfano. */
 const PEER_ID = (function(){
@@ -508,9 +636,9 @@ const ANALYTICS = (function(){
   const lang = (document.documentElement.lang || navigator.language || "es").slice(0,2);
   function track(event_type, props){
     try{
-      fetch(SB_URL + "/rest/v1/analytics_events", {
+      fetch(LS.SB_URL + "/rest/v1/analytics_events", {
         method:"POST", keepalive:true,
-        headers:{"Content-Type":"application/json","apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Prefer":"return=minimal"},
+        headers:{"Content-Type":"application/json","apikey":LS.SB_KEY,"Authorization":"Bearer "+LS.SB_KEY,"Prefer":"return=minimal"},
         body:JSON.stringify({event_type:event_type, session_id:sid, page:PAGE, channel:"web", lang:lang,
                              device:device, referrer:(document.referrer||"direct"), props:props||{}})
       }).catch(function(){});
@@ -519,33 +647,163 @@ const ANALYTICS = (function(){
   return {track:track};
 })();
 
+/* Metricas por vendedor (las ve cada vendedor y el admin). */
+function metric(tipo){
+  if (!ROOM) return;
+  LS.rpc("liveshop_evento", {p_sala:ROOM, p_tipo:tipo, p_sesion:PEER_ID}).catch(() => {});
+}
+
 /* ===================== helpers ===================== */
 const $ = id => document.getElementById(id);
-const esc = s => String(s ?? "").replace(/[&<>"']/g, c =>
-  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const money = n => "$ " + new Intl.NumberFormat("es-UY",{maximumFractionDigits:0}).format(Number(n)||0);
+const esc = LS.esc;
+const money = LS.money;
 const now = () => new Date().toLocaleTimeString("es-UY",{hour:"2-digit",minute:"2-digit"});
 
-/* ===================== estado ===================== */
+function avatarHtml(v){
+  return v && v.foto ? '<img src="' + esc(v.foto) + '" alt="">' : esc(LS.initials(v ? v.nombre : "?"));
+}
+
+function normalizarProductos(lista){
+  return (lista || []).map(p => ({id:p.id, nombre:p.nombre, precio:Number(p.precio) || 0,
+                                  stock:Number(p.stock) || 0, emoji:p.emoji || "📦", img:p.img || null}));
+}
+
+let sb = null;
+function realtimeClient(){
+  if (!sb && window.supabase) sb = window.supabase.createClient(LS.SB_URL, LS.SB_KEY, {realtime:{params:{eventsPerSecond:20}}});
+  return sb;
+}
+
+/* =====================================================================
+   DIRECTORIO
+   ===================================================================== */
+let DIR = [];                 // tiendas desde la base
+let liveBySala = new Map();   // sala -> presencia del lobby
+let dirReloadAt = 0;
+let dirError = false;
+
+async function loadDirectory(){
+  try{
+    DIR = (await LS.rpc("liveshop_directorio")) || [];
+    dirError = false;
+  }catch(err){
+    dirError = true;
+    $("shopMsg").hidden = false;
+    $("shopMsg").innerHTML = "No se pudieron cargar las tiendas (" + esc(err.message) + ").<br>" +
+      '<button type="button" id="dirRetry">Reintentar</button>';
+    $("dirRetry").addEventListener("click", () => {
+      $("shopMsg").textContent = "Cargando tiendas…";
+      loadDirectory();
+    });
+  }
+  renderDirectory();
+}
+
+function renderDirectory(){
+  const vivos = Array.from(liveBySala.values()).sort((a, b) => (a.since || 0) - (b.since || 0));
+  $("liveEmpty").hidden = vivos.length > 0;
+  $("liveGrid").innerHTML = vivos.map(p => {
+    const tienda = DIR.find(v => v.sala === p.sala) || {nombre:p.nombre};
+    const viewers = Number(p.viewers) || 0;
+    const max = Number(p.max) || LS.MAX_VIEWERS;
+    const full = viewers >= max;
+    return '' +
+      '<a class="live-card" href="?live=' + encodeURIComponent(p.sala) + '">' +
+        '<div class="screen">' +
+          '<span class="badge"><span class="pulse"></span>EN VIVO</span>' +
+          '<span class="viewers' + (full ? " full" : "") + '">' + (full ? "Sala llena · " : "👁 ") + viewers + " / " + max + '</span>' +
+          '<div class="avatar">' + avatarHtml({nombre:tienda.nombre || p.nombre, foto:tienda.foto}) + '</div>' +
+        '</div>' +
+        '<div class="info">' +
+          '<div class="t">' + esc(p.titulo || "En vivo") + '</div>' +
+          '<div class="n">' + esc(tienda.nombre || p.nombre) + ' · @' + esc(p.usuario || "") + '</div>' +
+        '</div>' +
+      '</a>';
+  }).join("");
+
+  const tiendas = DIR.filter(v => !liveBySala.has(v.sala));
+  $("shopGrid").innerHTML = tiendas.map(v => {
+    const prods = normalizarProductos(v.productos);
+    let carrusel = '<div class="marquee-empty">Todavía no publicó productos.</div>';
+    if (prods.length){
+      /* se repite hasta llenar el ancho: con 2 productos el loop se veria cortado */
+      let base = prods.slice();
+      while (base.length < 6) base = base.concat(prods);
+      const item = (p, dup) =>
+        '<div class="mitem' + (dup ? " dup" : "") + '"' + (dup ? ' aria-hidden="true"' : "") + '>' +
+          '<div class="img">' + (p.img ? '<img src="' + esc(p.img) + '" alt="" loading="lazy" decoding="async">' : esc(p.emoji)) + '</div>' +
+          '<div class="mn">' + esc(p.nombre) + '</div>' +
+          '<div class="mp">' + money(p.precio) + '</div>' +
+        '</div>';
+      const dur = Math.max(18, base.length * 4);
+      carrusel = '<div class="marquee"><div class="marquee-track" style="--dur:' + dur + 's">' +
+        base.map((p, i) => item(p, i >= prods.length)).join("") +
+        base.map(p => item(p, true)).join("") +
+      '</div></div>';
+    }
+    return '' +
+      '<a class="shop-card" href="?live=' + encodeURIComponent(v.sala) + '">' +
+        '<div class="head">' +
+          '<div class="avatar">' + avatarHtml(v) + '</div>' +
+          '<div class="who"><div class="n">' + esc(v.nombre) + '</div><div class="u">@' + esc(v.usuario) + '</div></div>' +
+          '<span class="off">sin transmitir</span>' +
+        '</div>' +
+        carrusel +
+        '<div class="go">Ver tienda →</div>' +
+      '</a>';
+  }).join("");
+
+  if (!dirError){
+    $("shopMsg").hidden = tiendas.length > 0;
+    if (!tiendas.length) $("shopMsg").textContent = DIR.length ? "Todas las tiendas están en vivo ahora." : "Todavía no hay tiendas.";
+  }
+}
+
+function initDirectory(){
+  $("dirView").hidden = false;
+  document.title = "LiveShop · Lives en vivo";
+  loadDirectory();
+
+  const client = realtimeClient();
+  if (!client) return;
+  const lobby = client.channel("liveshop:lobby", {
+    config:{ presence:{key:PEER_ID, enabled:true}, broadcast:{self:false} }
+  });
+  lobby
+    .on("presence", {event:"sync"}, () => {
+      const map = new Map();
+      Object.values(lobby.presenceState()).forEach(arr => arr.forEach(p => {
+        if (!p.sala) return;
+        const prev = map.get(p.sala);
+        if (!prev || (p.since || 0) < (prev.since || 0)) map.set(p.sala, p);
+      }));
+      liveBySala = map;
+      /* una tienda recien creada transmite antes de estar en nuestra lista */
+      const falta = Array.from(map.keys()).some(s => !DIR.some(v => v.sala === s));
+      if (falta && Date.now() - dirReloadAt > 15000){
+        dirReloadAt = Date.now();
+        loadDirectory();
+      } else {
+        renderDirectory();
+      }
+    })
+    .subscribe();
+}
+
+/* =====================================================================
+   SALA
+   ===================================================================== */
+let SALA = null;           // datos publicos del vendedor
 let state = {live:false, titulo:"LiveShop", productos:[], destacado:null};
 let chatOpen = false;
 let unread = 0;
 let hostOnline = false;
-let demoMode = false;      // true = no hay vendedor, mostramos el catalogo semilla
+let demoMode = false;      // true = el vendedor no esta conectado, mostramos su catalogo guardado
 let demoTimer = null;
-
-/* ===================== realtime ===================== */
-const sb = window.supabase.createClient(SB_URL, SB_KEY, {
-  realtime:{params:{eventsPerSecond:20}}
-});
-
-/* presence.enabled es obligatorio: sin el flag el Realtime de Supabase acepta el track()
-   pero nunca emite sync, y el comprador no ve nunca al vendedor. */
-const channel = sb.channel("liveshop:" + ROOM, {
-  config:{ presence:{key:PEER_ID, enabled:true}, broadcast:{self:false} }
-});
+let channel = null;
 
 function send(event, payload){
+  if (!channel) return Promise.resolve();
   return channel.send({type:"broadcast", event:event, payload:payload});
 }
 
@@ -555,80 +813,134 @@ function setConn(kind, text){
   $("connText").textContent = text;
 }
 
-channel
-  .on("broadcast", {event:"state"}, ({payload}) => {
-    if (!payload) return;
-    if (payload.to && payload.to !== PEER_ID) return;
-    applyState(payload.state || payload);
-  })
-  .on("broadcast", {event:"signal"}, ({payload}) => {
-    if (!payload || payload.to !== PEER_ID) return;
-    handleSignal(payload).catch(err => console.warn("[signal]", err));
-  })
-  .on("broadcast", {event:"chat"}, ({payload}) => {
-    if (!payload || payload.to !== PEER_ID) return;
-    renderChat(payload, "in");
-    if (!chatOpen){ unread++; paintBadge(); openFab(); }
-  })
-  .on("broadcast", {event:"paid"}, ({payload}) => {
-    if (!payload || payload.peerId !== PEER_ID) return;
-    markPaid(payload.ref);
-  })
-  .on("presence", {event:"sync"}, () => {
-    const st = channel.presenceState();
-    let viewers = 0; hostOnline = false;
-    Object.values(st).forEach(arr => arr.forEach(p => {
-      if (p.role === "host") hostOnline = true; else viewers++;
-    }));
-    $("viewers").textContent = "👁 " + viewers;
-    $("chatStatus").textContent = hostOnline ? "en línea" : "modo demo";
-    if (hostOnline){
-      clearTimeout(demoTimer);
-      exitDemoMode();
-    } else {
-      if (state.live){
-        state.live = false;
-        $("liveBadge").classList.remove("on");
-        teardownPeer();
-      }
-      armDemoTimer();
-    }
-  })
-  .subscribe(async (status) => {
-    if (status === "SUBSCRIBED"){
-      setConn("on", "sala " + ROOM);
-      await channel.track({role:"buyer", nombre:MY_NAME, at:Date.now()});
-      await send("hello", {peerId:PEER_ID, nombre:MY_NAME});
-      ANALYTICS.track("liveshop_join", {room:ROOM});
-      armDemoTimer();
-    } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT"){
-      setConn("off", "sin conexión");
-      enterDemoMode();   // sin realtime igual mostramos el catalogo, no una pantalla muerta
-    } else if (status === "CLOSED"){
-      setConn("", "reconectando…");
-    }
-  });
-
-/* si el SDK de Supabase no llega a cargar, tampoco dejamos la pagina vacia */
-setTimeout(() => { if (!hostOnline && !state.productos.length) enterDemoMode(); }, DEMO_DELAY_MS + 4000);
-
-/* ===================== modo demo (sin vendedor) ===================== */
-function armDemoTimer(){
-  clearTimeout(demoTimer);
-  demoTimer = setTimeout(() => { if (!hostOnline) enterDemoMode(); }, DEMO_DELAY_MS);
+function vendorName(){
+  return SALA ? SALA.nombre : "El vendedor";
 }
 
-function enterDemoMode(){
-  if (demoMode) return;
-  demoMode = true;
-  state = {live:false, titulo:"LiveShop", productos:SEED.slice(), destacado:"seed-2"};
-  $("shopTitle").textContent = state.titulo;
-  $("liveBadge").classList.remove("on");
-  teardownPeer();
-  showFallback("📡", "Nadie está transmitiendo ahora",
-    "Estás viendo el catálogo de ejemplo. Abrí la consola del vendedor en otra pestaña y dale a “Salir en vivo” para probar el flujo completo: video, chat y link de pago.", true);
+function connectRoom(){
+  const client = realtimeClient();
+  if (!client){ enterDemoMode(); return; }
+
+  /* presence.enabled es obligatorio: sin el flag el Realtime de Supabase acepta el track()
+     pero nunca emite sync, y el comprador no ve nunca al vendedor. */
+  channel = client.channel("liveshop:" + ROOM, {
+    config:{ presence:{key:PEER_ID, enabled:true}, broadcast:{self:false} }
+  });
+
+  channel
+    .on("broadcast", {event:"state"}, ({payload}) => {
+      if (!payload) return;
+      if (payload.to && payload.to !== PEER_ID) return;
+      applyState(payload.state || payload);
+    })
+    .on("broadcast", {event:"signal"}, ({payload}) => {
+      if (!payload || payload.to !== PEER_ID) return;
+      handleSignal(payload).catch(err => console.warn("[signal]", err));
+    })
+    .on("broadcast", {event:"chat"}, ({payload}) => {
+      if (!payload || payload.to !== PEER_ID) return;
+      renderChat(payload, "in");
+      if (!chatOpen){ unread++; paintBadge(); openFab(); }
+    })
+    .on("broadcast", {event:"paid"}, ({payload}) => {
+      if (!payload || payload.peerId !== PEER_ID) return;
+      markPaid(payload.ref);
+    })
+    .on("presence", {event:"sync"}, () => {
+      const st = channel.presenceState();
+      let viewers = 0; hostOnline = false;
+      Object.values(st).forEach(arr => arr.forEach(p => {
+        if (p.role === "host") hostOnline = true; else viewers++;
+      }));
+      $("viewers").textContent = "👁 " + viewers;
+      $("chatStatus").textContent = hostOnline ? "en línea" : "no conectado";
+      if (hostOnline){
+        clearTimeout(demoTimer);
+        exitDemoMode();
+      } else {
+        if (state.live){
+          state.live = false;
+          $("liveBadge").classList.remove("on");
+          teardownPeer();
+        }
+        armDemoTimer();
+      }
+    })
+    .subscribe(async (status) => {
+      if (status === "SUBSCRIBED"){
+        setConn("on", "@" + SALA.usuario + " · sala " + ROOM);
+        await channel.track({role:"buyer", nombre:MY_NAME, at:Date.now()});
+        await send("hello", {peerId:PEER_ID, nombre:MY_NAME});
+        ANALYTICS.track("liveshop_join", {room:ROOM, vendedor:SALA.usuario});
+        metric("entrada");
+        armDemoTimer();
+      } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT"){
+        setConn("off", "sin conexión");
+        enterDemoMode();   // sin realtime igual mostramos el catalogo, no una pantalla muerta
+      } else if (status === "CLOSED"){
+        setConn("", "reconectando…");
+      }
+    });
+}
+
+async function initRoom(){
+  $("roomView").hidden = false;
+  showFallback("📡", "Buscando la sala…", "");
+  let info;
+  try{
+    info = await LS.rpc("liveshop_sala", {p_sala:ROOM});
+  }catch(err){
+    showFallback("📶", "No se pudo cargar la sala", err.message, {href:location.href, text:"Reintentar"});
+    setConn("off", "sin conexión");
+    return;
+  }
+  if (!info){
+    document.title = "LiveShop · Sala no encontrada";
+    setConn("off", "sala inexistente");
+    $("empty").textContent = "No hay productos para mostrar.";
+    showFallback("🔍", "Esta sala no existe",
+      "Puede que el vendedor haya cambiado el código de su sala o borrado su cuenta.",
+      {href:"./", text:"Ver todos los lives"});
+    return;
+  }
+
+  SALA = info;
+  document.title = SALA.nombre + " · LiveShop";
+  $("shopAvatar").innerHTML = avatarHtml(SALA);
+  $("chatAvatar").innerHTML = avatarHtml(SALA);
+  $("chatName").textContent = SALA.nombre;
+  $("shopTitle").textContent = SALA.titulo || SALA.nombre;
+  state = {live:false, titulo:SALA.titulo || "LiveShop", productos:normalizarProductos(SALA.productos), destacado:SALA.destacado || null};
   renderGrid();
-  ANALYTICS.track("liveshop_demo_mode", {room:ROOM});
+  showFallback("📡", "Conectando con " + SALA.nombre + "…",
+    "Si no está transmitiendo, en unos segundos vas a ver su catálogo igual.");
+  openFab();
+  connectRoom();
+
+  /* si el SDK de Supabase no llega a cargar, tampoco dejamos la pagina sin salida */
+  setTimeout(() => { if (!hostOnline && !demoMode) enterDemoMode(); }, OFFLINE_DELAY_MS + 4000);
+}
+
+/* ===================== vendedor no conectado ===================== */
+function armDemoTimer(){
+  clearTimeout(demoTimer);
+  demoTimer = setTimeout(() => { if (!hostOnline) enterDemoMode(); }, OFFLINE_DELAY_MS);
+}
+
+/* Antes se mostraba un catalogo de ejemplo fijo. Ahora cada sala tiene el
+   catalogo real del vendedor guardado en la base, asi que se muestra ese. */
+function enterDemoMode(){
+  if (demoMode || !SALA) return;
+  demoMode = true;
+  state = {live:false, titulo:SALA.titulo || "LiveShop", productos:normalizarProductos(SALA.productos), destacado:SALA.destacado || null};
+  $("shopTitle").textContent = SALA.nombre;
+  $("liveBadge").classList.remove("on");
+  $("chatStatus").textContent = "no conectado";
+  teardownPeer();
+  showFallback("📡", SALA.nombre + " no está transmitiendo ahora",
+    "Podés ver su catálogo. Si le escribís y se conecta mientras seguís en esta página, le llega tu consulta.",
+    SALA.usuario === "vendedor" ? {href:"vendedor/", text:"🎥 Probá ser el vendedor (Vendedor / Vendedor)"} : null);
+  renderGrid();
 }
 
 function exitDemoMode(){
@@ -636,7 +948,7 @@ function exitDemoMode(){
   demoMode = false;
   /* No se borra lo que el visitante ya escribio: solo se avisa que ahora hay
      alguien del otro lado y se reenvia la consulta que habia quedado colgada. */
-  if ($("chatBody").children.length) pushSys("Se conectó un vendedor. Ya podés escribirle.", true);
+  if ($("chatBody").children.length) pushSys(vendorName() + " se conectó. Ya podés escribirle.", true);
   if (chatCtxProd){
     send("chat", {to:"host", from:PEER_ID, nombre:MY_NAME, kind:"buy",
                   text:"Hola, quiero comprar: " + chatCtxProd.nombre + " (" + money(chatCtxProd.precio) + ")",
@@ -659,9 +971,9 @@ function applyState(s){
   $("liveBadge").classList.toggle("on", state.live);
   if (!state.live){
     teardownPeer();
-    showFallback("📡", "Transmisión pausada", "El vendedor está conectado pero todavía no salió en vivo.");
+    showFallback("📡", "Transmisión pausada", vendorName() + " está conectado pero todavía no salió en vivo.");
   } else if (!videoLive){
-    showFallback("🎥", "Conectando con el vendedor…", "Estableciendo la conexión de video punto a punto.");
+    showFallback("🎥", "Conectando con " + vendorName() + "…", "Estableciendo la conexión de video punto a punto.");
     armConnectTimeout();
   }
   renderGrid();
@@ -732,7 +1044,7 @@ $("nameAsk").addEventListener("submit", (e) => {
   if (v){
     MY_NAME = v;
     try{ sessionStorage.setItem("liveshop_nombre", v); }catch(err){}
-    channel.track({role:"buyer", nombre:MY_NAME, at:Date.now()}).catch(() => {});
+    if (channel) channel.track({role:"buyer", nombre:MY_NAME, at:Date.now()}).catch(() => {});
     send("chat", {to:"host", from:PEER_ID, nombre:MY_NAME, kind:"text",
                   text:"(me llamo " + v + ")"});
     pushSys("Te presentaste como " + v, true);
@@ -750,14 +1062,15 @@ $("grid").addEventListener("click", (e) => {
   setChatContext(prod);
   const texto = "Hola, quiero comprar: " + prod.nombre + " (" + money(prod.precio) + ")";
   renderChat({kind:"text", text:texto}, "out");
+  metric("interes");
   if (demoMode){
-    pushSys("No hay ningún vendedor conectado. Abrí la consola del vendedor en otra pestaña para responder este mensaje y mandarte el link de pago.");
-    ANALYTICS.track("liveshop_buy_click", {room:ROOM, producto:prod.nombre, demo:true});
+    pushSys(vendorName() + " no está conectado ahora. Si se conecta mientras seguís acá, le enviamos tu consulta.");
+    ANALYTICS.track("liveshop_buy_click", {room:ROOM, vendedor:SALA && SALA.usuario, producto:prod.nombre, demo:true});
     return;
   }
   send("chat", {to:"host", from:PEER_ID, nombre:MY_NAME, kind:"buy",
                 text:texto, producto:{id:prod.id, nombre:prod.nombre, precio:prod.precio}});
-  ANALYTICS.track("liveshop_buy_click", {room:ROOM, producto:prod.nombre});
+  ANALYTICS.track("liveshop_buy_click", {room:ROOM, vendedor:SALA && SALA.usuario, producto:prod.nombre});
 });
 
 /* ===================== WebRTC (receptor) ===================== */
@@ -772,7 +1085,9 @@ function showFallback(em, title, sub, cta){
   fb.querySelector(".em").textContent = em;
   $("fbTitle").textContent = title;
   $("fbSub").textContent = sub;
-  $("fbCta").classList.toggle("on", !!cta);
+  const a = $("fbCta");
+  a.classList.toggle("on", !!cta);
+  if (cta){ a.href = cta.href; a.textContent = cta.text; }
   $("soundBtn").style.display = "none";
 }
 function hideFallback(){
@@ -783,9 +1098,10 @@ function armConnectTimeout(){
   clearTimeout(connectTimer);
   connectTimer = setTimeout(() => {
     if (!videoLive){
-      showFallback("📶", "EN VIVO · modo demo",
+      showFallback("📶", "EN VIVO · sin video",
         "No se pudo establecer el video punto a punto (suele pasar en redes móviles o NAT restrictivo). " +
         "El chat y la compra siguen funcionando normalmente.");
+      metric("video_falla");
       ANALYTICS.track("liveshop_webrtc_fallback", {room:ROOM});
     }
   }, CONNECT_TIMEOUT_MS);
@@ -807,11 +1123,12 @@ function ensurePeer(){
       videoLive = true;
       clearTimeout(connectTimer);
       hideFallback();
+      metric("video_ok");
       ANALYTICS.track("liveshop_webrtc_ok", {room:ROOM});
     } else if (["failed","disconnected","closed"].includes(pc.connectionState)){
       videoLive = false;
       if (state.live){
-        showFallback("📶", "EN VIVO · modo demo",
+        showFallback("📶", "EN VIVO · sin video",
           "Se perdió la conexión de video. El chat y la compra siguen funcionando.");
       }
     }
@@ -846,7 +1163,7 @@ async function handleSignal(msg){
     else pendingIce.push(cand);
   } else if (msg.kind === "bye"){
     teardownPeer();
-    showFallback("📡", "Transmisión finalizada", "El vendedor cerró la transmisión.");
+    showFallback("📡", "Transmisión finalizada", vendorName() + " cerró la transmisión.");
   } else if (msg.kind === "full"){
     teardownPeer();
     showFallback("🚦", "Sala llena",
@@ -876,7 +1193,7 @@ function closeChat(){
   $("scrim").classList.remove("on");
   openFab();
 }
-function openFab(){ if (!chatOpen) $("chatFab").classList.add("show"); }
+function openFab(){ if (!chatOpen && SALA) $("chatFab").classList.add("show"); }
 function paintBadge(){
   const b = $("fabBadge");
   b.textContent = unread;
@@ -979,17 +1296,11 @@ window.addEventListener("storage", (e) => {
 });
 
 window.addEventListener("beforeunload", () => {
-  try{ send("signal", {to:"host", from:PEER_ID, kind:"leave"}); }catch(e){}
+  if (channel){ try{ send("signal", {to:"host", from:PEER_ID, kind:"leave"}); }catch(e){} }
 });
 
-/* los links a la consola llevan la sala, si no el vendedor abriria otra distinta */
-["hostLink1","hostLink2","fbCta"].forEach(id => { const el = $(id); if (el) el.href = HOST_URL; });
-
-/* estado inicial */
-showFallback("📡", "Buscando al vendedor…",
-  "Si nadie está transmitiendo, en unos segundos vas a ver el catálogo de ejemplo.");
-renderGrid();
-openFab();
+/* ===================== init ===================== */
+if (ROOM) initRoom(); else initDirectory();
 </script>
 </body>
 </html>
