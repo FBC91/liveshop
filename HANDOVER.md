@@ -8,7 +8,7 @@ misma carpeta — explica el producto en lenguaje llano. Este documento es la
 referencia exhaustiva.
 
 - **Producción:** https://facundobolani.com/liveshop/
-- **Repositorio:** https://github.com/FBC91/FBC91.github.io (carpeta `liveshop/`)
+- **Repositorio:** https://github.com/FBC91/liveshop (repo propio con GitHub Pages; antes vivía en la carpeta `liveshop/` de FBC91.github.io)
 - **Ruta local:** `C:\Users\facun\liveshop\`
 - **Último estado documentado:** cuentas de vendedor, 16 de septiembre de 2026 (ver Parte VII)
 - **Autor:** Facundo Bolani
@@ -417,7 +417,7 @@ mensajes, ni direcciones IP.
 
 ## 18. La tarea anti-pausa
 
-Archivo: `.github/workflows/keep-supabase-awake.yml`
+Archivo: `.github/workflows/keep-supabase-awake.yml` (en el repo FBC91.github.io, no en este)
 
 Corre todos los días a las 06:17 UTC y hace una consulta a la API de Supabase.
 También se puede ejecutar a mano desde la pestaña Actions del repositorio.
