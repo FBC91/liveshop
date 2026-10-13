@@ -156,6 +156,9 @@ td .u{font-size:.7rem;color:var(--ink-faint)}
 
   <div class="head">
     <h1>Métricas de vendedores</h1>
+    <label style="margin-left:auto;font-size:.8rem;color:var(--ink-soft);display:inline-flex;gap:.4rem;align-items:center;cursor:pointer">
+      <input type="checkbox" id="sinDemo"> Excluir datos demo
+    </label>
     <select id="range" aria-label="Período">
       <option value="1">Hoy</option>
       <option value="7">Últimos 7 días</option>
@@ -193,12 +196,13 @@ td .u{font-size:.7rem;color:var(--ink-faint)}
             <th data-k="links">Links</th>
             <th data-k="pagos">Pagos</th>
             <th data-k="facturado">Facturado</th>
+            <th data-k="descuentos">Descuentos</th>
             <th data-k="conversion">Conversión</th>
             <th data-k="transmisiones">Lives</th>
             <th data-k="pico">Pico</th>
           </tr>
         </thead>
-        <tbody id="rows"><tr><td colspan="11" style="text-align:center;color:var(--ink-faint)">Cargando…</td></tr></tbody>
+        <tbody id="rows"><tr><td colspan="12" style="text-align:center;color:var(--ink-faint)">Cargando…</td></tr></tbody>
       </table>
     </div>
   </section>
@@ -249,6 +253,7 @@ function kpisFor(m, conVendedores){
     kpi("Links de pago", fmt(n("links")), money(n("monto_links")) + " ofrecidos") +
     kpi("Pagos", fmt(n("pagos")), "confirmados") +
     kpi("Facturado", money(n("facturado")), "pagos simulados") +
+    kpi("Descuentos", money(n("descuentos")), "otorgados en ofertas") +
     kpi("Conversión", pct(n("pagos"), n("links")), "pagos / links") +
     kpi("Transmisiones", fmt(n("transmisiones")), "pico " + fmt(n("pico")) + " espectadores") +
     kpi("Video P2P", pct(n("video_ok"), rtcTotal), fmt(n("video_ok")) + " de " + fmt(rtcTotal) + " conectaron");
@@ -322,7 +327,7 @@ function renderTable(){
   });
   const rows = sortedRows();
   if (!rows.length){
-    $("rows").innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--ink-faint)">Todavía no hay vendedores.</td></tr>';
+    $("rows").innerHTML = '<tr><td colspan="12" style="text-align:center;color:var(--ink-faint)">Todavía no hay vendedores.</td></tr>';
     return;
   }
   $("rows").innerHTML = rows.map(v =>
@@ -335,6 +340,7 @@ function renderTable(){
       '<td>' + fmt(v.links) + '</td>' +
       '<td>' + fmt(v.pagos) + '</td>' +
       '<td>' + money(v.facturado) + '</td>' +
+      '<td>' + money(v.descuentos) + '</td>' +
       '<td>' + pct(Number(v.pagos), Number(v.links)) + '</td>' +
       '<td>' + fmt(v.transmisiones) + '</td>' +
       '<td>' + fmt(v.pico) + '</td>' +
@@ -380,7 +386,7 @@ async function load(){
   const dias = Number($("range").value) || 30;
   $("totals").innerHTML = '<div class="state-box">Cargando…</div>';
   try{
-    DATA = await api("liveshop_metricas_admin", {p_dias:dias});
+    DATA = await api("liveshop_metricas_admin", {p_dias:dias, p_sin_demo:$("sinDemo").checked});
   }catch(err){
     $("totals").innerHTML = '<div class="state-box">No se pudieron cargar las métricas (' + esc(err.message) + ').</div>';
     return;
@@ -394,6 +400,9 @@ async function load(){
   renderDetail();
 }
 $("range").addEventListener("change", load);
+/* la cuenta demo trae ventas de ejemplo regeneradas cada dia: sin este filtro
+   no se distingue lo que vendieron los vendedores reales */
+$("sinDemo").addEventListener("change", load);
 
 $("logoutBtn").addEventListener("click", async () => {
   try{ await LS.rpc("liveshop_logout", {p_token:TOKEN}); }catch(e){}

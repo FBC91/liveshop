@@ -417,6 +417,146 @@ ol.try code{font-family:ui-monospace,monospace;font-size:.76rem;background:var(-
 }
 .chat-fab .badge.on{display:inline-flex}
 
+/* ---------- filtros de la sala ---------- */
+.filters{display:flex;flex-direction:column;gap:.55rem;margin-bottom:.85rem}
+.filters input[type=search]{
+  width:100%;background:var(--stage-panel);border:1px solid var(--stage-bd);border-radius:8px;
+  padding:.55rem .75rem;color:var(--stage-text);font:inherit;font-size:.84rem;outline:none;
+}
+.filters input[type=search]:focus{border-color:var(--portfolio-amber)}
+.fchips{display:flex;gap:.35rem;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.fchips::-webkit-scrollbar{display:none}
+.fchip{
+  flex-shrink:0;border:1px solid var(--stage-bd);background:var(--stage-panel);color:var(--stage-muted);
+  border-radius:99px;padding:.32rem .7rem;font:inherit;font-size:.74rem;cursor:pointer;white-space:nowrap;
+}
+.fchip:hover{border-color:var(--portfolio-amber)}
+.fchip[aria-pressed="true"]{background:var(--portfolio-amber);border-color:var(--portfolio-amber);color:#14120F;font-weight:600}
+.fchip .ct{opacity:.7;margin-left:.2rem}
+.fchip.oferta{border-color:#5a2a2e;color:#ff8a93}
+.fchip.oferta[aria-pressed="true"]{background:var(--live);border-color:var(--live);color:#fff}
+.frow{display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;font-size:.74rem;color:var(--stage-muted)}
+.frow select{
+  background:var(--stage-panel);border:1px solid var(--stage-bd);color:var(--stage-text);border-radius:6px;
+  padding:.25rem .4rem;font:inherit;font-size:.74rem;margin-left:.3rem;
+}
+.frow label{display:inline-flex;align-items:center;gap:.35rem;cursor:pointer}
+.fempty{
+  text-align:center;color:var(--stage-muted);font-size:.82rem;line-height:1.6;padding:1.5rem 1rem;
+  border:1px dashed var(--stage-bd);border-radius:12px;margin-bottom:.75rem;
+}
+.fempty button{background:none;border:none;color:var(--portfolio-amber-l);font:inherit;font-weight:600;cursor:pointer;text-decoration:underline}
+
+/* ---------- tarjetas con oferta, favoritos ---------- */
+.prod-img{cursor:pointer}
+.prod-img:focus-visible{outline:2px solid var(--portfolio-amber-l);outline-offset:-2px}
+.prod-off{
+  position:absolute;top:.4rem;right:.4rem;background:var(--live);color:#fff;
+  font-size:.62rem;font-weight:700;padding:.15rem .4rem;border-radius:3px;
+}
+.prod-price s{color:var(--stage-muted);font-size:.74rem;font-weight:500;margin-right:.3rem}
+.prod-promo{font-size:.66rem;color:#ff8a93;font-weight:600}
+.fav-btn{
+  position:absolute;bottom:.4rem;right:.4rem;width:30px;height:30px;border-radius:50%;
+  border:none;background:rgba(0,0,0,.55);color:#fff;font-size:.9rem;cursor:pointer;line-height:1;
+}
+.fav-btn[aria-pressed="true"]{color:#ff5c6c}
+.tools-row{display:flex;gap:.4rem;align-items:center}
+.icon-link{
+  background:none;border:1px solid var(--stage-bd);color:var(--stage-muted);border-radius:6px;
+  padding:.25rem .5rem;font:inherit;font-size:.7rem;cursor:pointer;white-space:nowrap;
+}
+.icon-link:hover{color:var(--stage-text);border-color:var(--stage-muted)}
+
+/* ---------- oferta relampago sobre el video ---------- */
+.flash{
+  position:absolute;left:.6rem;right:.6rem;bottom:.6rem;z-index:4;
+  background:linear-gradient(135deg,rgba(226,55,68,.95),rgba(184,40,52,.95));color:#fff;
+  border-radius:10px;padding:.55rem .7rem;display:flex;align-items:center;gap:.65rem;
+  box-shadow:0 6px 20px rgba(0,0,0,.35);
+}
+.flash[hidden]{display:none}
+.flash .fe{font-size:1.3rem}
+.flash .fi{flex:1;min-width:0;font-size:.74rem;line-height:1.35}
+.flash .fi b{display:block;font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.flash .fi s{opacity:.75;margin-right:.3rem}
+.flash .cd{font-size:1.15rem;font-weight:700;font-variant-numeric:tabular-nums}
+.flash button{
+  border:none;background:#fff;color:#B82834;border-radius:7px;padding:.45rem .7rem;
+  font:inherit;font-size:.76rem;font-weight:700;cursor:pointer;white-space:nowrap;
+}
+.flash.fin{background:rgba(20,18,15,.9)}
+@keyframes flashIn{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+.flash.in{animation:flashIn .35s ease}
+
+/* ---------- ficha / mis compras (hoja inferior) ---------- */
+.sheet-scrim{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:60;display:none;
+  align-items:flex-end;justify-content:center;
+}
+.sheet-scrim.open{display:flex}
+.sheet{
+  background:#fff;color:var(--portfolio-ink);width:100%;max-width:520px;max-height:88vh;overflow-y:auto;
+  border-radius:16px 16px 0 0;padding:1.1rem 1.1rem 1.4rem;display:flex;flex-direction:column;gap:.8rem;
+}
+@media (min-width:700px){
+  .sheet-scrim{align-items:center}
+  .sheet{border-radius:16px}
+}
+.sheet .sh{display:flex;align-items:flex-start;gap:.6rem}
+.sheet .sh h3{flex:1;font-size:1.05rem;line-height:1.3}
+.sheet .x{background:none;border:none;font-size:1.15rem;cursor:pointer;color:#8B887F}
+.sheet .big{
+  aspect-ratio:4/3;background:var(--portfolio-bg2);border-radius:12px;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;font-size:4.5rem;position:relative;
+}
+.sheet .big img{width:100%;height:100%;object-fit:cover}
+.sheet .cat{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:#8B887F}
+.sheet .pr{font-size:1.4rem;font-weight:700;color:var(--portfolio-amber)}
+.sheet .pr s{font-size:.9rem;color:#8B887F;font-weight:500;margin-right:.4rem}
+.sheet .desc{font-size:.86rem;line-height:1.55;color:var(--portfolio-ink60)}
+.sheet .meta{font-size:.76rem;color:#8B887F}
+.sheet .acts{display:flex;gap:.5rem}
+.sheet .acts button{
+  flex:1;border:none;border-radius:9px;padding:.75rem;font:inherit;font-size:.86rem;font-weight:600;cursor:pointer;
+  background:var(--portfolio-amber);color:#fff;
+}
+.sheet .acts button.line{flex:0 0 auto;background:#fff;border:1px solid var(--portfolio-ink30);color:var(--portfolio-ink)}
+.sheet .acts button:disabled{background:#ccc;cursor:not-allowed}
+.compra{display:flex;gap:.7rem;align-items:center;padding:.65rem 0;border-bottom:1px solid var(--portfolio-bg2);font-size:.82rem}
+.compra:last-child{border-bottom:none}
+.compra .ci{flex:1;min-width:0}
+.compra .ci b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.compra .ci span{font-size:.72rem;color:#8B887F}
+.compra a{color:var(--portfolio-amber);font-weight:600;text-decoration:none;font-size:.76rem;white-space:nowrap}
+
+/* ---------- directorio: busqueda y ofertas ---------- */
+.dir-search input{
+  width:100%;max-width:520px;border:1px solid var(--portfolio-ink30);border-radius:10px;background:#fff;
+  padding:.7rem .9rem;font:inherit;font-size:.9rem;outline:none;
+}
+.dir-search input:focus{border-color:var(--portfolio-amber)}
+.dir-search .fchips{margin-top:.6rem}
+.dir-search .fchip{background:#fff;border-color:var(--portfolio-ink30);color:var(--portfolio-ink60)}
+.dir-search .fchip[aria-pressed="true"]{background:var(--portfolio-amber);border-color:var(--portfolio-amber);color:#fff}
+.res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.75rem;margin-top:.8rem}
+.rcard{
+  background:#fff;border:1px solid var(--portfolio-ink30);border-radius:12px;overflow:hidden;
+  text-decoration:none;color:inherit;display:flex;flex-direction:column;transition:border-color .2s,box-shadow .2s;
+}
+.rcard:hover{border-color:var(--portfolio-amber);box-shadow:0 6px 18px rgba(26,25,22,.08)}
+.rcard .img{aspect-ratio:1;background:var(--portfolio-bg2);display:flex;align-items:center;justify-content:center;font-size:2.4rem;position:relative}
+.rcard .img img{width:100%;height:100%;object-fit:cover}
+.rcard .live{position:absolute;top:.4rem;left:.4rem;background:var(--live);color:#fff;font-size:.58rem;font-weight:700;letter-spacing:.08em;padding:.12rem .4rem;border-radius:3px}
+.rcard .off{position:absolute;top:.4rem;right:.4rem;background:var(--live);color:#fff;font-size:.6rem;font-weight:700;padding:.12rem .4rem;border-radius:3px}
+.rcard .b{padding:.55rem .65rem .7rem;display:flex;flex-direction:column;gap:.15rem}
+.rcard .n{font-size:.8rem;font-weight:600;line-height:1.3}
+.rcard .p{font-size:.85rem;font-weight:700;color:var(--portfolio-amber)}
+.rcard .p s{color:#8B887F;font-weight:500;font-size:.72rem;margin-right:.25rem}
+.rcard .t{font-size:.7rem;color:#8B887F}
+.rcard .cd{font-size:.66rem;color:var(--live);font-weight:600}
+.shop-card .favs{font-size:.72rem;color:var(--portfolio-amber);font-weight:600;padding:0 .9rem .5rem}
+
 @media (max-width:880px){
   .hero{grid-template-columns:1fr}
   .hero h1{font-size:1.6rem}
@@ -441,6 +581,7 @@ ol.try code{font-family:ui-monospace,monospace;font-size:.76rem;background:var(-
   .marquee{overflow-x:auto;-webkit-mask-image:none;mask-image:none}
   .marquee-track{animation-name:none}
   .marquee-track .dup{display:none}
+  .flash.in{animation:none}
 }
 </style>
 </head>
@@ -481,6 +622,20 @@ ol.try code{font-family:ui-monospace,monospace;font-size:.76rem;background:var(-
           <li>Desde la consola, mandá el <b>link de pago</b> y pagalo desde el live.</li>
         </ol>
       </div>
+    </section>
+
+    <section class="dir-section dir-search" aria-labelledby="buscarTitle">
+      <h2 id="buscarTitle">Buscá un artículo en todas las tiendas
+        <button class="icon-link" type="button" data-compras style="margin-left:auto;color:var(--portfolio-ink60);border-color:var(--portfolio-ink30)">🧾 Mis compras</button></h2>
+      <input type="search" id="dq" placeholder="Ej: zapatillas, auriculares, campera…" aria-label="Buscar un artículo en todas las tiendas" autocomplete="off">
+      <div class="fchips" id="dcats" role="group" aria-label="Categorías"></div>
+      <div class="res-grid" id="dres" aria-live="polite"></div>
+      <div class="dir-empty" id="dresMsg" hidden style="margin-top:.8rem"></div>
+    </section>
+
+    <section class="dir-section" id="ofertasSec" hidden aria-labelledby="ofertasTitle">
+      <h2 id="ofertasTitle">🏷 Ofertas ahora</h2>
+      <div class="res-grid" id="ofertasGrid"></div>
     </section>
 
     <section class="dir-section" aria-labelledby="liveTitle">
@@ -535,7 +690,10 @@ ol.try code{font-family:ui-monospace,monospace;font-size:.76rem;background:var(-
         <div class="shop-title" id="shopTitle">LiveShop</div>
         <div class="shop-sub"><span class="conn-dot" id="connDot"></span><span id="connText">conectando…</span></div>
       </div>
-      <a class="back-link" href="./">Todos los lives</a>
+      <div class="tools-row">
+        <button class="icon-link" type="button" data-compras>🧾 Mis compras</button>
+        <a class="back-link" href="./">Todos los lives</a>
+      </div>
     </header>
 
     <div class="player">
@@ -549,10 +707,27 @@ ol.try code{font-family:ui-monospace,monospace;font-size:.76rem;background:var(-
       <div class="live-badge" id="liveBadge"><span class="pulse"></span>EN VIVO</div>
       <div class="viewers" id="viewers">👁 0</div>
       <button class="sound-btn" id="soundBtn" type="button">🔊 Activar sonido</button>
+      <div class="flash" id="flashBanner" hidden aria-live="polite"></div>
     </div>
 
     <div class="shop-body">
       <div class="section-lbl">Productos</div>
+      <div class="filters" id="filters" hidden>
+        <input type="search" id="fq" placeholder="🔍 Buscar en esta tienda" aria-label="Buscar en esta tienda" autocomplete="off">
+        <div class="fchips" id="fcats" role="group" aria-label="Filtrar por categoría"></div>
+        <div class="frow">
+          <label>Ordenar
+            <select id="fsort">
+              <option value="destacados">Destacados</option>
+              <option value="precio_asc">Menor precio</option>
+              <option value="precio_desc">Mayor precio</option>
+              <option value="descuento">Mayor descuento</option>
+            </select>
+          </label>
+          <label><input type="checkbox" id="fstock"> Solo con stock</label>
+        </div>
+      </div>
+      <div class="fempty" id="fempty" hidden></div>
       <div class="grid" id="grid"></div>
       <div class="empty" id="empty">Esta tienda todavía no publicó productos.</div>
     </div>
@@ -591,6 +766,10 @@ ol.try code{font-family:ui-monospace,monospace;font-size:.76rem;background:var(-
     <button type="submit" id="chatSend" aria-label="Enviar" disabled>➤</button>
   </form>
 </aside>
+
+<div class="sheet-scrim" id="sheetScrim">
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"></div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="comun.js"></script>
@@ -648,9 +827,11 @@ const ANALYTICS = (function(){
 })();
 
 /* Metricas por vendedor (las ve cada vendedor y el admin). */
-function metric(tipo){
+function metric(tipo, productoId){
   if (!ROOM) return;
-  LS.rpc("liveshop_evento", {p_sala:ROOM, p_tipo:tipo, p_sesion:PEER_ID}).catch(() => {});
+  const args = {p_sala:ROOM, p_tipo:tipo, p_sesion:PEER_ID};
+  if (productoId) args.p_producto_id = productoId;   // "Lo quiero" y ficha: el vendedor ve que se pide
+  LS.rpc("liveshop_evento", args).catch(() => {});
 }
 
 /* ===================== helpers ===================== */
@@ -665,7 +846,17 @@ function avatarHtml(v){
 
 function normalizarProductos(lista){
   return (lista || []).map(p => ({id:p.id, nombre:p.nombre, precio:Number(p.precio) || 0,
-                                  stock:Number(p.stock) || 0, emoji:p.emoji || "📦", img:p.img || null}));
+                                  precio_lista:p.precio_lista != null ? Number(p.precio_lista) : Number(p.precio) || 0,
+                                  stock:Number(p.stock) || 0, emoji:p.emoji || "📦", img:p.img || null,
+                                  categoria:p.categoria || "otros", descripcion:p.descripcion || "",
+                                  promo:p.promo || null, tienda:p.tienda || null}));
+}
+
+/* precio de una tarjeta: tachado + final si la oferta sigue vigente */
+function precioHtml(p){
+  return LS.promoVigente(p.promo)
+    ? '<s>' + money(p.precio_lista) + '</s>' + money(LS.precioActual(p))
+    : money(LS.precioActual(p));
 }
 
 let sb = null;
@@ -681,11 +872,90 @@ let DIR = [];                 // tiendas desde la base
 let liveBySala = new Map();   // sala -> presencia del lobby
 let dirReloadAt = 0;
 let dirError = false;
+let dirCat = "";              // categoria elegida en el directorio
+let dirTimer = null;
+
+function tieneCat(v){
+  if (!dirCat) return true;
+  return !!v && (v.productos || []).some(p => p.categoria === dirCat);
+}
+
+/* Tarjeta de producto de cualquier tienda: lleva a la sala con la ficha abierta.
+   Las tiendas en vivo van primero porque ahi se puede comprar ya. */
+function rcard(p){
+  const t = p.tienda || {};
+  const vivo = liveBySala.has(t.sala);
+  const pct = LS.pctPromo(p);
+  const fin = LS.promoVigente(p.promo) && p.promo.fin && new Date(p.promo.fin) - LS.reloj.now() < 86400000 ? p.promo.fin : null;
+  return '<a class="rcard" href="?live=' + encodeURIComponent(t.sala) + '&p=' + encodeURIComponent(p.id) + '">' +
+    '<div class="img">' + (p.img ? '<img src="' + esc(p.img) + '" alt="" loading="lazy" decoding="async">' : esc(p.emoji || "📦")) +
+      (vivo ? '<span class="live">EN VIVO</span>' : "") + (pct ? '<span class="off">−' + pct + '%</span>' : "") + '</div>' +
+    '<div class="b"><div class="n">' + esc(p.nombre) + '</div>' +
+      '<div class="p">' + precioHtml(p) + '</div>' +
+      (fin ? '<div class="cd">termina en <span data-fin="' + esc(fin) + '">' + esc(LS.restante(new Date(fin) - LS.reloj.now())) + '</span></div>' : "") +
+      '<div class="t">' + esc(t.nombre || "") + (p.stock <= 0 ? " · sin stock" : "") + '</div></div>' +
+  '</a>';
+}
+
+function renderDirCats(){
+  const usadas = new Set();
+  DIR.forEach(v => (v.productos || []).forEach(p => usadas.add(p.categoria || "otros")));
+  const cats = LS.CATEGORIAS.filter(c => usadas.has(c.id));
+  $("dcats").hidden = cats.length < 2;
+  $("dcats").innerHTML = '<button type="button" class="fchip" data-dcat="" aria-pressed="' + !dirCat + '">Todas</button>' +
+    cats.map(c => '<button type="button" class="fchip" data-dcat="' + c.id + '" aria-pressed="' + (dirCat === c.id) + '">' + esc(c.nombre) + '</button>').join("");
+}
+
+async function buscarDir(){
+  const q = $("dq").value.trim();
+  const box = $("dres"), msg = $("dresMsg");
+  if (q.length < 2 && !dirCat){ box.innerHTML = ""; msg.hidden = true; return; }
+  msg.hidden = false;
+  msg.textContent = "Buscando…";
+  let r;
+  try{
+    r = await LS.rpc("liveshop_buscar", {p_q:q, p_categoria:dirCat || null});
+  }catch(err){
+    msg.textContent = "No se pudo buscar (" + err.message + ").";
+    return;
+  }
+  if (r.ahora) LS.reloj.sync(r.ahora);
+  const lista = normalizarProductos(r.productos)
+    .sort((a, b) => liveBySala.has(b.tienda.sala) - liveBySala.has(a.tienda.sala));
+  box.innerHTML = lista.map(rcard).join("");
+  msg.hidden = lista.length > 0;
+  msg.innerHTML = lista.length ? "" : (q ? "No encontramos <b>“" + esc(q) + "”</b>" : "No hay productos") +
+    (dirCat ? " en " + esc(LS.catNombre(dirCat)) : "") + ". Probá con otra palabra.";
+  ANALYTICS.track("liveshop_busqueda", {resultados:lista.length, categoria:dirCat || null});
+}
+
+async function cargarOfertas(){
+  let r;
+  try{ r = await LS.rpc("liveshop_ofertas"); }catch(err){ return; }
+  if (r.ahora) LS.reloj.sync(r.ahora);
+  const lista = normalizarProductos(r.productos).filter(p => LS.promoVigente(p.promo)).slice(0, 12);
+  $("ofertasSec").hidden = !lista.length;
+  $("ofertasGrid").innerHTML = lista.map(rcard).join("");
+}
+
+$("dq").addEventListener("input", () => {
+  clearTimeout(dirTimer);
+  dirTimer = setTimeout(buscarDir, 300);
+});
+$("dcats").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-dcat]");
+  if (!b) return;
+  dirCat = b.dataset.dcat;
+  renderDirCats();
+  renderDirectory();
+  buscarDir();
+});
 
 async function loadDirectory(){
   try{
     DIR = (await LS.rpc("liveshop_directorio")) || [];
     dirError = false;
+    renderDirCats();
   }catch(err){
     dirError = true;
     $("shopMsg").hidden = false;
@@ -700,7 +970,8 @@ async function loadDirectory(){
 }
 
 function renderDirectory(){
-  const vivos = Array.from(liveBySala.values()).sort((a, b) => (a.since || 0) - (b.since || 0));
+  const vivos = Array.from(liveBySala.values()).sort((a, b) => (a.since || 0) - (b.since || 0))
+    .filter(p => tieneCat(DIR.find(v => v.sala === p.sala)));
   $("liveEmpty").hidden = vivos.length > 0;
   $("liveGrid").innerHTML = vivos.map(p => {
     const tienda = DIR.find(v => v.sala === p.sala) || {nombre:p.nombre};
@@ -721,9 +992,15 @@ function renderDirectory(){
       '</a>';
   }).join("");
 
-  const tiendas = DIR.filter(v => !liveBySala.has(v.sala));
+  /* con una categoria elegida, solo las tiendas que venden algo de ella; las
+     que tienen guardados del visitante van primero */
+  const nFavs = v => LS.favs.de(v.sala).length;
+  const tiendas = DIR.filter(v => !liveBySala.has(v.sala) && tieneCat(v))
+                     .sort((a, b) => (nFavs(b) > 0) - (nFavs(a) > 0));
   $("shopGrid").innerHTML = tiendas.map(v => {
     const prods = normalizarProductos(v.productos);
+    const favs = LS.favs.de(v.sala);
+    const favOferta = prods.some(p => favs.includes(p.id) && LS.promoVigente(p.promo));
     let carrusel = '<div class="marquee-empty">Todavía no publicó productos.</div>';
     if (prods.length){
       /* se repite hasta llenar el ancho: con 2 productos el loop se veria cortado */
@@ -733,7 +1010,7 @@ function renderDirectory(){
         '<div class="mitem' + (dup ? " dup" : "") + '"' + (dup ? ' aria-hidden="true"' : "") + '>' +
           '<div class="img">' + (p.img ? '<img src="' + esc(p.img) + '" alt="" loading="lazy" decoding="async">' : esc(p.emoji)) + '</div>' +
           '<div class="mn">' + esc(p.nombre) + '</div>' +
-          '<div class="mp">' + money(p.precio) + '</div>' +
+          '<div class="mp">' + money(LS.precioActual(p)) + (LS.pctPromo(p) ? ' <span style="color:var(--live)">−' + LS.pctPromo(p) + '%</span>' : "") + '</div>' +
         '</div>';
       const dur = Math.max(18, base.length * 4);
       carrusel = '<div class="marquee"><div class="marquee-track" style="--dur:' + dur + 's">' +
@@ -748,6 +1025,8 @@ function renderDirectory(){
           '<div class="who"><div class="n">' + esc(v.nombre) + '</div><div class="u">@' + esc(v.usuario) + '</div></div>' +
           '<span class="off">sin transmitir</span>' +
         '</div>' +
+        (favs.length ? '<div class="favs">♥ Tenés ' + favs.length + (favs.length === 1 ? " guardado" : " guardados") + ' acá' +
+                       (favOferta ? " · 🏷 uno está en oferta" : "") + '</div>' : "") +
         carrusel +
         '<div class="go">Ver tienda →</div>' +
       '</a>';
@@ -763,6 +1042,7 @@ function initDirectory(){
   $("dirView").hidden = false;
   document.title = "LiveShop · Lives en vivo";
   loadDirectory();
+  cargarOfertas();
 
   const client = realtimeClient();
   if (!client) return;
@@ -905,6 +1185,7 @@ async function initRoom(){
   }
 
   SALA = info;
+  LS.reloj.sync(info.ahora);
   document.title = SALA.nombre + " · LiveShop";
   $("shopAvatar").innerHTML = avatarHtml(SALA);
   $("chatAvatar").innerHTML = avatarHtml(SALA);
@@ -912,6 +1193,9 @@ async function initRoom(){
   $("shopTitle").textContent = SALA.titulo || SALA.nombre;
   state = {live:false, titulo:SALA.titulo || "LiveShop", productos:normalizarProductos(SALA.productos), destacado:SALA.destacado || null};
   renderGrid();
+  /* llegando desde la busqueda del directorio (?p=), se abre la ficha del producto */
+  const pid = new URLSearchParams(location.search).get("p");
+  if (pid && state.productos.some(p => p.id === pid)) abrirFicha(pid);
   showFallback("📡", "Conectando con " + SALA.nombre + "…",
     "Si no está transmitiendo, en unos segundos vas a ver su catálogo igual.");
   openFab();
@@ -951,8 +1235,8 @@ function exitDemoMode(){
   if ($("chatBody").children.length) pushSys(vendorName() + " se conectó. Ya podés escribirle.", true);
   if (chatCtxProd){
     send("chat", {to:"host", from:PEER_ID, nombre:MY_NAME, kind:"buy",
-                  text:"Hola, quiero comprar: " + chatCtxProd.nombre + " (" + money(chatCtxProd.precio) + ")",
-                  producto:{id:chatCtxProd.id, nombre:chatCtxProd.nombre, precio:chatCtxProd.precio}});
+                  text:textoQuiero(chatCtxProd),
+                  producto:{id:chatCtxProd.id, nombre:chatCtxProd.nombre, precio:LS.precioActual(chatCtxProd)}});
   }
 }
 
@@ -961,10 +1245,11 @@ function applyState(s){
   if (!s) return;
   clearTimeout(demoTimer);
   exitDemoMode();
+  if (s.ahora) LS.reloj.sync(s.ahora);
   state = {
     live: !!s.live,
     titulo: s.titulo || "LiveShop",
-    productos: Array.isArray(s.productos) ? s.productos : [],
+    productos: normalizarProductos(Array.isArray(s.productos) ? s.productos : []),
     destacado: s.destacado || null
   };
   $("shopTitle").textContent = state.titulo;
@@ -979,37 +1264,293 @@ function applyState(s){
   renderGrid();
 }
 
+/* ---------- filtros ----------
+   Todo en el navegador: el catalogo ya llega completo y tiene como maximo 40
+   productos. La categoria y el orden viajan en la URL para poder compartir el
+   link ya filtrado; el resto se recuerda en la pestaña. */
+const FILTRO_KEY = "liveshop_filtro_" + ROOM;
+const filtro = (function(){
+  let f = {q:"", cat:"", sort:"destacados", stock:null};
+  try{ f = Object.assign(f, JSON.parse(sessionStorage.getItem(FILTRO_KEY)) || {}); }catch(e){}
+  const u = new URLSearchParams(location.search);
+  if (u.has("cat")) f.cat = u.get("cat");
+  if (u.has("orden")) f.sort = u.get("orden");
+  return f;
+})();
+let filtroTimer = null;
+
+function guardarFiltro(){
+  try{ sessionStorage.setItem(FILTRO_KEY, JSON.stringify(filtro)); }catch(e){}
+  const u = new URL(location.href);
+  if (filtro.cat) u.searchParams.set("cat", filtro.cat); else u.searchParams.delete("cat");
+  if (filtro.sort !== "destacados") u.searchParams.set("orden", filtro.sort); else u.searchParams.delete("orden");
+  try{ history.replaceState(null, "", u.pathname + u.search); }catch(e){}
+}
+
+function renderFiltros(){
+  const prods = state.productos;
+  /* con pocos productos los filtros estorban mas de lo que ayudan */
+  $("filters").hidden = prods.length < 5;
+  if ($("filters").hidden) return;
+  const cats = new Map();
+  prods.forEach(p => cats.set(p.categoria, (cats.get(p.categoria) || 0) + 1));
+  const ofertas = prods.filter(p => LS.promoVigente(p.promo)).length;
+  if (filtro.cat === "ofertas" && !ofertas) filtro.cat = "";
+  if (filtro.cat && filtro.cat !== "ofertas" && !cats.has(filtro.cat)) filtro.cat = "";
+  const chip = (v, txt, n, extra) =>
+    '<button type="button" class="fchip' + (extra || "") + '" data-cat="' + v + '" aria-pressed="' + (filtro.cat === v) + '">' +
+    esc(txt) + (n != null ? '<span class="ct">' + n + '</span>' : "") + '</button>';
+  $("fcats").innerHTML = chip("", "Todo", prods.length) +
+    (ofertas ? chip("ofertas", "⚡ Ofertas", ofertas, " oferta") : "") +
+    (cats.size > 1 ? LS.CATEGORIAS.filter(c => cats.has(c.id)).map(c => chip(c.id, c.nombre, cats.get(c.id))).join("") : "");
+  $("fsort").value = filtro.sort;
+  if (filtro.stock === null){
+    /* "solo con stock" arranca prendido si hay muchos agotados ensuciando la grilla */
+    filtro.stock = prods.filter(p => p.stock <= 0).length > 4;
+  }
+  $("fstock").checked = !!filtro.stock;
+  /* el texto se carga una sola vez: si se reescribiera en cada render, un
+     catalogo nuevo del vendedor a mitad del tipeo borraria lo escrito */
+  if (!$("fq").dataset.listo){ $("fq").value = filtro.q; $("fq").dataset.listo = "1"; }
+}
+
+function productosVisibles(){
+  const q = LS.norm(filtro.q.trim());
+  let lista = state.productos.filter(p =>
+    (!q || LS.norm(p.nombre).includes(q) || LS.norm(p.descripcion).includes(q)) &&
+    (!filtro.cat || (filtro.cat === "ofertas" ? LS.promoVigente(p.promo) : p.categoria === filtro.cat)) &&
+    (!filtro.stock || p.stock > 0));
+  const orden = {
+    precio_asc:(a, b) => LS.precioActual(a) - LS.precioActual(b),
+    precio_desc:(a, b) => LS.precioActual(b) - LS.precioActual(a),
+    descuento:(a, b) => LS.pctPromo(b) - LS.pctPromo(a)
+  }[filtro.sort];
+  if (orden) lista = lista.slice().sort(orden);
+  /* lo que el vendedor muestra en camara nunca queda escondido por un filtro */
+  const feat = state.productos.find(p => p.id === state.destacado);
+  if (feat){
+    lista = lista.filter(p => p !== feat);
+    lista.unshift(feat);
+  }
+  return lista;
+}
+
+function tarjeta(p){
+  const out = Number(p.stock) <= 0;
+  const feat = state.destacado && state.destacado === p.id;
+  const promo = LS.promoVigente(p.promo) ? p.promo : null;
+  const pct = LS.pctPromo(p);
+  const fav = SALA && LS.favs.tiene(ROOM, p.id);
+  const media = p.img ? '<img src="' + esc(p.img) + '" alt="' + esc(p.nombre) + '">' : esc(p.emoji || "📦");
+  const stock = out ? "Sin stock"
+    : (Number(p.stock) <= 3 && promo && promo.tipo === "remanente" ? "Últimas " + Number(p.stock) + " unidades" : "Quedan " + Number(p.stock));
+  return '' +
+    '<article class="prod' + (feat ? " featured" : "") + '">' +
+      '<div class="prod-img" data-ficha="' + esc(p.id) + '" role="button" tabindex="0" aria-label="Ver detalle de ' + esc(p.nombre) + '">' + media +
+        (feat ? '<span class="prod-flag">AHORA</span>' : "") +
+        (pct ? '<span class="prod-off">−' + pct + '%</span>' : "") +
+        '<button type="button" class="fav-btn" data-fav="' + esc(p.id) + '" aria-pressed="' + !!fav + '" aria-label="' +
+          (fav ? "Quitar de guardados" : "Guardar") + '">' + (fav ? "♥" : "♡") + '</button>' +
+      '</div>' +
+      '<div class="prod-info">' +
+        '<div class="prod-name">' + esc(p.nombre) + '</div>' +
+        '<div class="prod-price">' + precioHtml(p) + '</div>' +
+        (promo ? '<div class="prod-promo">' + esc(LS.PROMO_NOMBRE[promo.tipo]) +
+                 (promo.fin && promo.tipo !== "relampago" ? " · termina en " + esc(LS.restante(new Date(promo.fin) - LS.reloj.now())) : "") +
+                 '</div>' : "") +
+        '<div class="prod-stock' + (out ? " out" : "") + '">' + stock + '</div>' +
+        '<button class="buy-btn" data-id="' + esc(p.id) + '"' + (out ? " disabled" : "") + '>' +
+          (out ? "Agotado" : "Lo quiero") +
+        '</button>' +
+      '</div>' +
+    '</article>';
+}
+
 function renderGrid(){
   const grid = $("grid");
   const empty = $("empty");
+  renderFlash();
   if (!state.productos.length){
     grid.innerHTML = "";
+    $("filters").hidden = true;
+    $("fempty").hidden = true;
     empty.style.display = "block";
     return;
   }
   empty.style.display = "none";
-  grid.innerHTML = state.productos.map(p => {
-    const out = Number(p.stock) <= 0;
-    const feat = state.destacado && state.destacado === p.id;
-    const media = p.img
-      ? '<img src="' + esc(p.img) + '" alt="' + esc(p.nombre) + '">'
-      : esc(p.emoji || "📦");
-    return '' +
-      '<article class="prod' + (feat ? " featured" : "") + '">' +
-        '<div class="prod-img">' + media + (feat ? '<span class="prod-flag">AHORA</span>' : "") + '</div>' +
-        '<div class="prod-info">' +
-          '<div class="prod-name">' + esc(p.nombre) + '</div>' +
-          '<div class="prod-price">' + money(p.precio) + '</div>' +
-          '<div class="prod-stock' + (out ? " out" : "") + '">' +
-            (out ? "Sin stock" : "Quedan " + Number(p.stock)) +
-          '</div>' +
-          '<button class="buy-btn" data-id="' + esc(p.id) + '"' + (out ? " disabled" : "") + '>' +
-            (out ? "Agotado" : "Lo quiero") +
-          '</button>' +
-        '</div>' +
-      '</article>';
-  }).join("");
+  renderFiltros();
+  const lista = productosVisibles();
+  const soloFeat = lista.length === 1 && lista[0].id === state.destacado && (filtro.q || filtro.cat || filtro.stock);
+  const hayFiltro = filtro.q.trim() || filtro.cat;
+  const fe = $("fempty");
+  if (hayFiltro && (!lista.length || soloFeat)){
+    fe.hidden = false;
+    fe.innerHTML = 'No hay nada' + (filtro.q.trim() ? ' con <b>“' + esc(filtro.q.trim()) + '”</b>' : "") +
+      (filtro.cat ? ' en <b>' + esc(filtro.cat === "ofertas" ? "ofertas" : LS.catNombre(filtro.cat)) + '</b>' : "") +
+      ' en esta tienda. <button type="button" data-limpiar>Ver todo</button>';
+  } else {
+    fe.hidden = true;
+  }
+  grid.innerHTML = lista.map(tarjeta).join("");
 }
+
+$("fq").addEventListener("input", () => {
+  clearTimeout(filtroTimer);
+  filtroTimer = setTimeout(() => { filtro.q = $("fq").value; guardarFiltro(); renderGrid(); }, 150);
+});
+$("fcats").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-cat]");
+  if (!b) return;
+  filtro.cat = b.dataset.cat;
+  guardarFiltro(); renderGrid();
+  ANALYTICS.track("liveshop_filtro", {room:ROOM, tipo:"categoria", valor:filtro.cat});
+});
+$("fsort").addEventListener("change", () => { filtro.sort = $("fsort").value; guardarFiltro(); renderGrid(); });
+$("fstock").addEventListener("change", () => { filtro.stock = $("fstock").checked; guardarFiltro(); renderGrid(); });
+$("fempty").addEventListener("click", (e) => {
+  if (!e.target.closest("[data-limpiar]")) return;
+  filtro.q = ""; filtro.cat = ""; $("fq").value = "";
+  guardarFiltro(); renderGrid();
+});
+
+/* ---------- oferta relampago ----------
+   Banner sobre el borde inferior del video, con cuenta regresiva calculada con
+   el fin que guarda la base (corregido por la hora del servidor). */
+let flashVisto = null;     // id de la relampago que se esta mostrando
+let flashFinTimer = null;
+
+function relampagoActiva(){
+  return state.productos.find(p => p.promo && p.promo.tipo === "relampago" && LS.promoVigente(p.promo) && p.stock > 0) || null;
+}
+
+function renderFlash(){
+  const box = $("flashBanner");
+  const p = relampagoActiva();
+  if (p){
+    clearTimeout(flashFinTimer);
+    const nuevo = flashVisto !== p.promo.id;
+    flashVisto = p.promo.id;
+    box.className = "flash" + (nuevo ? " in" : "");
+    box.hidden = false;
+    box.innerHTML =
+      '<span class="fe" aria-hidden="true">⚡</span>' +
+      '<span class="fi"><b>' + esc(p.nombre) + '</b><s>' + money(p.precio_lista) + '</s>' + money(LS.precioActual(p)) +
+        (p.promo.restantes != null ? " · quedan " + p.promo.restantes : "") + '</span>' +
+      '<span class="cd" data-fin="' + esc(p.promo.fin) + '" aria-label="Termina en">' +
+        esc(LS.restante(new Date(p.promo.fin) - LS.reloj.now())) + '</span>' +
+      '<button type="button" data-flash="' + esc(p.id) + '">Lo quiero</button>';
+    return;
+  }
+  if (flashVisto && !box.hidden && !box.classList.contains("fin")){
+    /* avisa que termino en vez de desaparecer de golpe */
+    box.className = "flash fin";
+    box.innerHTML = '<span class="fe" aria-hidden="true">⏱</span><span class="fi"><b>Terminó la oferta relámpago</b>' +
+                    'Seguí mirando: puede venir otra.</span>';
+    clearTimeout(flashFinTimer);
+    flashFinTimer = setTimeout(() => { box.hidden = true; flashVisto = null; }, 5000);
+  }
+}
+
+$("flashBanner").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-flash]");
+  if (!b) return;
+  const p = state.productos.find(x => x.id === b.dataset.flash);
+  if (p) quiero(p);
+});
+
+/* cada segundo: contadores visibles y vencimiento de ofertas en pantalla */
+let ofertasVigentes = "";
+setInterval(() => {
+  document.querySelectorAll("[data-fin]").forEach(el => {
+    el.textContent = LS.restante(new Date(el.dataset.fin) - LS.reloj.now());
+  });
+  if (!SALA) return;
+  const firma = state.productos.filter(p => LS.promoVigente(p.promo)).map(p => p.id).join(",");
+  if (firma !== ofertasVigentes){
+    const habia = ofertasVigentes !== "";
+    ofertasVigentes = firma;
+    if (habia || firma) renderGrid();
+  }
+}, 1000);
+
+/* ---------- ficha de producto ---------- */
+let fichaAbierta = null;
+
+function abrirSheet(html){
+  $("sheet").innerHTML = html;
+  $("sheetScrim").classList.add("open");
+  const f = $("sheet").querySelector(".x");
+  if (f) setTimeout(() => f.focus(), 30);
+}
+function cerrarSheet(){
+  $("sheetScrim").classList.remove("open");
+  fichaAbierta = null;
+}
+$("sheetScrim").addEventListener("click", (e) => {
+  if (e.target === $("sheetScrim") || e.target.closest("[data-cerrar]")) cerrarSheet();
+});
+
+function abrirFicha(id){
+  const p = state.productos.find(x => x.id === id);
+  if (!p) return;
+  fichaAbierta = id;
+  const out = p.stock <= 0;
+  const promo = LS.promoVigente(p.promo) ? p.promo : null;
+  const fav = LS.favs.tiene(ROOM, p.id);
+  abrirSheet(
+    '<div class="sh"><h3 id="sheetTitle">' + esc(p.nombre) + '</h3><button type="button" class="x" data-cerrar aria-label="Cerrar">✕</button></div>' +
+    '<div class="big">' + (p.img ? '<img src="' + esc(p.img) + '" alt="">' : esc(p.emoji || "📦")) + '</div>' +
+    '<div class="cat">' + esc(LS.catNombre(p.categoria)) + '</div>' +
+    '<div class="pr">' + precioHtml(p) + '</div>' +
+    (promo ? '<div class="meta" style="color:#C0392B;font-weight:600">' + esc(LS.PROMO_NOMBRE[promo.tipo]) +
+             (promo.fin ? ' · termina en <span data-fin="' + esc(promo.fin) + '">' + esc(LS.restante(new Date(promo.fin) - LS.reloj.now())) + '</span>'
+                        : " · hasta agotar stock") + '</div>' : "") +
+    (p.descripcion ? '<p class="desc">' + esc(p.descripcion) + '</p>' : "") +
+    '<div class="meta">' + (out ? "Sin stock por ahora." : "Quedan " + p.stock + (p.stock === 1 ? " unidad." : " unidades.")) + '</div>' +
+    '<div class="acts">' +
+      '<button type="button" class="line" data-sfav="' + esc(p.id) + '" aria-pressed="' + fav + '">' + (fav ? "♥ Guardado" : "♡ Guardar") + '</button>' +
+      '<button type="button" data-squiero="' + esc(p.id) + '"' + (out ? " disabled" : "") + '>' + (out ? "Agotado" : "Lo quiero") + '</button>' +
+    '</div>'
+  );
+  metric("vista_producto", p.id);
+}
+
+$("sheet").addEventListener("click", (e) => {
+  const q = e.target.closest("[data-squiero]");
+  if (q){
+    const p = state.productos.find(x => x.id === q.dataset.squiero);
+    cerrarSheet();
+    if (p) quiero(p);
+    return;
+  }
+  const f = e.target.closest("[data-sfav]");
+  if (f){
+    toggleFav(f.dataset.sfav);
+    abrirFicha(f.dataset.sfav);
+  }
+});
+
+function toggleFav(id){
+  const on = LS.favs.alternar(ROOM, id);
+  ANALYTICS.track("liveshop_favorito", {room:ROOM, on:on});
+  renderGrid();
+}
+
+/* ---------- mis compras ---------- */
+function abrirCompras(){
+  const lista = LS.compras.listar();
+  abrirSheet(
+    '<div class="sh"><h3 id="sheetTitle">🧾 Mis compras</h3><button type="button" class="x" data-cerrar aria-label="Cerrar">✕</button></div>' +
+    (lista.length ? '<div>' + lista.map(c =>
+      '<div class="compra"><div class="ci"><b>' + esc(c.concepto) + '</b><span>' + esc(c.tienda) + ' · ' + esc(LS.fecha(c.fecha)) +
+        ' · ' + money(c.total) + '</span></div>' +
+      '<a href="pago/comprobante.html?sala=' + encodeURIComponent(c.sala) + '&ref=' + encodeURIComponent(c.ref) + '" target="_blank" rel="noopener">Comprobante</a>' +
+      '</div>').join("") + '</div>'
+      : '<p class="desc">Todavía no compraste nada desde este navegador. Cuando pagues un link en un live, la compra y su comprobante quedan acá.</p>') +
+    '<p class="meta">Como para comprar no hace falta cuenta, tus compras se guardan solo en este navegador.</p>'
+  );
+}
+document.querySelectorAll("[data-compras]").forEach(b => b.addEventListener("click", abrirCompras));
 
 /* Contexto del chat: sin esto el comprador abre el panel y no ve por cual de
    todos los productos esta preguntando. */
@@ -1023,7 +1564,7 @@ function setChatContext(prod){
     ? '<img src="' + esc(prod.img) + '" alt="">'
     : esc(prod.emoji || "📦");
   $("ctxName").textContent = prod.nombre;
-  $("ctxPrice").textContent = money(prod.precio);
+  $("ctxPrice").textContent = money(LS.precioActual(prod));
   box.hidden = false;
 }
 $("ctxClear").addEventListener("click", () => setChatContext(null));
@@ -1053,24 +1594,42 @@ $("nameAsk").addEventListener("submit", (e) => {
   $("nameAsk").hidden = true;
 });
 
-$("grid").addEventListener("click", (e) => {
-  const btn = e.target.closest(".buy-btn");
-  if (!btn || btn.disabled) return;
-  const prod = state.productos.find(p => p.id === btn.dataset.id);
-  if (!prod) return;
+/* El mensaje automatico dice el precio que vio el comprador (con la oferta),
+   para que el vendedor sepa que precio esperaba. */
+function textoQuiero(prod){
+  const pct = LS.pctPromo(prod);
+  return "Hola, quiero comprar: " + prod.nombre + " (" + money(LS.precioActual(prod)) + (pct ? ", con " + pct + "% off" : "") + ")";
+}
+
+function quiero(prod){
+  if (!prod || prod.stock <= 0) return;
   openChat();
   setChatContext(prod);
-  const texto = "Hola, quiero comprar: " + prod.nombre + " (" + money(prod.precio) + ")";
+  const texto = textoQuiero(prod);
   renderChat({kind:"text", text:texto}, "out");
-  metric("interes");
+  metric("interes", prod.id);
   if (demoMode){
     pushSys(vendorName() + " no está conectado ahora. Si se conecta mientras seguís acá, le enviamos tu consulta.");
     ANALYTICS.track("liveshop_buy_click", {room:ROOM, vendedor:SALA && SALA.usuario, producto:prod.nombre, demo:true});
     return;
   }
   send("chat", {to:"host", from:PEER_ID, nombre:MY_NAME, kind:"buy",
-                text:texto, producto:{id:prod.id, nombre:prod.nombre, precio:prod.precio}});
+                text:texto, producto:{id:prod.id, nombre:prod.nombre, precio:LS.precioActual(prod)}});
   ANALYTICS.track("liveshop_buy_click", {room:ROOM, vendedor:SALA && SALA.usuario, producto:prod.nombre});
+}
+
+$("grid").addEventListener("click", (e) => {
+  const fav = e.target.closest("[data-fav]");
+  if (fav){ e.stopPropagation(); toggleFav(fav.dataset.fav); return; }
+  const img = e.target.closest("[data-ficha]");
+  if (img){ abrirFicha(img.dataset.ficha); return; }
+  const btn = e.target.closest(".buy-btn");
+  if (!btn || btn.disabled) return;
+  quiero(state.productos.find(p => p.id === btn.dataset.id));
+});
+$("grid").addEventListener("keydown", (e) => {
+  const img = e.target.closest("[data-ficha]");
+  if (img && e.target === img && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); abrirFicha(img.dataset.ficha); }
 });
 
 /* ===================== WebRTC (receptor) ===================== */
@@ -1215,15 +1774,16 @@ function renderChat(msg, dir){
     const card = document.createElement("div");
     card.className = "pay-card";
     card.dataset.ref = msg.pago.ref;
+    /* la URL solo dice que orden pagar: el monto lo lee el checkout de la base */
     const url = "pago/?ref=" + encodeURIComponent(msg.pago.ref) +
-                "&monto=" + encodeURIComponent(msg.pago.monto) +
-                "&concepto=" + encodeURIComponent(msg.pago.concepto) +
                 "&room=" + encodeURIComponent(ROOM) +
                 "&peer=" + encodeURIComponent(PEER_ID);
+    const desc = Number(msg.pago.descuento) || 0;
     card.innerHTML =
-      '<div class="lbl">Link de pago</div>' +
+      '<div class="lbl">Link de pago' + (desc && msg.pago.promoTipo ? " · " + esc(LS.PROMO_NOMBRE[msg.pago.promoTipo]) : "") + '</div>' +
       '<div class="concept">' + esc(msg.pago.concepto) + '</div>' +
-      '<div class="amount">' + money(msg.pago.monto) + '</div>' +
+      '<div class="amount">' + (desc ? '<s style="font-size:.8rem;color:#8696a0;font-weight:500;margin-right:.35rem">' +
+        money(msg.pago.precioLista) + '</s>' : "") + money(msg.pago.monto) + '</div>' +
       '<a href="' + esc(url) + '" target="_blank" rel="opener" data-pay="1">Pagar ahora →</a>' +
       '<div class="ref">Ref ' + esc(msg.pago.ref) + ' · checkout simulado</div>';
     body.appendChild(card);
@@ -1286,7 +1846,11 @@ $("chatInput").addEventListener("input", (e) => {
 $("chatClose").addEventListener("click", closeChat);
 $("scrim").addEventListener("click", closeChat);
 $("chatFab").addEventListener("click", openChat);
-document.addEventListener("keydown", (e) => { if (e.key === "Escape" && chatOpen) closeChat(); });
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  if ($("sheetScrim").classList.contains("open")) cerrarSheet();
+  else if (chatOpen) closeChat();
+});
 
 /* el checkout avisa por aca cuando se paga en la otra pestana */
 window.addEventListener("storage", (e) => {

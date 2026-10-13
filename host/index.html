@@ -286,6 +286,129 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
   border:1px solid var(--line);border-radius:8px;padding:.4rem .6rem;font-size:.82rem;background:var(--card);color:var(--ink);
 }
 
+/* ─── Herramientas en vivo ─── */
+.live-tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:1rem;align-items:start}
+.chips{display:flex;flex-wrap:wrap;gap:.35rem}
+.chip{
+  border:1px solid var(--line);background:var(--card);border-radius:99px;padding:.35rem .75rem;
+  font-size:.78rem;cursor:pointer;color:var(--ink-soft);
+}
+.chip:hover{border-color:var(--amber)}
+.chip[aria-pressed="true"]{border-color:var(--amber);background:var(--amber-soft);color:#6B4E14;font-weight:600}
+.hot-list{display:flex;flex-direction:column;gap:.45rem}
+.hot{display:flex;align-items:center;gap:.6rem;font-size:.82rem}
+.hot .n{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hot .c{font-weight:700;color:var(--amber);white-space:nowrap}
+.flash-run{
+  background:linear-gradient(135deg,#3A2608,#6B4410);color:#fff;border-radius:8px;padding:.8rem;
+  display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;
+}
+.flash-run .cd{font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.flash-run .lb{font-size:.72rem;opacity:.85}
+.cupon-on{background:var(--green-soft);border:1px dashed var(--green);border-radius:8px;padding:.8rem;text-align:center}
+.cupon-on .code{font-size:1.5rem;font-weight:700;letter-spacing:.12em;color:var(--green)}
+.cupon-row{display:flex;gap:.4rem}
+.cupon-row input{flex:1;min-width:0;text-transform:uppercase}
+
+/* ─── Ofertas en el catálogo ─── */
+.pcard .flag.promo{left:auto;right:.4rem;background:var(--red)}
+.pcard .cat{font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint)}
+.pcard .p s{color:var(--ink-faint);font-weight:500;font-size:.78rem;margin-right:.3rem}
+.pcard .promo-line{font-size:.7rem;color:var(--red);font-weight:600;line-height:1.35}
+.field textarea{
+  border:1px solid var(--line);border-radius:8px;padding:.55rem .7rem;font-size:.86rem;
+  background:var(--bg);color:var(--ink);outline:none;width:100%;resize:vertical;min-height:56px;font-family:inherit;
+}
+.field textarea:focus{border-color:var(--amber)}
+.field label small{text-transform:none;letter-spacing:0;font-weight:400}
+.desglose{
+  background:var(--bg-soft);border:1px solid var(--line);border-radius:8px;padding:.6rem .75rem;
+  font-size:.8rem;display:flex;flex-direction:column;gap:.25rem;
+}
+.desglose[hidden]{display:none}
+.desglose .r{display:flex;justify-content:space-between;gap:1rem}
+.desglose .r.d{color:var(--green)}
+.desglose .r.t{font-weight:700;border-top:1px solid var(--line);padding-top:.3rem;margin-top:.1rem}
+.desglose .r.w{color:var(--red)}
+.ofprev{display:flex;gap:.7rem;align-items:center;background:#14120F;color:#F0EDE6;border-radius:8px;padding:.65rem .8rem}
+.ofprev .em{font-size:1.6rem}
+.ofprev .n{flex:1;min-width:0;font-size:.82rem;font-weight:600}
+.ofprev s{color:#9A958A;font-size:.78rem;margin-right:.35rem}
+.ofprev b{color:#D4A84B}
+.ofprev .pct{background:#E23744;color:#fff;font-size:.66rem;font-weight:700;padding:.15rem .4rem;border-radius:3px}
+.lote{max-height:180px;overflow-y:auto;border:1px solid var(--line);border-radius:8px;padding:.4rem .6rem}
+.lote label{display:flex;gap:.5rem;align-items:center;font-size:.8rem;padding:.25rem 0;text-transform:none;letter-spacing:0;color:var(--ink);font-weight:500}
+
+/* ─── Ventas y reportes ─── */
+.kpi .cmp{font-size:.7rem;font-weight:600;margin-top:.3rem}
+.cmp.up{color:var(--green)}
+.cmp.down{color:var(--red)}
+.cmp.eq{color:var(--ink-faint)}
+.kpi .link{background:none;border:none;color:var(--amber);font-size:.72rem;font-weight:600;cursor:pointer;padding:0;margin-top:.3rem}
+.toolbar{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-bottom:.75rem}
+.toolbar input[type=search]{
+  border:1px solid var(--line);border-radius:8px;padding:.45rem .7rem;font-size:.84rem;
+  background:var(--card);min-width:200px;flex:1;max-width:340px;outline:none;
+}
+.toolbar input[type=search]:focus{border-color:var(--amber)}
+.toolbar .spacer{flex:1}
+.table-wrap{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow-x:auto}
+table.t{width:100%;border-collapse:collapse;font-size:.8rem}
+table.t th,table.t td{padding:.55rem .75rem;text-align:left;white-space:nowrap;border-bottom:1px solid #EFEBE3}
+table.t th{font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);font-weight:600;background:var(--bg-soft)}
+table.t td.n,table.t th.n{text-align:right}
+table.t tbody tr[data-k]{cursor:pointer}
+table.t tbody tr[data-k]:hover{background:var(--bg)}
+table.t td s{color:var(--ink-faint);font-size:.72rem;margin-right:.3rem}
+table.t .muted{color:var(--ink-faint);font-size:.72rem}
+table.t td.empty{text-align:center;color:var(--ink-faint);padding:1.5rem;white-space:normal}
+.estado{font-size:.72rem;font-weight:600;display:inline-flex;align-items:center;gap:.35rem}
+.estado::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.estado.pagada{color:var(--green)}
+.estado.pendiente{color:var(--amber)}
+.estado.vencida,.estado.anulada{color:var(--ink-faint)}
+.pill{display:inline-block;font-size:.64rem;font-weight:600;padding:.1rem .45rem;border-radius:99px;background:var(--red-soft);color:#8C2A1F}
+.pill.gris{background:var(--bg-soft);color:var(--ink-faint)}
+.pager{display:flex;justify-content:space-between;align-items:center;gap:.5rem;padding:.6rem .75rem;font-size:.76rem;color:var(--ink-faint);flex-wrap:wrap}
+.pager .btns{display:flex;gap:.35rem}
+.grid2{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:1rem;margin-bottom:1rem}
+.box{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:1rem;margin-bottom:1rem}
+.grid2 .box{margin-bottom:0}
+.box h3{font-size:.92rem;font-weight:700}
+.box .sub{font-size:.72rem;color:var(--ink-faint);margin:.15rem 0 .85rem}
+.bars{display:flex;align-items:flex-end;gap:2px;height:150px;border-bottom:1px solid var(--line);
+  background-image:linear-gradient(#EFEBE3 1px,transparent 1px);background-size:100% 50%}
+.bars .b{flex:1;min-width:0;height:100%;display:flex;align-items:flex-end}
+.bars .b span{display:block;width:100%;background:var(--amber);border-radius:3px 3px 0 0;min-height:1px}
+.bars .b:hover span{filter:brightness(1.15)}
+.xl{display:flex;justify-content:space-between;font-size:.62rem;color:var(--ink-faint);margin-top:.3rem}
+details.tabla{margin-top:.6rem;font-size:.74rem}
+details.tabla summary{cursor:pointer;color:var(--ink-soft)}
+details.tabla table{margin-top:.4rem}
+.funnel .f{margin-bottom:.75rem}
+.funnel .fl{display:flex;justify-content:space-between;gap:.5rem;font-size:.78rem;margin-bottom:.25rem}
+.funnel .fl b{font-variant-numeric:tabular-nums}
+.funnel .fb{height:12px;background:var(--bg-soft);border-radius:6px;overflow:hidden}
+.funnel .fb span{display:block;height:100%;background:var(--amber);border-radius:6px}
+.funnel .ratio{font-size:.7rem;color:var(--ink-faint);margin-top:.2rem}
+.sug{display:flex;gap:.75rem;align-items:center;padding:.7rem 0;border-bottom:1px solid #EFEBE3;font-size:.84rem}
+.sug:last-child{border-bottom:none}
+.sug .ic{font-size:1.2rem}
+.sug .tx{flex:1;line-height:1.4}
+.sug .tx small{display:block;color:var(--ink-faint);font-size:.7rem}
+.sug .x{background:none;border:none;color:var(--ink-faint);cursor:pointer;font-size:.85rem;padding:.2rem .35rem;border-radius:4px}
+.sug .x:hover{background:var(--bg-soft)}
+.heat{display:grid;grid-template-columns:2.4rem repeat(24,minmax(0,1fr));gap:2px;font-size:.58rem;color:var(--ink-faint);align-items:center}
+.heat .c{aspect-ratio:1;border-radius:2px;background:var(--bg-soft)}
+.heat .h{text-align:center}
+.spark{width:100%;height:60px;display:block}
+.ficha-acts{display:flex;gap:.4rem;flex-wrap:wrap}
+.modal.wide{max-width:640px;max-height:90vh;overflow-y:auto}
+.modal .close-x{margin-left:auto;background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--ink-faint)}
+.modal .mh{display:flex;align-items:center;gap:.6rem}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:.35rem 1rem;font-size:.82rem}
+.kv .k{color:var(--ink-faint)}
+
 /* ─── Mi cuenta ─── */
 .acc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:1rem;align-items:start}
 .acc-grid .note{grid-column:1/-1}
@@ -316,7 +439,7 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
 .modal .row .btn{flex:1}
 
 @media (max-width:1000px){
-  .stream-grid,.cat-grid,.chat-grid{grid-template-columns:1fr}
+  .stream-grid,.cat-grid,.chat-grid,.grid2{grid-template-columns:1fr}
   .conv{height:480px}
 }
 @media (max-width:520px){
@@ -355,7 +478,8 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
   <button class="tab active" data-view="stream" role="tab">🎥 Transmisión</button>
   <button class="tab" data-view="catalog" role="tab">🛍️ Catálogo</button>
   <button class="tab" data-view="chats" role="tab">💬 Chats <span class="badge" id="chatsBadge"></span></button>
-  <button class="tab" data-view="metrics" role="tab">📈 Métricas</button>
+  <button class="tab" data-view="ventas" role="tab">💰 Ventas</button>
+  <button class="tab" data-view="reportes" role="tab">📈 Reportes</button>
   <button class="tab" data-view="account" role="tab">👤 Mi cuenta</button>
 </nav>
 
@@ -411,13 +535,36 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
         </div>
       </div>
     </div>
+
+    <div class="live-tools">
+      <div class="card panel">
+        <div>
+          <div class="card-title">🔥 Ahora en tu live</div>
+          <div class="hint">Lo más pedido en los últimos 10 minutos. Destacalo mientras lo mostrás a cámara.</div>
+        </div>
+        <div class="hot-list" id="hotList"></div>
+      </div>
+      <div class="card panel">
+        <div class="card-title">⚡ Oferta relámpago</div>
+        <div id="flashBody"></div>
+      </div>
+      <div class="card panel">
+        <div class="card-title">🎟 Cupón del live</div>
+        <div id="cuponBody"></div>
+      </div>
+    </div>
   </section>
 
   <!-- ─────────── CATÁLOGO ─────────── -->
   <section class="view" id="view-catalog">
     <h2 class="section">Catálogo de tu tienda</h2>
     <div class="cat-bar">
+      <div class="chips" id="catFilter" role="group" aria-label="Filtrar productos">
+        <button class="chip" type="button" data-f="todos" aria-pressed="true">Todos</button>
+        <button class="chip" type="button" data-f="oferta" aria-pressed="false">🏷 En oferta</button>
+      </div>
       <div class="msg-line" id="catStatus">Los cambios se guardan solos.</div>
+      <button class="btn btn-ghost btn-sm" id="liquidarBtn" type="button">🏷 Liquidar varios</button>
       <button class="btn btn-ghost btn-sm" id="restoreDemo" type="button" hidden>↺ Restaurar catálogo demo</button>
     </div>
     <div class="cat-grid">
@@ -433,6 +580,19 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
         <div class="field">
           <label for="pStock">Stock</label>
           <input id="pStock" type="number" min="0" step="1" value="5" required>
+        </div>
+        <div class="field">
+          <label for="pCat">Categoría</label>
+          <select id="pCat"></select>
+        </div>
+        <div class="field">
+          <label for="pDesc">Descripción <small>(opcional)</small></label>
+          <textarea id="pDesc" maxlength="280" rows="2" placeholder="Material, talles, medidas…"></textarea>
+        </div>
+        <div class="field">
+          <label for="pCost">Costo (UYU) <small>· solo lo ves vos</small></label>
+          <input id="pCost" type="number" min="0" step="1" placeholder="Opcional">
+          <div class="hint">Sirve para ver tu ganancia y para avisarte si una oferta queda por debajo del costo.</div>
         </div>
         <div class="field">
           <label for="pImg">Imagen</label>
@@ -474,23 +634,11 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
     </div>
   </section>
 
-  <!-- ─────────── MÉTRICAS ─────────── -->
-  <section class="view" id="view-metrics">
-    <div class="metrics-head">
-      <h2 class="section">Métricas de tu tienda</h2>
-      <select id="mRange" aria-label="Período">
-        <option value="1">Hoy</option>
-        <option value="7">Últimos 7 días</option>
-        <option value="30" selected>Últimos 30 días</option>
-        <option value="90">Últimos 90 días</option>
-      </select>
-    </div>
-    <div class="kpis" id="mKpis"><div class="state-box">Cargando…</div></div>
-    <p class="hint">
-      Se guardan por cuenta y sobreviven a cambiar de dispositivo. Entradas y compradores únicos no
-      cuentan dos veces a quien recarga la página. El pico es el máximo de espectadores simultáneos.
-    </p>
-  </section>
+  <!-- ─────────── VENTAS (host/ventas.js) ─────────── -->
+  <section class="view" id="view-ventas"></section>
+
+  <!-- ─────────── REPORTES (host/reportes.js) ─────────── -->
+  <section class="view" id="view-reportes"></section>
 
   <!-- ─────────── MI CUENTA ─────────── -->
   <section class="view" id="view-account">
@@ -586,8 +734,8 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
 <div class="modal-scrim" id="payScrim">
   <form class="modal" id="payForm">
     <h3>Enviar link de pago</h3>
-    <div class="field" id="payProductField" hidden>
-      <label for="payProduct">Producto consultado</label>
+    <div class="field" id="payProductField">
+      <label for="payProduct">Producto</label>
       <select id="payProduct"></select>
     </div>
     <div class="field">
@@ -598,16 +746,30 @@ h2.section{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:
       <label for="payAmount">Monto (UYU)</label>
       <input id="payAmount" type="number" min="1" step="1" required>
     </div>
-    <div class="hint">Se envía al chat del comprador como una tarjeta con botón de pago. El checkout es simulado.</div>
+    <div class="desglose" id="payDesglose" hidden></div>
+    <div class="hint" id="payHint">Se envía al chat del comprador como una tarjeta con botón de pago. El checkout es simulado.</div>
+    <div class="msg-line" id="payMsg"></div>
     <div class="row">
       <button class="btn btn-ghost" type="button" id="payCancel">Cancelar</button>
-      <button class="btn btn-primary" type="submit">Enviar</button>
+      <button class="btn btn-primary" type="submit" id="paySubmit">Enviar</button>
     </div>
   </form>
 </div>
 
+<div class="modal-scrim" id="promoScrim">
+  <form class="modal wide" id="promoForm" autocomplete="off"></form>
+</div>
+
+<div class="modal-scrim" id="infoScrim">
+  <div class="modal wide" id="infoBox" role="dialog" aria-modal="true"></div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../comun.js"></script>
+<!-- modulos de la consola: definen objetos y usan los helpers de abajo recien al llamarse -->
+<script src="ofertas.js"></script>
+<script src="ventas.js"></script>
+<script src="reportes.js"></script>
 <script>
 "use strict";
 
@@ -661,7 +823,6 @@ const esc = LS.esc;
 const money = LS.money;
 const now = () => new Date().toLocaleTimeString("es-UY",{hour:"2-digit",minute:"2-digit"});
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2)).slice(0,8);
-const refCode = () => "LS-" + Math.random().toString(36).slice(2,8).toUpperCase();
 
 function goLogin(){ location.replace("../vendedor/"); }
 
@@ -699,6 +860,32 @@ let destacado = null;
 let editingId = null;
 let selectedEmoji = EMOJIS[0];
 let pendingImg = null;
+let promos = [];          // promos vigentes, tal como las devuelve la base
+let LIVE_ID = null;       // transmision en curso (liveshop_lives)
+let catFiltro = "todos";
+const pedidos = [];       // "Lo quiero" recibidos: {id, at}
+
+/* ===================== promos ===================== */
+function promoPublica(x){
+  return {id:x.id, tipo:x.tipo, pct:x.pct == null ? null : Number(x.pct), fin:x.fin,
+          restantes:x.max_unidades == null ? null : x.max_unidades - x.vendidas};
+}
+function promoDe(id){
+  return promos.find(x => x.producto_id === id && x.tipo !== "cupon" && LS.promoVigente(promoPublica(x))) || null;
+}
+function precioCon(p, x){
+  return x ? LS.aplicar(p.precio, x.pct == null ? null : Number(x.pct), x.precio == null ? null : Number(x.precio)) : p.precio;
+}
+/* Lo que ven los compradores: precio final, precio de lista y la promo. Nunca
+   el costo, que es solo del vendedor. */
+function publicProducts(){
+  return productos.map(p => {
+    const x = promoDe(p.id);
+    return {id:p.id, nombre:p.nombre, precio:precioCon(p, x), precio_lista:p.precio, stock:p.stock,
+            emoji:p.emoji, img:p.img, categoria:p.categoria, descripcion:p.descripcion,
+            promo:x ? promoPublica(x) : null};
+  });
+}
 
 const peers = new Map();   // peerId -> {pc, ice:[]}
 const buyers = new Map();  // peerId -> {nombre, online, msgs:[], unread, lastProduct, productos}
@@ -807,7 +994,8 @@ function paintHostNote(){
 
 function broadcastState(to){
   if (passive()) return;
-  const payload = {live:live, titulo:titulo, productos:productos, destacado:destacado};
+  const payload = {live:live, titulo:titulo, productos:publicProducts(), destacado:destacado,
+                   ahora:new Date(LS.reloj.now()).toISOString()};
   if (to) payload.to = to;
   send("state", payload);
 }
@@ -893,6 +1081,7 @@ function connectRealtime(){
       if (payload.producto){
         b.lastProduct = payload.producto;
         if (!b.productos.some(x => x.id === payload.producto.id)) b.productos.push(payload.producto);
+        if (payload.kind === "buy"){ pedidos.push({id:payload.producto.id, at:Date.now()}); renderHot(); }
       }
       b.msgs.push({dir:"in", kind:"text", text:payload.text, t:now()});
       if (!passive()) metric("mensaje");   // con dos consolas abiertas, cuenta una sola
@@ -901,17 +1090,17 @@ function connectRealtime(){
       if (document.hidden || activeBuyer !== id) notifyNewMessage(b.nombre);
     })
     .on("broadcast", {event:"paid"}, ({payload}) => {
-      if (!payload || !payload.peerId) return;
+      if (!payload || !payload.peerId || !payload.ref) return;
+      /* La venta ya quedo registrada por el checkout (liveshop_orden_pagar):
+         aca solo se refleja en el chat y se trae el stock nuevo. */
       const b = buyers.get(payload.peerId);
-      if (!b) return;
-      const card = b.msgs.find(m => m.kind === "payment" && m.pago && m.pago.ref === payload.ref);
-      if (card && !card.pago.paid){
-        card.pago.paid = true;
-        registrarPago(card.pago);
+      if (b){
+        b.msgs.forEach(m => { if (m.kind === "payment" && m.pago && m.pago.ref === payload.ref) m.pago.paid = true; });
+        b.msgs.push({dir:"sys", kind:"system", ok:true, text:"Pago confirmado · ref " + payload.ref, t:now()});
+        if (activeBuyer === payload.peerId) renderConv();
+        renderBuyers(); paintKpis(); saveSession(payload.peerId);
       }
-      b.msgs.push({dir:"sys", kind:"system", ok:true, text:"Pago confirmado · ref " + payload.ref, t:now()});
-      if (activeBuyer === payload.peerId) renderConv();
-      renderBuyers(); paintKpis(); saveSession(payload.peerId);
+      sincronizarOrden(payload.ref);
       ANALYTICS.track("liveshop_paid", {room:ROOM, vendedor:CUENTA.usuario, ref:payload.ref});
     })
     .on("presence", {event:"sync"}, () => {
@@ -1066,6 +1255,11 @@ async function goLive(){
   broadcastState();
   buyers.forEach((b, id) => { if (b.online) startPeer(id); });
   metric("transmision");
+  /* cada transmision queda registrada: es lo que permite medir que live vendio */
+  api("liveshop_live_iniciar", {p_titulo:titulo})
+    .then(r => { if (live) LIVE_ID = r.id; })
+    .catch(err => console.warn("[live]", err));
+  OFERTAS.render();
   ANALYTICS.track("liveshop_go_live", {room:ROOM, vendedor:CUENTA.usuario});
 }
 
@@ -1085,6 +1279,15 @@ function stopLive(){
   trackPresence();
   lobbyUpdate();
   paintHostNote();
+  if (LIVE_ID){
+    const id = LIVE_ID;
+    LIVE_ID = null;
+    /* al terminar el live la base cierra su cupon: se recargan las promos */
+    api("liveshop_live_terminar", {p_live_id:id, p_pico:livePeak})
+      .then(() => OFERTAS.recargar())
+      .catch(err => console.warn("[live]", err));
+  }
+  OFERTAS.render();
   ANALYTICS.track("liveshop_stop_live", {room:ROOM, vendedor:CUENTA.usuario});
 }
 
@@ -1129,7 +1332,7 @@ async function persistCatalog(){
 }
 
 function checkPayload(){
-  const size = new Blob([JSON.stringify(productos)]).size;
+  const size = new Blob([JSON.stringify(publicProducts())]).size;
   const warn = $("sizeWarn");
   if (size > PAYLOAD_MAX){
     warn.style.display = "block";
@@ -1165,11 +1368,14 @@ $("pImg").addEventListener("change", async (e) => {
   catch(err){ pendingImg = null; $("pImg").value = ""; }
 });
 
+$("pCat").innerHTML = LS.CATEGORIAS.map(c => '<option value="' + c.id + '">' + esc(c.nombre) + '</option>').join("");
+
 function resetForm(){
   editingId = null;
   pendingImg = null;
   $("prodForm").reset();
   $("pStock").value = 5;
+  $("pCat").value = "otros";
   $("prodSubmit").textContent = "Agregar producto";
   $("prodCancel").style.display = "none";
 }
@@ -1180,10 +1386,14 @@ $("prodForm").addEventListener("submit", (e) => {
   if (!nombre) return;
   const precio = Number($("pPrice").value) || 0;
   const stock = Number($("pStock").value) || 0;
+  const categoria = $("pCat").value || "otros";
+  const descripcion = $("pDesc").value.trim().slice(0, 280);
+  const costo = $("pCost").value === "" ? null : Math.max(0, Number($("pCost").value) || 0);
   if (editingId){
     const p = productos.find(x => x.id === editingId);
     if (p){
       p.nombre = nombre; p.precio = precio; p.stock = stock; p.emoji = selectedEmoji;
+      p.categoria = categoria; p.descripcion = descripcion; p.costo = costo;
       if (pendingImg) p.img = pendingImg;
     }
   } else {
@@ -1191,7 +1401,8 @@ $("prodForm").addEventListener("submit", (e) => {
       setCatStatus("El catálogo admite hasta 40 productos.", "err");
       return;
     }
-    productos.push({id:uid(), nombre:nombre, precio:precio, stock:stock, emoji:selectedEmoji, img:pendingImg});
+    productos.push({id:uid(), nombre:nombre, precio:precio, stock:stock, emoji:selectedEmoji, img:pendingImg,
+                    categoria:categoria, descripcion:descripcion, costo:costo});
   }
   resetForm();
   saveCatalog();
@@ -1201,25 +1412,69 @@ $("prodCancel").addEventListener("click", resetForm);
 
 function renderProds(){
   const list = $("prodList");
-  $("prodEmpty").style.display = productos.length ? "none" : "block";
-  list.innerHTML = productos.map(p => {
+  const visibles = catFiltro === "oferta" ? productos.filter(p => promoDe(p.id)) : productos;
+  const empty = $("prodEmpty");
+  empty.style.display = visibles.length ? "none" : "block";
+  empty.textContent = productos.length
+    ? "Ningún producto tiene una oferta activa. Tocá “🏷 Oferta” en un producto para crear una."
+    : "Todavía no cargaste productos. Agregá el primero desde el formulario.";
+  list.innerHTML = visibles.map(p => {
     const feat = destacado === p.id;
+    const x = promoDe(p.id);
+    const final = precioCon(p, x);
     const media = p.img ? '<img src="' + esc(p.img) + '" alt="">' : esc(p.emoji || "📦");
+    const pct = x && p.precio ? Math.round((1 - final / p.precio) * 100) : 0;
+    const bajoCosto = x && p.costo != null && final < p.costo;
     return '' +
       '<article class="pcard' + (feat ? " featured" : "") + '">' +
-        '<div class="thumb">' + media + (feat ? '<span class="flag">AHORA</span>' : "") + '</div>' +
+        '<div class="thumb">' + media + (feat ? '<span class="flag">AHORA</span>' : "") +
+          (x ? '<span class="flag promo">−' + pct + '%</span>' : "") + '</div>' +
         '<div class="meta">' +
+          '<div class="cat">' + esc(LS.catNombre(p.categoria)) + '</div>' +
           '<div class="n">' + esc(p.nombre) + '</div>' +
-          '<div class="p">' + money(p.precio) + '</div>' +
-          '<div class="s">Stock: ' + Number(p.stock) + '</div>' +
+          '<div class="p">' + (x ? '<s>' + money(p.precio) + '</s>' : "") + money(final) + '</div>' +
+          (x ? '<div class="promo-line">' + esc(LS.PROMO_NOMBRE[x.tipo]) +
+                (x.fin ? ' · termina en <span data-fin="' + esc(x.fin) + '">' + esc(LS.restante(new Date(x.fin) - LS.reloj.now())) + '</span>'
+                       : ' · hasta agotar stock') +
+                (x.max_unidades ? ' · quedan ' + (x.max_unidades - x.vendidas) : "") +
+                (bajoCosto ? '<br>⚠ por debajo del costo' : "") + '</div>' : "") +
+          '<div class="s">Stock: ' + Number(p.stock) + (p.costo != null ? ' · costo ' + money(p.costo) : "") + '</div>' +
         '</div>' +
         '<div class="acts">' +
           '<button class="btn btn-ghost btn-sm" data-act="feat" data-id="' + esc(p.id) + '">' + (feat ? "Quitar foco" : "Destacar") + '</button>' +
           '<button class="btn btn-ghost btn-sm" data-act="edit" data-id="' + esc(p.id) + '">Editar</button>' +
+          (x ? '<button class="btn btn-ghost btn-sm" data-act="endpromo" data-id="' + esc(p.id) + '" data-promo="' + esc(x.id) + '">Terminar oferta</button>'
+             : '<button class="btn btn-ghost btn-sm" data-act="promo" data-id="' + esc(p.id) + '">🏷 Oferta</button>') +
           '<button class="btn btn-ghost btn-sm" data-act="del" data-id="' + esc(p.id) + '">Borrar</button>' +
         '</div>' +
       '</article>';
   }).join("");
+}
+
+/* Tambien lo usan las sugerencias de Reportes: "reponer" abre el producto con
+   el foco en el stock, "revisar precio" con el foco en el precio. */
+function editarProducto(id, campo){
+  const p = productos.find(x => x.id === id);
+  if (!p) return;
+  editingId = id;
+  $("pName").value = p.nombre;
+  $("pPrice").value = p.precio;
+  $("pStock").value = p.stock;
+  $("pCat").value = p.categoria || "otros";
+  $("pDesc").value = p.descripcion || "";
+  $("pCost").value = p.costo == null ? "" : p.costo;
+  selectedEmoji = p.emoji || EMOJIS[0];
+  renderEmojis();
+  $("prodSubmit").textContent = "Guardar cambios";
+  $("prodCancel").style.display = "inline-flex";
+  const el = $(campo || "pName");
+  el.focus();
+  if (el.select) el.select();
+}
+
+function irA(vista){
+  const tab = document.querySelector('.tab[data-view="' + vista + '"]');
+  if (tab) tab.click();
 }
 
 $("prodList").addEventListener("click", (e) => {
@@ -1230,6 +1485,7 @@ $("prodList").addEventListener("click", (e) => {
   if (!p) return;
   if (b.dataset.act === "del"){
     productos = productos.filter(x => x.id !== id);
+    promos = promos.filter(x => x.producto_id !== id);   // la base cierra su promo al guardar
     if (destacado === id) destacado = null;
     if (editingId === id) resetForm();
     saveCatalog();
@@ -1237,17 +1493,50 @@ $("prodList").addEventListener("click", (e) => {
     destacado = (destacado === id) ? null : id;
     saveCatalog();
   } else if (b.dataset.act === "edit"){
-    editingId = id;
-    $("pName").value = p.nombre;
-    $("pPrice").value = p.precio;
-    $("pStock").value = p.stock;
-    selectedEmoji = p.emoji || EMOJIS[0];
-    renderEmojis();
-    $("prodSubmit").textContent = "Guardar cambios";
-    $("prodCancel").style.display = "inline-flex";
-    $("pName").focus();
+    editarProducto(id);
+  } else if (b.dataset.act === "promo"){
+    OFERTAS.abrir([id]);
+  } else if (b.dataset.act === "endpromo"){
+    OFERTAS.terminar(b.dataset.promo);
   }
 });
+
+$("catFilter").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-f]");
+  if (!b) return;
+  catFiltro = b.dataset.f;
+  $("catFilter").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  renderProds();
+});
+$("liquidarBtn").addEventListener("click", () => OFERTAS.abrir([], {modo:"remanente", pct:30, lote:true}));
+
+/* ===================== ahora en tu live ===================== */
+function renderHot(){
+  const ahora = Date.now();
+  while (pedidos.length && pedidos[0].at < ahora - 3600000) pedidos.shift();
+  const cuenta = new Map();
+  pedidos.forEach(p => { if (p.at >= ahora - 600000) cuenta.set(p.id, (cuenta.get(p.id) || 0) + 1); });
+  const top = Array.from(cuenta.entries())
+    .filter(([id]) => productos.some(p => p.id === id))
+    .sort((a, b) => b[1] - a[1]).slice(0, 3);
+  $("hotList").innerHTML = top.length ? top.map(([id, n]) => {
+    const p = productos.find(x => x.id === id);
+    const feat = destacado === id;
+    return '<div class="hot"><span aria-hidden="true">' + esc(p.emoji || "📦") + '</span>' +
+      '<span class="n">' + esc(p.nombre) + '</span>' +
+      '<span class="c">' + n + (n === 1 ? " pedido" : " pedidos") + '</span>' +
+      '<button class="btn btn-ghost btn-sm" type="button" data-hot="' + esc(id) + '"' + (feat ? " disabled" : "") + '>' +
+        (feat ? "Destacado" : "Destacar") + '</button></div>';
+  }).join("") : '<div class="hint">Cuando alguien toque “Lo quiero” en un producto, aparece acá.</div>';
+}
+$("hotList").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-hot]");
+  if (!b) return;
+  destacado = b.dataset.hot;
+  saveCatalog();
+  renderHot();
+});
+setInterval(renderHot, 30000);
 
 /* La cuenta demo es de todos: cualquiera puede vaciarle el catalogo, asi que
    cualquiera puede devolverlo al de ejemplo. Confirmacion en dos toques, sin
@@ -1272,11 +1561,12 @@ $("restoreDemo").addEventListener("click", async () => {
     const r = await api("liveshop_catalogo_restaurar_demo");
     applyCuenta(r.cuenta);
     productos = normalizarProductos(r.productos);
+    promos = r.promos || [];
     destacado = r.cuenta.destacado || null;
     titulo = r.cuenta.titulo || "LiveShop";
     $("titleInput").value = titulo;
     resetForm();
-    checkPayload(); broadcastState(); renderProds(); lobbyUpdate();
+    checkPayload(); broadcastState(); renderProds(); renderHot(); lobbyUpdate(); OFERTAS.render();
     setCatStatus("Catálogo demo restaurado.", "ok");
   }catch(err){
     setCatStatus("No se pudo restaurar: " + err.message, "err");
@@ -1287,7 +1577,9 @@ $("restoreDemo").addEventListener("click", async () => {
 
 function normalizarProductos(lista){
   return (lista || []).map(p => ({id:p.id, nombre:p.nombre, precio:Number(p.precio) || 0,
-                                  stock:Number(p.stock) || 0, emoji:p.emoji || "📦", img:p.img || null}));
+                                  stock:Number(p.stock) || 0, emoji:p.emoji || "📦", img:p.img || null,
+                                  categoria:p.categoria || "otros", descripcion:p.descripcion || "",
+                                  costo:(p.costo == null || p.costo === "") ? null : Number(p.costo)}));
 }
 
 /* ===================== chats ===================== */
@@ -1350,7 +1642,8 @@ function renderConv(){
       return '<div class="msg pay' + (m.pago.paid ? " paid" : "") + '">' +
         '<div class="l">Link de pago' + (m.pago.paid ? " · pagado" : " · pendiente") + '</div>' +
         '<div>' + esc(m.pago.concepto) + '</div>' +
-        '<div class="a">' + money(m.pago.monto) + '</div>' +
+        '<div class="a">' + (m.pago.descuento ? '<s style="font-size:.75rem;color:var(--ink-faint);font-weight:500">' +
+          money(m.pago.precioLista) + '</s> ' : "") + money(m.pago.monto) + '</div>' +
         '<div class="r">Ref ' + esc(m.pago.ref) + ' · ' + esc(m.t) + '</div>' +
       '</div>';
     }
@@ -1379,111 +1672,141 @@ $("convForm").addEventListener("submit", (e) => {
 });
 
 /* ===================== link de pago ===================== */
+/* El link ya no lo arma la consola: lo crea la base (liveshop_orden_crear) con
+   el precio de lista menos la promo vigente en ese momento. Asi ni la consola
+   ni la URL del checkout pueden cambiar lo que se cobra. */
 function fillPayProduct(b){
   const sel = $("payProduct");
-  const lista = (b && b.productos) || [];
-  $("payProductField").hidden = lista.length === 0;
-  sel.innerHTML = lista.map(p =>
-    '<option value="' + esc(p.id) + '">' + esc(p.nombre) + ' · ' + money(p.precio) + '</option>'
-  ).join("") + '<option value="">Otro concepto…</option>';
-  if (b && b.lastProduct) sel.value = b.lastProduct.id;
-  return lista;
+  const consultados = ((b && b.productos) || []).map(c => productos.find(p => p.id === c.id)).filter(Boolean);
+  const resto = productos.filter(p => !consultados.includes(p));
+  const opt = p => '<option value="' + esc(p.id) + '">' + esc(p.nombre) + ' · ' + money(precioCon(p, promoDe(p.id))) +
+                   (p.stock <= 0 ? " · sin stock" : "") + '</option>';
+  sel.innerHTML =
+    (consultados.length ? '<optgroup label="Consultó por">' + consultados.map(opt).join("") + '</optgroup>' : "") +
+    (resto.length ? '<optgroup label="' + (consultados.length ? "Resto del catálogo" : "Catálogo") + '">' + resto.map(opt).join("") + '</optgroup>' : "") +
+    '<option value="">Otro concepto (monto manual)…</option>';
+  const pref = b && b.lastProduct && productos.find(p => p.id === b.lastProduct.id);
+  sel.value = pref ? pref.id : (consultados[0] ? consultados[0].id : "");
 }
 
-$("payProduct").addEventListener("change", () => {
-  const b = buyers.get(activeBuyer);
-  const p = b && b.productos.find(x => x.id === $("payProduct").value);
-  $("payConcept").value = p ? p.nombre : (titulo || "Compra en el live");
-  $("payAmount").value = p ? p.precio : "";
-});
+function updatePayPreview(){
+  const p = productos.find(x => x.id === $("payProduct").value);
+  const box = $("payDesglose");
+  $("payConcept").readOnly = !!p;
+  $("payAmount").readOnly = !!p;
+  setMsg($("payMsg"), "");
+  if (!p){
+    box.hidden = true;
+    if (!$("payConcept").value || $("payConcept").dataset.auto === "1") $("payConcept").value = titulo || "Compra en el live";
+    $("payConcept").dataset.auto = "";
+    $("payAmount").value = "";
+    $("payHint").textContent = "Monto manual, por ejemplo un envío o un pack. No descuenta stock.";
+    return;
+  }
+  const x = promoDe(p.id);
+  const tot = precioCon(p, x);
+  $("payConcept").value = p.nombre;
+  $("payConcept").dataset.auto = "1";
+  $("payAmount").value = tot;
+  const r = (k, v, c) => '<div class="r' + (c ? " " + c : "") + '"><span>' + esc(k) + '</span><span>' + esc(v) + '</span></div>';
+  box.hidden = false;
+  box.innerHTML = r("Precio", money(p.precio)) +
+    (x ? r(LS.PROMO_NOMBRE[x.tipo], "−" + money(p.precio - tot), "d") : "") +
+    r("Total", money(tot), "t") +
+    (p.stock <= 0 ? r("⚠ Sin stock", "avisale antes de cobrar", "w") : "");
+  $("payHint").textContent = "El precio lo confirma la base con la oferta vigente al enviar. El checkout es simulado.";
+}
+
+$("payProduct").addEventListener("change", updatePayPreview);
 
 $("payBtn").addEventListener("click", () => {
   if (!activeBuyer) return;
-  const b = buyers.get(activeBuyer);
-  fillPayProduct(b);
-  const p = b && b.lastProduct;
-  $("payConcept").value = p ? p.nombre : (titulo || "Compra en el live");
-  $("payAmount").value = p ? p.precio : "";
+  fillPayProduct(buyers.get(activeBuyer));
+  $("payConcept").value = "";
+  updatePayPreview();
+  $("paySubmit").disabled = false;
   $("payScrim").classList.add("open");
-  setTimeout(() => $("payAmount").focus(), 60);
+  setTimeout(() => $("payProduct").focus(), 60);
 });
 $("payCancel").addEventListener("click", () => $("payScrim").classList.remove("open"));
 $("payScrim").addEventListener("click", (e) => { if (e.target === $("payScrim")) $("payScrim").classList.remove("open"); });
 
-$("payForm").addEventListener("submit", (e) => {
+function pagoDeOrden(o){
+  return {ref:o.ref, concepto:o.concepto, monto:Number(o.total), precioLista:Number(o.precio_lista),
+          descuento:Number(o.descuento) || 0, promoTipo:o.promo_tipo || null, productoId:o.producto_id || null,
+          paid:o.estado === "pagada"};
+}
+
+/* Manda la tarjeta de pago al chat. La usa tambien "Reenviar" en Ventas. */
+function enviarLink(buyerId, pago, reenvio){
+  send("chat", {to:buyerId, from:"host", kind:"payment", text:"Link de pago", pago:pago});
+  const b = buyers.get(buyerId);
+  if (b){
+    if (reenvio) b.msgs.push({dir:"sys", kind:"system", text:"Link reenviado · ref " + pago.ref, t:now()});
+    b.msgs.push({dir:"out", kind:"payment", pago:pago, t:now()});
+  }
+  renderConv(); renderBuyers(); paintKpis(); saveSession(buyerId);
+  if (!reenvio){
+    metric("link_pago", pago.monto);
+    setTimeout(refreshToday, 800);
+    ANALYTICS.track("liveshop_paylink_sent", {room:ROOM, vendedor:CUENTA.usuario, monto:pago.monto});
+  }
+}
+
+$("payForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   if (!activeBuyer) return;
-  const b = buyers.get(activeBuyer);
+  const buyerId = activeBuyer;
+  const b = buyers.get(buyerId);
   if (!b) return;
-  const pago = {
-    ref: refCode(),
-    concepto: $("payConcept").value.trim() || "Compra en el live",
-    monto: Number($("payAmount").value) || 0,
-    productoId: $("payProductField").hidden ? null : ($("payProduct").value || null),
-    paid: false
-  };
-  send("chat", {to:activeBuyer, from:"host", kind:"payment", text:"Link de pago", pago:pago});
-  b.msgs.push({dir:"out", kind:"payment", pago:pago, t:now()});
+  const id = $("payProduct").value || null;
+  const btn = $("paySubmit");
+  btn.disabled = true;
+  setMsg($("payMsg"), "Creando el link…");
+  let o;
+  try{
+    o = await api("liveshop_orden_crear", {
+      p_comprador_id:buyerId, p_comprador:b.nombre, p_producto_id:id,
+      p_concepto:id ? null : $("payConcept").value.trim(),
+      p_monto:id ? null : (Number($("payAmount").value) || 0),
+      p_live_id:LIVE_ID
+    });
+  }catch(err){
+    setMsg($("payMsg"), err.message, "err");
+    btn.disabled = false;
+    return;
+  }
+  btn.disabled = false;
   $("payScrim").classList.remove("open");
-  renderConv(); renderBuyers(); paintKpis(); saveSession(activeBuyer);
-  metric("link_pago", pago.monto);
-  setTimeout(refreshToday, 800);
-  ANALYTICS.track("liveshop_paylink_sent", {room:ROOM, vendedor:CUENTA.usuario, monto:pago.monto});
+  enviarLink(buyerId, pagoDeOrden(o));
+  VENTAS.refrescarSiVisible();
 });
 
-/* Un pago tiene que mover el stock: si no, el catalogo sigue diciendo "quedan 6"
-   despues de vender. El descuento lo hace la base, atomico y una sola vez por ref,
-   asi que dos consolas de la misma cuenta no lo descuentan dos veces. */
-async function registrarPago(pago){
+/* Despues de un pago: el checkout ya lo registro en la base (stock incluido).
+   La consola solo trae el stock nuevo y el estado de las promos (una relampago
+   con tope puede haberse cerrado) y se lo reenvia a los compradores. */
+async function sincronizarOrden(ref){
   try{
-    const r = await api("liveshop_pago_registrar", {
-      p_ref:pago.ref, p_producto_id:pago.productoId || null, p_monto:pago.monto
-    });
-    const prod = pago.productoId && productos.find(x => x.id === pago.productoId);
-    if (prod && r && r.stock != null && Number(prod.stock) !== Number(r.stock)){
-      prod.stock = Number(r.stock);
-      checkPayload(); broadcastState(); renderProds();
-    }
-    refreshToday();
+    const r = await api("liveshop_orden_estado", {p_ref:ref});
+    const prod = r.producto_id && productos.find(x => x.id === r.producto_id);
+    if (prod && r.stock != null) prod.stock = Number(r.stock);
+    if (Array.isArray(r.promos)) promos = r.promos;
+    checkPayload(); broadcastState(); renderProds(); OFERTAS.render();
   }catch(err){
-    console.warn("[pago]", err);
+    console.warn("[orden]", err);
   }
+  refreshToday();
+  VENTAS.refrescarSiVisible();
 }
 
-/* ===================== metricas ===================== */
-function kpi(lbl, val, sub){
+/* ===================== kpis compartidos (ventas y reportes) ===================== */
+function kpi(lbl, val, sub, cmp, extra){
   return '<div class="kpi"><div class="lbl">' + esc(lbl) + '</div>' +
          '<div class="val">' + esc(val) + '</div>' +
-         '<div class="sub">' + esc(sub) + '</div></div>';
+         (sub ? '<div class="sub">' + esc(sub) + '</div>' : "") +
+         (cmp ? '<div class="cmp ' + cmp.dir + '">' + esc(cmp.txt) + ' vs. período anterior</div>' : "") +
+         (extra || "") + '</div>';
 }
-
-async function loadMetrics(){
-  const box = $("mKpis");
-  const dias = Number($("mRange").value) || 30;
-  box.innerHTML = '<div class="state-box">Cargando…</div>';
-  try{
-    const m = await api("liveshop_metricas", {p_dias:dias});
-    const n = k => Number(m && m[k]) || 0;
-    const conv = n("links") ? Math.round(n("pagos") / n("links") * 100) + "%" : "—";
-    const rtcTotal = n("video_ok") + n("video_falla");
-    const rtc = rtcTotal ? Math.round(n("video_ok") / rtcTotal * 100) + "%" : "—";
-    box.innerHTML =
-      kpi("Entradas", n("entradas"), "visitas a tu sala") +
-      kpi("Compradores", n("compradores"), "únicos") +
-      kpi("Interés", n("interes"), "clics en “Lo quiero”") +
-      kpi("Mensajes", n("mensajes"), "enviados + recibidos") +
-      kpi("Links de pago", n("links"), money(n("monto_links")) + " ofrecidos") +
-      kpi("Pagos", n("pagos"), "confirmados") +
-      kpi("Facturado", money(n("facturado")), "pagos simulados") +
-      kpi("Conversión", conv, "pagos / links") +
-      kpi("Transmisiones", n("transmisiones"), "iniciadas") +
-      kpi("Pico", n("pico"), "espectadores simultáneos") +
-      kpi("Video P2P", rtc, n("video_ok") + " de " + rtcTotal + " conectaron");
-  }catch(err){
-    box.innerHTML = '<div class="state-box">No se pudieron cargar las métricas (' + esc(err.message) + ').</div>';
-  }
-}
-$("mRange").addEventListener("change", loadMetrics);
 
 async function refreshToday(){
   try{
@@ -1515,7 +1838,11 @@ document.querySelectorAll(".tab").forEach(tab => {
     document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
     tab.classList.add("active");
     $("view-" + tab.dataset.view).classList.add("active");
-    if (tab.dataset.view === "metrics") loadMetrics();
+    if (tab.dataset.view === "ventas") VENTAS.load();
+    if (tab.dataset.view === "reportes") REPORTES.load();
+    if (tab.dataset.view === "ventas" || tab.dataset.view === "reportes"){
+      ANALYTICS.track("liveshop_tab_" + tab.dataset.view, {vendedor:CUENTA && CUENTA.usuario});
+    }
   });
 });
 
@@ -1671,6 +1998,17 @@ $("logoutBtn").addEventListener("click", async () => {
 
 window.addEventListener("beforeunload", (e) => {
   if (live){ try{ peers.forEach((p, id) => send("signal", {to:id, from:"host", kind:"bye"})); }catch(err){} }
+  /* cerrar la pestaña tambien termina el live (y su cupon); keepalive deja que
+     el pedido salga aunque la pagina ya se este descargando */
+  if (LIVE_ID){
+    try{
+      fetch(LS.SB_URL + "/rest/v1/rpc/liveshop_live_terminar", {
+        method:"POST", keepalive:true,
+        headers:{"Content-Type":"application/json", apikey:LS.SB_KEY, Authorization:"Bearer " + LS.SB_KEY},
+        body:JSON.stringify({p_token:TOKEN, p_live_id:LIVE_ID, p_pico:livePeak})
+      }).catch(() => {});
+    }catch(err){}
+  }
   /* un cambio de catalogo todavia sin guardar se perderia en silencio */
   if (catTimer){ e.preventDefault(); e.returnValue = ""; }
 });
@@ -1695,13 +2033,18 @@ async function boot(){
   titulo = yo.cuenta.titulo || "LiveShop";
   destacado = yo.cuenta.destacado || null;
   productos = normalizarProductos(yo.productos);
+  promos = yo.promos || [];
+  LS.reloj.sync(yo.ahora);
   loadSession(yo.conversaciones);
   applyCuenta(yo.cuenta);
 
   $("maxLbl").textContent = MAX_VIEWERS;
   $("titleInput").value = titulo;
   renderEmojis();
+  resetForm();
   renderProds();
+  renderHot();
+  OFERTAS.render();
   checkPayload();
   renderBuyers();
   renderConv();
@@ -1716,6 +2059,26 @@ async function boot(){
   }
   refreshToday();
 }
+/* ===================== modales compartidos ===================== */
+function abrirInfo(html){
+  $("infoBox").innerHTML = html;
+  $("infoScrim").classList.add("open");
+  const f = $("infoBox").querySelector("button,a");
+  if (f) setTimeout(() => f.focus(), 30);
+}
+function cerrarInfo(){ $("infoScrim").classList.remove("open"); }
+$("infoScrim").addEventListener("click", (e) => {
+  if (e.target === $("infoScrim") || e.target.closest("[data-cerrar]")) cerrarInfo();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  ["infoScrim", "promoScrim", "payScrim"].forEach(id => $(id).classList.remove("open"));
+});
+
+OFERTAS.init();
+VENTAS.init();
+REPORTES.init();
+
 $("bootRetry").addEventListener("click", boot);
 boot();
 </script>

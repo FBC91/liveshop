@@ -29,8 +29,25 @@ window.LS = (function(){
     solo_admin: "Esta sección es solo para el administrador.",
     solo_demo: "Solo la cuenta demo puede restaurar el catálogo de ejemplo.",
     ref_invalida: "Referencia de pago inválida.",
+    producto_inexistente: "Ese producto ya no está en el catálogo.",
+    orden_invalida: "Completá el concepto y un monto mayor a cero.",
+    orden_inexistente: "No encontramos ese link de pago. Pedile al vendedor que te lo reenvíe.",
+    orden_cerrada: "Este link de pago ya no está disponible (venció o fue anulado). Pedile uno nuevo al vendedor.",
+    cupon_invalido: "Ese código no existe o ya no está vigente.",
+    promo_invalida: "Revisá la oferta: el descuento va de 1% a 90% y el precio de oferta tiene que ser menor al de lista.",
+    promo_existente: "Ese producto ya tiene una oferta activa.",
     red: "No hay conexión con el servidor. Revisá tu internet y probá de nuevo."
   };
+
+  /* Lista cerrada: si cada vendedor escribiera la suya ("remeras", "Remeras",
+     "tops"), los filtros entre tiendas no funcionarian. */
+  const CATEGORIAS = [
+    {id:"ropa", nombre:"Ropa"}, {id:"calzado", nombre:"Calzado"}, {id:"accesorios", nombre:"Accesorios"},
+    {id:"tecnologia", nombre:"Tecnología"}, {id:"hogar", nombre:"Hogar"}, {id:"belleza", nombre:"Belleza"},
+    {id:"deportes", nombre:"Deportes"}, {id:"ninos", nombre:"Niños"}, {id:"otros", nombre:"Otros"}
+  ];
+  const catNombre = id => (CATEGORIAS.find(c => c.id === id) || CATEGORIAS[CATEGORIAS.length - 1]).nombre;
+  const PROMO_NOMBRE = {descuento:"Oferta", remanente:"Liquidación", relampago:"Oferta relámpago", cupon:"Cupón del live"};
 
   function fail(code, raw){
     const err = new Error(MENSAJES[code] || raw || code);
@@ -104,5 +121,111 @@ window.LS = (function(){
     return ((parts[0] || "?")[0] + (parts[1] ? parts[1][0] : "")).toUpperCase();
   }
 
-  return {SB_URL, SB_KEY, MAX_VIEWERS, rpc, token, setToken, clearToken, esc, money, cleanRoom, shrink, initials};
+  /* Sin tildes ni mayusculas, para buscar "telefono" y encontrar "Teléfono". */
+  const norm = s => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+
+  /* Reloj del servidor. Los contadores de las ofertas usan el fin que guarda la
+     base: si cada navegador usara su propia hora, dos compradores verian
+     terminar la misma oferta en momentos distintos. */
+  const reloj = {
+    offset:0,
+    sync(iso){ const t = new Date(iso).getTime(); if (t) this.offset = t - Date.now(); },
+    now(){ return Date.now() + this.offset; }
+  };
+
+  /* Misma regla que liveshop__aplicar en la base. Solo sirve para mostrar: el
+     precio que se cobra lo calcula siempre la base al crear la orden. */
+  function aplicar(lista, pct, precio){
+    lista = Number(lista) || 0;
+    if (pct != null) return Math.round(lista * (100 - Number(pct)) / 100);
+    if (precio != null) return Math.min(Number(precio), lista);
+    return lista;
+  }
+  function promoVigente(promo){
+    return !!promo && (!promo.fin || new Date(promo.fin).getTime() > reloj.now()) &&
+           (promo.restantes == null || Number(promo.restantes) > 0);
+  }
+  /* Producto publico (sala/directorio): precio = final, precio_lista = original */
+  function precioActual(p){
+    return promoVigente(p.promo) ? Number(p.precio) : Number(p.precio_lista != null ? p.precio_lista : p.precio);
+  }
+  function pctPromo(p){
+    const lista = Number(p.precio_lista) || 0;
+    if (!promoVigente(p.promo) || !lista) return 0;
+    return Math.round((1 - Number(p.precio) / lista) * 100);
+  }
+
+  /* "09:41" bajo una hora, "2 h 05 min" bajo un dia, "3 días" despues */
+  function restante(ms){
+    if (ms <= 0) return "0:00";
+    const s = Math.floor(ms / 1000);
+    if (s < 3600) return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+    if (s < 86400) return Math.floor(s / 3600) + " h " + String(Math.floor(s % 3600 / 60)).padStart(2, "0") + " min";
+    const d = Math.round(s / 86400);
+    return d + (d === 1 ? " día" : " días");
+  }
+
+  const fecha = iso => {
+    const d = new Date(iso);
+    return d.toLocaleDateString("es-UY", {day:"2-digit", month:"2-digit"}) + " " +
+           d.toLocaleTimeString("es-UY", {hour:"2-digit", minute:"2-digit"});
+  };
+  const fechaLarga = iso => new Date(iso).toLocaleString("es-UY",
+    {day:"numeric", month:"long", year:"numeric", hour:"2-digit", minute:"2-digit"});
+
+  /* Variacion contra el periodo anterior: un numero suelto no dice nada. */
+  function cambio(actual, anterior){
+    const a = Number(actual) || 0, b = Number(anterior) || 0;
+    if (!b) return a ? {txt:"nuevo", dir:"up"} : {txt:"sin cambios", dir:"eq"};
+    const p = Math.round((a - b) / b * 100);
+    if (p === 0) return {txt:"= que antes", dir:"eq"};
+    return {txt:(p > 0 ? "↑ " : "↓ ") + Math.abs(p) + "%", dir:p > 0 ? "up" : "down"};
+  }
+
+  /* CSV para Excel en español: separador ";" y BOM para que respete las tildes. */
+  function csv(filas, columnas){
+    const q = v => {
+      const s = v == null ? "" : String(v);
+      return /[";\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    };
+    return "﻿" + [columnas.map(c => q(c.titulo)).join(";")]
+      .concat(filas.map(f => columnas.map(c => q(c.valor(f))).join(";"))).join("\r\n");
+  }
+  function descargar(nombre, texto, tipo){
+    const url = URL.createObjectURL(new Blob([texto], {type:tipo || "text/csv;charset=utf-8"}));
+    const a = document.createElement("a");
+    a.href = url; a.download = nombre;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  /* El comprador no tiene cuenta: sus compras y favoritos viven en este
+     navegador. Se avisa en pantalla. */
+  function leer(k, def){ try{ return JSON.parse(localStorage.getItem(k)) || def; }catch(e){ return def; } }
+  function guardar(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+  const compras = {
+    listar(){ return leer("liveshop_compras", []); },
+    agregar(c){
+      const lista = this.listar().filter(x => !(x.ref === c.ref && x.sala === c.sala));
+      lista.unshift(c);
+      guardar("liveshop_compras", lista.slice(0, 50));
+    }
+  };
+  const favs = {
+    todos(){ return leer("liveshop_favs", {}); },
+    de(sala){ return this.todos()[sala] || []; },
+    tiene(sala, id){ return this.de(sala).includes(id); },
+    alternar(sala, id){
+      const t = this.todos();
+      const l = t[sala] || [];
+      t[sala] = l.includes(id) ? l.filter(x => x !== id) : l.concat(id).slice(-40);
+      if (!t[sala].length) delete t[sala];
+      guardar("liveshop_favs", t);
+      return t[sala] ? t[sala].includes(id) : false;
+    }
+  };
+
+  return {SB_URL, SB_KEY, MAX_VIEWERS, CATEGORIAS, PROMO_NOMBRE, rpc, token, setToken, clearToken, esc, money,
+          cleanRoom, shrink, initials, catNombre, norm, reloj, aplicar, promoVigente, precioActual, pctPromo,
+          restante, fecha, fechaLarga, cambio, csv, descargar, compras, favs};
 })();
