@@ -6,7 +6,8 @@ ofertas reales), sin romper la tesis del producto: *ver, preguntar y pagar en
 una sola pantalla*.
 
 - **Fecha:** 13/10/2026
-- **Estado:** propuesta, sin implementar
+- **Estado:** implementado en la rama `feat/ventas-reportes-ofertas` (fases 0 a 4).
+  Falta aplicar la migración en Supabase y publicar. Ver §15 y `HANDOVER.md` Parte VIII.
 - **Base:** código actual de `index.html`, `host/index.html`, `pago/index.html`
   y `sql/001_cuentas_vendedor.sql` (modelo de la Parte VII del `HANDOVER.md`)
 
@@ -740,3 +741,37 @@ suscripción), cuentas de comprador, recomendaciones personalizadas.
   pestaña queda dormida, se resincroniza al volver (`visibilitychange`).
 - **Bajo — peso de la consola.** Ver §10: separar scripts si crece demasiado.
 - **Bajo — datos demo confundidos con reales.** Marca `demo` + toggle en admin.
+
+---
+
+## 15. Estado de la implementación (13/10/2026)
+
+Las cinco fases están hechas y verificadas: 103 checks de SQL, 107 de páginas y una pasada visual en Chrome (desktop y mobile)
+(ver `HANDOVER.md` §36). La consola se separó en `host/ofertas.js`,
+`host/ventas.js` y `host/reportes.js`, como preveía el §10.
+
+**Diferencias con lo planeado:**
+
+- **Campo "RUT / razón social del cliente"** (§4.3): no se agregó. Sin un proveedor
+  de facturación electrónica conectado no tiene uso, y sumaba un campo más al
+  checkout.
+- **"Cuántos se vendieron hoy" en la ficha** (§6.3): no se agregó. Pedía una
+  consulta pública más por producto, y con los volúmenes de la demo casi siempre
+  mostraría 0 o 1.
+- **Reloj del comprador** (§14): en vez de resincronizar con `visibilitychange`, se
+  resincroniza con cada `state` del vendedor y con cada lectura de la sala, del
+  directorio o de las ofertas. La diferencia con el servidor no cambia si la
+  pestaña duerme, así que alcanza.
+- **"Ofertas ahora"** (§6.5): grilla en vez de carrusel, igual que los resultados
+  de búsqueda, para que se pueda recorrer con teclado sin animación.
+- **Filtros de la sala** (§6.2): se muestran a partir de 5 productos; con menos,
+  estorban más de lo que ayudan.
+- **Tope de unidades de la relámpago** (§7.1): se cuenta al pagar, no al crear el
+  link. Quien recibió el link durante la oferta paga el precio rebajado aunque el
+  tope ya se haya alcanzado.
+- **Reset diario** (§9): además de la historia, restaura el catálogo de la tienda
+  demo; las sugerencias dependen de sus productos.
+
+**Pendiente:** aplicar `sql/002_ventas_reportes_ofertas.sql` en Supabase,
+publicar el frontend y repetir el flujo a mano en navegadores reales (aspecto
+visual en mobile y desktop, video real).

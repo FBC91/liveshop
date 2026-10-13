@@ -30,17 +30,18 @@ ahí mismo.
 
 ## 2. Las pantallas
 
-El producto son seis vistas. Cada una es una persona distinta en un momento
+El producto son siete vistas. Cada una es una persona distinta en un momento
 distinto.
 
 | Pantalla | Quién la usa | Para qué |
 |---|---|---|
-| `/liveshop/` | El comprador | Ve qué tiendas están en vivo y recorre las demás |
-| `/liveshop/?live=<sala>` | El comprador | Ve el video y el catálogo de una tienda, pregunta, paga |
+| `/liveshop/` | El comprador | Ve qué tiendas están en vivo, busca un artículo en todas y ve las ofertas del momento |
+| `/liveshop/?live=<sala>` | El comprador | Ve el video y el catálogo de una tienda, filtra, pregunta, paga |
 | `/liveshop/vendedor/` | El vendedor | Ingresa o crea su cuenta |
-| `/liveshop/host/` | El vendedor | Transmite, gestiona catálogo y cuenta, responde y cobra |
+| `/liveshop/host/` | El vendedor | Transmite, gestiona catálogo y ofertas, responde, cobra y ve sus ventas y reportes |
 | `/liveshop/admin/` | El administrador | Ve las métricas de todos los vendedores |
 | `/liveshop/pago/` | El comprador | Confirma el pago (simulado) |
+| `/liveshop/pago/comprobante.html` | Ambos | Comprobante imprimible de una compra pagada |
 
 **Para comprar no hace falta cuenta.** Solo los vendedores y el administrador
 ingresan con usuario y contraseña.
@@ -56,6 +57,12 @@ Las dos se restablecen todas las noches y están **protegidas**: no se pueden
 borrar ni cambiar su contraseña (ni, en el caso de la tienda demo, su sala). La
 tienda demo sí deja editar nombre, foto y catálogo, y tiene un botón para volver
 al catálogo de ejemplo.
+
+La tienda demo trae además **dos meses de ventas de ejemplo**, regenerados cada
+noche: lives, ventas, ofertas y algunos casos a propósito (un producto agotado que
+se sigue pidiendo, uno que no se vende hace un mes, links sin cobrar). Sin eso,
+quien entra a mirar vería los reportes en cero. Las ventas de ejemplo están
+marcadas y el administrador puede excluirlas.
 
 ---
 
@@ -75,7 +82,16 @@ pasar directamente el link fijo de su sala.
 **El comprador entra al live.** Ve el video, y debajo el catálogo con precios y
 stock. El vendedor puede "destacar" un producto y en la pantalla del comprador
 aparece marcado como *AHORA* — es el equivalente digital de levantar el producto
-frente a la cámara.
+frente a la cámara. Si la tienda tiene varios productos, arriba hay un buscador,
+categorías, un orden por precio o descuento y la opción de ver solo lo que tiene
+stock. Tocar la foto abre la ficha con la descripción; el corazón lo guarda para
+después.
+
+**Hay ofertas.** Un producto en oferta muestra el precio tachado. Mientras
+transmite, el vendedor puede lanzar una **oferta relámpago** en dos toques: un
+descuento de pocos minutos sobre lo que está mostrando, que al comprador le
+aparece sobre el video con una cuenta regresiva. También puede decir en cámara un
+**código de cupón** que vale solo mientras dura el live.
 
 **El comprador toca "Lo quiero".** Se abre el chat con ese producto fijado arriba:
 miniatura, nombre y precio. El vendedor recibe el mensaje con el producto
@@ -84,13 +100,23 @@ adjunto, así que sabe exactamente de qué le están hablando sin preguntar.
 **Conversan.** Consultas de talle, color, envío, lo que sea.
 
 **El vendedor manda el link de pago.** Elige el producto de la lista de los que
-esa persona consultó, confirma el monto, y le llega al comprador como una
-tarjeta con un botón.
+esa persona consultó y le llega al comprador como una tarjeta con un botón. El
+precio no lo escribe el vendedor: lo calcula el sistema con la oferta que esté
+vigente en ese momento.
 
-**El comprador paga.** Se abre el checkout en otra pestaña. Al confirmar, la
-pestaña se cierra sola y lo devuelve a la transmisión, con el pago ya marcado
-como acreditado en su chat. El vendedor ve la confirmación al instante y el
-stock del producto baja solo.
+**El comprador paga.** Se abre el checkout en otra pestaña, con el desglose y un
+campo para el código del live. Al confirmar, la pestaña se cierra sola y lo
+devuelve a la transmisión, con el pago ya marcado como acreditado en su chat. El
+vendedor ve la confirmación al instante y el stock del producto baja solo. El
+comprador puede abrir su **comprobante** y encontrarlo después en *Mis compras*.
+
+**Después del live.** En la pestaña **Ventas** el vendedor ve qué vendió, a quién
+y a qué precio, los links que quedaron sin pagar (para reenviarlos o anularlos) y
+el cierre de cada mes, y lo puede bajar a Excel. En **Reportes** ve qué productos
+se venden, cuáles se piden y no se venden, qué live funcionó y a qué hora le
+compran, y una lista corta de cosas para hacer hoy — reponer lo agotado que se
+sigue pidiendo, liquidar lo que no se mueve, cobrar lo pendiente — cada una con
+un botón que la resuelve.
 
 > El checkout es **simulado**. No se pide ni se procesa ningún dato de tarjeta y
 > no se mueve dinero real. Es una demo de portfolio, no una tienda.
@@ -234,6 +260,42 @@ ahí.
 vendedor y dejaba huérfano el link de pago que le habían mandado. Al vendedor le
 borraba todas las conversaciones en curso.
 
+### El precio lo decide el sistema, no la URL
+
+El link de pago solo dice *qué orden* pagar. El monto, el descuento y el producto
+se leen de la base de datos.
+
+*Por qué:* antes el monto viajaba en la dirección del checkout y cualquiera podía
+cambiarlo. Con ofertas de por medio eso era inaceptable. Además, el pago ahora se
+registra aunque el vendedor haya cerrado su consola: antes, esa venta se perdía.
+
+### Cada número viene con algo para hacer
+
+Los reportes no terminan en un gráfico: "12 personas pidieron la mochila y está
+agotada" trae un botón *Reponer*; "el reloj no se vende hace un mes" trae *Poner
+en liquidación*.
+
+*Por qué:* un vendedor que transmite no tiene tiempo de interpretar tablas. Los
+reportes alimentan las ofertas, y las ofertas vuelven a los reportes con su
+resultado: cuánto vendió cada una y cuánto costó el descuento.
+
+### Las ofertas no se acumulan
+
+Un producto tiene una sola oferta a la vez. El cupón del live es la única
+excepción, y nunca deja el precio por debajo de la mitad.
+
+*Por qué:* dos descuentos encimados son difíciles de explicar al comprador y
+fáciles de configurar mal. Si el vendedor cargó el costo del producto, la consola
+le avisa cuando una oferta lo deja vendiendo a pérdida (avisa, no lo impide:
+liquidar a pérdida a veces es la decisión correcta).
+
+### Las categorías son una lista fija
+
+Ropa, calzado, accesorios, tecnología, hogar, belleza, deportes, niños y otros.
+
+*Por qué:* si cada vendedor escribiera la suya ("remeras", "Remeras", "tops"),
+buscar por categoría entre tiendas no funcionaría.
+
 ### El checkout devuelve a la transmisión
 
 Al confirmar el pago, la pestaña se cierra sola y el foco vuelve al live.
@@ -280,6 +342,13 @@ Las fotos de los productos viajan dentro del mensaje del catálogo, y ese mensaj
 tiene un límite. La consola avisa cuando se está acercando y sugiere usar emojis
 en lugar de fotos.
 
+### El comprobante no es una factura
+
+En Uruguay la factura válida es el comprobante electrónico de DGI (e-Ticket o
+e-Factura), que se emite a través de un proveedor habilitado. Igual que el cobro
+real, queda fuera de una demo. El comprobante lo aclara, y cada venta ya guarda
+todo lo que esa factura necesitaría.
+
 ### La cuenta demo la comparten todos
 
 Cualquier visitante puede vaciarle el catálogo a la tienda demo. Por eso tiene un
@@ -297,14 +366,24 @@ lo advierte. En un producto real esa cuenta no existiría.
 
 ## 7. Cómo se mide
 
-Cada vendedor tiene sus propias métricas: entradas a su sala, compradores únicos,
-clics en "Lo quiero", mensajes, links de pago, pagos, facturado, conversión,
-transmisiones, pico de espectadores y porcentaje de conexiones de video que
-funcionaron. Se ven en su consola, pestaña **Métricas**, por hoy, 7, 30 o 90 días.
+Cada vendedor tiene sus propios números, en dos pestañas de su consola:
 
-El **administrador** ve lo mismo para todos los vendedores: los totales
-agrupados, la evolución día por día, y una tabla con una fila por vendedor que al
-tocarla muestra su detalle.
+- **Ventas:** facturado, cantidad de ventas, ticket promedio, plata pendiente de
+  cobro y lo que costaron los descuentos, siempre comparado con el período
+  anterior. Debajo, cada venta con su estado, el cierre por mes y la exportación
+  a Excel.
+- **Reportes:** el embudo (cuántos entraron, cuántos pidieron algo, cuántos
+  recibieron link, cuántos pagaron), el facturado día por día, el ranking de
+  productos (más vendidos, más pedidos, más quietos, con ganancia si cargó el
+  costo), cada live con lo que vendió, un mapa de qué día y a qué hora le compran,
+  y el resultado de cada oferta.
+
+Los días se cuentan en hora de Montevideo: una venta a las 23:30 cae en ese día,
+no en el siguiente.
+
+El **administrador** ve los totales de todos los vendedores, la evolución día por
+día, y una tabla con una fila por vendedor que al tocarla muestra su detalle.
+Puede excluir las ventas de ejemplo de la tienda demo.
 
 **Sobre privacidad:** las métricas no guardan nombres ni direcciones IP. Las
 conversaciones sí se guardan, porque el vendedor necesita recuperarlas desde otro

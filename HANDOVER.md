@@ -10,7 +10,7 @@ referencia exhaustiva.
 - **Producción:** https://facundobolani.com/liveshop/
 - **Repositorio:** https://github.com/FBC91/liveshop (repo propio con GitHub Pages; antes vivía en la carpeta `liveshop/` de FBC91.github.io)
 - **Ruta local:** `C:\Users\facun\liveshop\`
-- **Último estado documentado:** cuentas de vendedor, 16 de septiembre de 2026 (ver Parte VII)
+- **Último estado documentado:** ventas, reportes, filtros y ofertas, 13 de octubre de 2026 (ver Parte VIII)
 - **Autor:** Facundo Bolani
 
 > **Cambio de modelo (16/09/2026).** LiveShop pasó de "sin cuentas, catálogo en el
@@ -18,6 +18,13 @@ referencia exhaustiva.
 > Postgres, una sala fija por vendedor, directorio de lives y panel de admin".
 > La **Parte VII** describe el modelo nuevo y manda sobre cualquier sección
 > anterior que la contradiga.
+>
+> **Ventas, reportes y ofertas (13/10/2026).** Las ventas pasan a ser órdenes en
+> la base (`liveshop_ordenes`), el precio lo calcula la base, el checkout ya no
+> recibe el monto por URL, y se suman pestañas de Ventas y Reportes, ofertas
+> (descuento, liquidación, relámpago, cupón) y filtros para el comprador. La
+> **Parte VIII** manda sobre las anteriores. El plan que lo motivó está en
+> `PLAN_MEJORAS.md`.
 
 ---
 
@@ -521,6 +528,10 @@ Storage.
 
 ## 23. Trabajo pendiente
 
+**Aplicar `sql/002_ventas_reportes_ofertas.sql` en Supabase ANTES de publicar el
+frontend de la Parte VIII** (ver §35). Si la 001 tampoco está aplicada, va
+primero.
+
 **Aplicar `sql/001_cuentas_vendedor.sql` en Supabase ANTES de publicar el
 frontend nuevo.** Sin esas tablas y funciones, las páginas nuevas no cargan
 catálogos, no permiten login y el directorio queda vacío. Ver sección 28.
@@ -709,6 +720,163 @@ pgcrypto), con los mismos roles `anon` y `authenticated`:
 **No verificado:** el comportamiento contra el Supabase real (encabezados de IP,
 `pg_cron`, permisos por defecto del proyecto) y el video entre dos navegadores
 reales. Conviene repetir el flujo a mano después de instalar.
+
+---
+
+# PARTE VIII — VENTAS, REPORTES Y OFERTAS (octubre 2026)
+
+## 30. Qué cambió
+
+| Antes | Ahora |
+|---|---|
+| La consola armaba el link de pago con el monto y lo mandaba por URL al checkout | La base crea una **orden** (`liveshop_orden_crear`) con el precio de lista menos la promo vigente; el checkout lee la orden (`liveshop_orden_ver`) y la paga (`liveshop_orden_pagar`) |
+| El pago lo registraba la consola al recibir `paid`: con la pestaña cerrada, la venta se perdía | El pago se registra desde el checkout; el broadcast `paid` solo actualiza las pantallas |
+| `liveshop_pagos` con `producto_id` y `monto` | `liveshop_ordenes` con copia del producto, comprador, precio de lista, descuento, promo, cupón, live y estado (`pendiente`, `pagada`, `anulada`, `vencida` a las 24 h). Los pagos viejos se migran |
+| El evento `interes` no decía qué producto | `interes` y el nuevo `vista_producto` guardan `producto_id` |
+| Un live era solo un evento `transmision` | `liveshop_lives`: inicio, fin, pico; cada orden sabe en qué live se creó |
+| Pestaña Métricas con contadores | Pestañas **Ventas** (`host/ventas.js`) y **Reportes** (`host/reportes.js`) |
+| Sin ofertas | `liveshop_promos`: descuento, remanente (liquidación), relámpago y cupón (`host/ofertas.js`) |
+| Productos sin categoría | Categoría de una lista cerrada, descripción (≤280) y costo privado |
+| Catálogo de la sala sin filtros | Búsqueda, categorías, orden, "solo con stock", ficha, favoritos y Mis compras; en el directorio, búsqueda entre tiendas y "Ofertas ahora" |
+| Días en UTC | Días en `America/Montevideo` |
+
+Archivos nuevos: `sql/002_ventas_reportes_ofertas.sql`, `host/ofertas.js`,
+`host/ventas.js`, `host/reportes.js`, `pago/comprobante.html`. Los tres módulos de
+la consola son scripts clásicos (sin build) que se cargan antes del script
+principal y usan sus helpers recién cuando se los llama.
+
+## 31. Precios y promos: las reglas
+
+- **El precio que se cobra lo calcula siempre la base** (`liveshop__aplicar`:
+  `round(lista × (100 − pct) / 100)` o el precio fijo). El navegador usa la misma
+  fórmula (`LS.aplicar`) solo para mostrar.
+- **Una promo de producto abierta por producto** (índice único parcial). Crear
+  otra con `p_reemplazar` cierra la anterior; sin él, `LS:promo_existente`.
+- **El link respeta el precio con que se creó**, aunque la promo termine antes de
+  que se pague (el link vence a las 24 h).
+- **Tope de unidades** de la relámpago: se cuenta al pagar; al llegar, la promo se
+  cierra sola. Links creados durante la promo y pagados después del tope igual
+  pagan el precio rebajado: es una decisión, para no cambiarle el precio a quien
+  ya tenía el link.
+- **Cupón:** atado al live (`live_id`), se cierra al terminar la transmisión (o al
+  iniciar la siguiente si la pestaña se cerró sin terminar). Se aplica sobre el
+  precio ya rebajado, con tope total de 50% sobre el de lista.
+- **Promos vencidas** quedan con `terminada_at` nulo hasta que alguna función de
+  la consola las cierra (`liveshop__cerrar_promos`); todas las lecturas usan
+  `liveshop__promo_vigente`, así que nunca se muestran ni se aplican.
+- **Costo** nunca sale por una función pública: `liveshop__catalogo_json` solo lo
+  incluye con `p_privado`, y la consola lo saca del `state` que transmite.
+
+## 32. Funciones nuevas
+
+| Pública (sin token) | Con token de vendedor |
+|---|---|
+| `liveshop_orden_ver`, `liveshop_orden_pagar`, `liveshop_ofertas`, `liveshop_buscar` | `liveshop_orden_crear`, `liveshop_orden_estado`, `liveshop_orden_anular`, `liveshop_ventas`, `liveshop_reporte_resumen`, `liveshop_reporte_productos`, `liveshop_reporte_producto`, `liveshop_reporte_lives`, `liveshop_promo_crear`, `liveshop_promo_terminar`, `liveshop_promos`, `liveshop_live_iniciar`, `liveshop_live_terminar` |
+
+Reescritas: `liveshop_yo` (suma `promos` y `ahora`), `liveshop_sala` (suma
+`ahora`; productos con precio final, de lista y promo), `liveshop_directorio`,
+`liveshop_catalogo_guardar` (categoría, descripción, costo; conserva
+`creado_at`; cierra la promo de un producto borrado), `liveshop_evento` (cuarto
+parámetro opcional `p_producto_id`), `liveshop_evento_host` (el pico también va al
+live abierto), `liveshop_metricas` y `liveshop_metricas_admin` (leen de órdenes;
+la de admin suma `p_sin_demo` y `descuentos`), `liveshop_pago_registrar` (queda
+por compatibilidad con consolas viejas en caché), `liveshop__reset_demo` y
+`liveshop_catalogo_restaurar_demo` (restauran catálogo e historia).
+
+**Firmas que cambiaron:** se borran `liveshop_evento(text,text,text)`,
+`liveshop_metricas_admin(text,int)` y `liveshop__metricas(timestamptz)`. Si alguien
+vuelve a correr la 001, las recrea y PostgREST encuentra dos candidatas: **después
+de la 001 siempre hay que volver a correr la 002.**
+
+## 33. Sugerencias de Reportes
+
+`liveshop__sugerencias` devuelve hasta 6, ordenadas por plata en juego; la consola
+muestra 3 y cada una se puede descartar 7 días (en `localStorage`,
+`liveshop_sug_<usuario>`).
+
+| Tipo | Regla | Acción en la consola |
+|---|---|---|
+| `reponer` | stock 0 y ≥ 3 pedidos en 14 días | Edita el producto con el foco en el stock |
+| `liquidar` | stock > 0, ≥ 14 días de alta, sin venta en 30 días, sin promo | Abre la oferta en modo liquidación (en lote si hay varios) |
+| `ultimas` | stock 1–3 y ≥ 1 venta en 7 días | Lo destaca |
+| `precio` | ≥ 5 pedidos y 0 ventas en 14 días | Edita el producto con el foco en el precio |
+| `cobrar` | hay links pendientes | Abre Ventas filtrado por pendientes |
+
+## 34. Historia de ejemplo
+
+`liveshop__seed_historial` (la llaman el reset diario y "Restaurar catálogo
+demo") borra y regenera todo lo marcado `demo` de la tienda demo: ~20 lives en 60
+días (jueves y domingos a la noche, más algunos sueltos), entradas, pedidos,
+vistas, órdenes pagadas y vencidas, una relámpago con su resultado, un descuento
+vigente en lentes, el reloj quieto hace 34 días, la mochila agotada con pedidos,
+la campera que se pide y no se vende y 3 links pendientes de hoy. Usa una semilla
+fija por día: dos visitantes ven lo mismo. Las ventas reales de visitantes en la
+cuenta demo no se tocan. El catálogo demo pasa a tener 8 productos con categoría,
+descripción y costo, y se restaura en el reset diario.
+
+## 35. Instalación
+
+1. Supabase → proyecto `myebxfostbafuogfymqa` → SQL Editor → pegar y ejecutar
+   `sql/002_ventas_reportes_ofertas.sql` completo. Requiere la 001 aplicada. Es
+   idempotente.
+2. Recién después, publicar el frontend (merge a `main`). Un frontend nuevo con la
+   base vieja falla al crear links de pago y al abrir Ventas/Reportes; la base nueva
+   con el frontend viejo sigue funcionando (por eso el orden).
+3. Links de pago enviados antes del cambio (sin orden en la base) dejan de poder
+   pagarse: el checkout dice que no encuentra el link y pide uno nuevo.
+
+## 36. Cómo se verificó
+
+Mismo método que la Parte VII, con PGlite y jsdom:
+
+- **SQL (103 checks):** migración sobre una base con pagos viejos (se migran) y
+  aplicada dos veces; `anon` no lee tablas nuevas ni ejecuta helpers; firmas viejas
+  siguen respondiendo; órdenes (precio de la base, manual, inexistente, de otra
+  sala, pago idempotente, anulada, vencida a las 24 h, stock que no baja de 0);
+  promos (rangos, no se apilan, reemplazo, precio respetado después del fin, tope
+  que cierra la relámpago, vencida que no bloquea, cupón con tope 50%, cupón que
+  muere con el live); live colgado que se cierra a las 6 h; eventos con producto y
+  deduplicados; producto borrado que cierra su promo y sigue en el ranking;
+  ganancia con y sin costo; ventas (totales iguales a métricas, paginado,
+  búsqueda sin tildes, filtro, export, meses, aislamiento entre vendedores); día de
+  Montevideo; sugerencias y lives de la demo; determinismo de la historia; venta
+  real que sobrevive al reset; admin con y sin demo; búsqueda y ofertas públicas
+  sin costo.
+- **Páginas (107 checks):** consola, sala del comprador, checkout, comprobante,
+  directorio y admin cargados a la vez con un bus de Realtime compartido. Recorre:
+  filtros, búsqueda, orden, ficha, favoritos; salir en vivo, lanzar relámpago,
+  banner con cuenta regresiva en el comprador, pedido en "Ahora en tu live", cupón,
+  link de pago con desglose y sin monto en la URL, pago con cupón, stock que baja,
+  orden con live y cupón en la base; pago con la consola cerrada; URL manipulada;
+  comprobante e impresión; Ventas (KPIs, detalle, pendientes, anular en dos
+  toques, CSV, búsqueda); Reportes (sugerencias y sus acciones, ranking, ficha,
+  lives, mapa de calor, resultado de ofertas); oferta con aviso de costo, filtro
+  "en oferta", liquidación en lote; producto nuevo con categoría y costo que no
+  llega al comprador; terminar el live cierra el cupón; Mis compras; directorio
+  con búsqueda, categoría, ofertas y guardados; `?p=` que abre la ficha; admin sin
+  demo. Sin errores de JavaScript.
+- **Pasada visual en Chrome (21 capturas, desktop 1360 px y mobile 390 px):** las
+  mismas páginas con la RPC respondida desde PGlite y Realtime sobre
+  `BroadcastChannel`, con cámara falsa. Corrigió: el reparto del descuento entre
+  cupón y relámpago en el reporte de ofertas (columna `descuento_cupon`), la
+  duración de las promos activas, "Octubre De 2026", el orden del directorio
+  (ofertas debajo del live), el banner relámpago sobre el aviso de "no está
+  transmitiendo" y las sugerencias apretadas en mobile. Sin errores de consola.
+
+**No verificado:** contra el Supabase real, Safari/Firefox y el video real entre
+dos personas.
+
+## 37. Riesgos nuevos
+
+- **Medio — el checkout es público:** quien conozca una ref puede marcarla como
+  pagada. Las refs son 10 caracteres hexadecimales aleatorios. La solución real es
+  el webhook del procesador de pagos.
+- **Medio — catálogo "borrar e insertar":** sigue igual que en la §22; ahora
+  conserva `creado_at` y el costo por id.
+- **Bajo — reloj del comprador:** los contadores usan la hora del servidor que
+  llega con la sala y con cada `state`.
+- **Bajo — el reset diario restaura el catálogo de la tienda demo:** lo que un
+  visitante le haya cargado se pierde a las 06:17 UTC.
 
 ---
 

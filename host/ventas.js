@@ -134,8 +134,9 @@ const VENTAS = (function(){
 
     $("vMeses").innerHTML = data.meses.length ? data.meses.map(m => {
       const [y, mm] = m.mes.split("-");
-      const nombre = new Date(Number(y), Number(mm) - 1, 1).toLocaleDateString("es-UY", {month:"long", year:"numeric"});
-      return '<tr><td style="text-transform:capitalize">' + esc(nombre) + '</td><td class="n">' + m.ventas + '</td>' +
+      const largo = new Date(Number(y), Number(mm) - 1, 1).toLocaleDateString("es-UY", {month:"long", year:"numeric"});
+      const nombre = largo.charAt(0).toUpperCase() + largo.slice(1);   // "Octubre de 2026", no "Octubre De 2026"
+      return '<tr><td>' + esc(nombre) + '</td><td class="n">' + m.ventas + '</td>' +
         '<td class="n">' + money(m.facturado) + '</td><td class="n">' + money(Number(m.facturado) / (m.ventas || 1)) + '</td>' +
         '<td class="n">' + money(m.descuentos) + '</td></tr>';
     }).join("") : '<tr><td colspan="5" class="empty">Sin ventas pagadas en los últimos 12 meses.</td></tr>';

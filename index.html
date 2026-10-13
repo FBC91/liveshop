@@ -633,11 +633,6 @@ ol.try code{font-family:ui-monospace,monospace;font-size:.76rem;background:var(-
       <div class="dir-empty" id="dresMsg" hidden style="margin-top:.8rem"></div>
     </section>
 
-    <section class="dir-section" id="ofertasSec" hidden aria-labelledby="ofertasTitle">
-      <h2 id="ofertasTitle">🏷 Ofertas ahora</h2>
-      <div class="res-grid" id="ofertasGrid"></div>
-    </section>
-
     <section class="dir-section" aria-labelledby="liveTitle">
       <h2 id="liveTitle"><span class="dot" aria-hidden="true"></span>En vivo ahora</h2>
       <div class="live-grid" id="liveGrid"></div>
@@ -645,6 +640,11 @@ ol.try code{font-family:ui-monospace,monospace;font-size:.76rem;background:var(-
         Nadie está transmitiendo en este momento.
         <br><a href="vendedor/">Entrá como vendedor</a> y sé el primero.
       </div>
+    </section>
+
+    <section class="dir-section" id="ofertasSec" hidden aria-labelledby="ofertasTitle">
+      <h2 id="ofertasTitle">🏷️ Ofertas ahora</h2>
+      <div class="res-grid" id="ofertasGrid"></div>
     </section>
 
     <section class="dir-section" aria-labelledby="shopsTitle">
@@ -1419,7 +1419,10 @@ $("fempty").addEventListener("click", (e) => {
 let flashVisto = null;     // id de la relampago que se esta mostrando
 let flashFinTimer = null;
 
+/* El banner es parte del live: con el vendedor sin transmitir taparia el aviso
+   del video. La tarjeta del producto igual muestra el precio rebajado. */
 function relampagoActiva(){
+  if (!state.live) return null;
   return state.productos.find(p => p.promo && p.promo.tipo === "relampago" && LS.promoVigente(p.promo) && p.stock > 0) || null;
 }
 

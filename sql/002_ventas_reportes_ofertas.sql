@@ -116,6 +116,9 @@ create table if not exists public.liveshop_ordenes(
   pagada_at       timestamptz,
   primary key (vendedor_id, ref)
 );
+-- parte del descuento que puso el cupon: sin separarla, el reporte de ofertas
+-- le atribuiria a la relampago lo que desconto el cupon y viceversa
+alter table public.liveshop_ordenes add column if not exists descuento_cupon numeric(12,2) not null default 0;
 create index if not exists liveshop_ordenes_creada_idx on public.liveshop_ordenes(vendedor_id, created_at);
 create index if not exists liveshop_ordenes_pagada_idx on public.liveshop_ordenes(vendedor_id, pagada_at) where estado = 'pagada';
 
@@ -631,7 +634,7 @@ begin
   update liveshop_ordenes
      set estado = 'pagada', pagada_at = now(),
          descuento = descuento + coalesce(cext, 0), total = total - coalesce(cext, 0),
-         cupon = coalesce(ccod, cupon)
+         descuento_cupon = coalesce(cext, 0), cupon = coalesce(ccod, cupon)
    where vendedor_id = v.id and ref = o.ref
    returning * into o;
 
@@ -821,7 +824,8 @@ begin
              'terminada_at', x.terminada_at, 'max_unidades', x.max_unidades, 'vendidas', x.vendidas,
              'activa', liveshop__promo_vigente(x),
              'unidades', m.unidades, 'facturado', m.facturado, 'descuento', m.descuento,
-             'minutos', round(extract(epoch from (coalesce(x.terminada_at, x.fin, now()) - x.inicio)) / 60),
+             -- una promo activa "dura" lo que lleva, no lo que tiene planeado
+             'minutos', round(extract(epoch from (coalesce(x.terminada_at, least(coalesce(x.fin, now()), now())) - x.inicio)) / 60),
              'live_minutos', case when l.id is not null then
                 round(extract(epoch from (coalesce(l.fin, least(now(), l.inicio + interval '6 hours')) - l.inicio)) / 60) end,
              'live_unidades', case when l.id is not null then
@@ -834,7 +838,8 @@ begin
       left join lateral (
         select count(*) filter (where o.estado = 'pagada') as unidades,
                coalesce(sum(o.total) filter (where o.estado = 'pagada'), 0) as facturado,
-               coalesce(sum(o.descuento) filter (where o.estado = 'pagada'), 0) as descuento
+               coalesce(sum(case when x.tipo = 'cupon' then o.descuento_cupon
+                                 else o.descuento - o.descuento_cupon end) filter (where o.estado = 'pagada'), 0) as descuento
           from liveshop_ordenes o
          where o.vendedor_id = v.id and (o.promo_id = x.id or (x.tipo = 'cupon' and o.cupon = x.codigo
                                                                 and o.pagada_at >= x.inicio
